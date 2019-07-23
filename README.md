@@ -1,0 +1,2 @@
+# KubeConfMerge
+Merge multiple kubeconfig
