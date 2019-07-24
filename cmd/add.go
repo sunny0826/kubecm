@@ -1,0 +1,174 @@
+/*
+Copyright © 2019 NAME HERE <EMAIL ADDRESS>
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+package cmd
+
+import (
+	"fmt"
+	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"log"
+	"os"
+	"strings"
+)
+
+var file string
+var name string
+var cover bool
+
+type (
+	Config struct {
+		ApiVersion     string     `yaml:"apiVersion"`
+		Kind           string     `yaml:"kind"`
+		Clusters       []Clusters `yaml:"clusters"`
+		Contexts       []Contexts `yaml:"contexts"`
+		CurrentContext string     `yaml:"current-context"`
+		Users          []Users    `yaml:"users"`
+	}
+	Clusters struct {
+		Cluster Cluster `yaml:"cluster"`
+		Name    string  `yaml:"name"`
+	}
+	Cluster struct {
+		Server                   string `yaml:"server"`
+		CertificateAuthorityData string `yaml:"certificate-authority-data"`
+	}
+	Contexts struct {
+		Context Context `yaml:"context"`
+		Name    string  `yaml:"name"`
+	}
+	Context struct {
+		Cluster string `yaml:"cluster"`
+		User    string `yaml:"user"`
+	}
+	Users struct {
+		Name string `yaml:"name"`
+		User User   `yaml:"user"`
+	}
+	User struct {
+		ClientCertificateData string `yaml:"client-certificate-data"`
+		ClientKeyData         string `yaml:"client-key-data"`
+	}
+)
+
+// addCmd represents the add command
+var addCmd = &cobra.Command{
+	Use:   "add",
+	Short: "Merge configuration file with ./kube/config",
+	Example:`
+# Merge example.yaml with ./kube/config
+kubecm add -f example.yaml 
+
+# Merge example.yaml and name contexts test with ./kube/config
+kubecm add -f example.yaml -n test
+
+# Overwrite the original kubeconfig file
+kubecm add -f example.yaml -c
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if fileExists(file) {
+			cover,_ = cmd.Flags().GetBool("cover")
+			oldYaml := Config{}
+			oldYaml.ReadYaml(cfgFile)
+			addYaml := Config{}
+			addYaml.ReadYaml(file)
+			err := oldYaml.MergeConfig(addYaml)
+			if err != nil {
+				fmt.Println(err)
+			}
+		} else {
+			fmt.Printf("%s file does not exist", file)
+			os.Exit(1)
+		}
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(addCmd)
+	addCmd.Flags().StringVarP(&file, "file", "f", "", "Path to merge kubeconfig files")
+	addCmd.Flags().StringVarP(&name, "name", "n", "", "The name of contexts. if this field is null,it will be named with file name.")
+	addCmd.Flags().BoolP("cover", "c", false, "Overwrite the original kubeconfig file")
+	addCmd.MarkFlagRequired("file")
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path) //os.Stat获取文件信息
+	if err != nil {
+		if os.IsExist(err) {
+			return true
+		}
+		return false
+	}
+	return true
+}
+
+func (c *Config) ReadYaml(f string) {
+	buffer, err := ioutil.ReadFile(f)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	err = yaml.Unmarshal(buffer, &c)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+}
+
+func (c *Config) WriteYaml() {
+	buffer, err := yaml.Marshal(&c)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	if cover {
+		err = ioutil.WriteFile(cfgFile, buffer, 0777)
+	}else {
+		err = ioutil.WriteFile("./config", buffer, 0777)
+	}
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("Successfully")
+	}
+}
+
+func GetName() string {
+	if name == "" {
+		n := strings.Split(file, "/")
+		result := strings.Split(n[len(n)-1], ".")
+		return result[0]
+	} else {
+		return name
+	}
+}
+
+func (c *Config) MergeConfig(a Config) error {
+	name := GetName()
+	for i, obj := range a.Clusters {
+		obj.Name = fmt.Sprintf("%s-cluster-%v", name, i)
+		c.Clusters = append(c.Clusters, obj)
+	}
+	for i, obj := range a.Contexts {
+		obj.Name = fmt.Sprintf("%s-%v", name, i)
+		obj.Context.Cluster = fmt.Sprintf("%s-cluster-%v", name, i)
+		obj.Context.User = fmt.Sprintf("%s-user-%v", name, i)
+		c.Contexts = append(c.Contexts, obj)
+	}
+	for i, obj := range a.Users {
+		obj.Name = fmt.Sprintf("%s-user-%v", name, i)
+		c.Users = append(c.Users, obj)
+	}
+	c.WriteYaml()
+	return nil
+}
