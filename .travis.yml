@@ -1,0 +1,35 @@
+os:
+  - linux
+  - osx
+
+addons:
+  apt:
+    packages:
+      - tree
+  homebrew:
+    packages:
+      - tree
+    update: true
+
+# Only clone the most recent commit.
+git:
+  depth: 1
+
+language: go
+
+env:
+  - GO111MODULE=on
+
+go:
+  - "1.12"
+
+sudo: required
+
+install:
+  - echo "install"
+
+script:
+  - echo "script"
+
+notifications:
+  email: false

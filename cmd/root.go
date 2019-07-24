@@ -31,11 +31,14 @@ var rootCmd = &cobra.Command{
 	Use:   "kubecm",
 	Short: "Merge the kubeconfig file.",
 	Long: `
+Merge multiple kubeconfig
  _          _
 | | ___   _| |__   ___  ___ _ __ ___
 | |/ / | | | '_ \ / _ \/ __| '_ \ _ \
 |   <| |_| | |_) |  __/ (__| | | | | |
 |_|\_\\__,_|_.__/ \___|\___|_| |_| |_|
+
+Find more information at: https://github.com/sunny0826/kubecm
 `,
 }
 
