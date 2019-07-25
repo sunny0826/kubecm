@@ -67,20 +67,20 @@ type (
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Merge configuration file with ./kube/config",
-	Example:`
-# Merge example.yaml with ./kube/config
+	Short: "Merge configuration file with ./kube/config.yaml",
+	Example: `
+# Merge example.yaml with ./kube/config.yaml
 kubecm add -f example.yaml 
 
-# Merge example.yaml and name contexts test with ./kube/config
+# Merge example.yaml and name contexts test with ./kube/config.yaml
 kubecm add -f example.yaml -n test
 
 # Overwrite the original kubeconfig file
 kubecm add -f example.yaml -c
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		if fileExists(file) {
-			cover,_ = cmd.Flags().GetBool("cover")
+		if FileExists(file) {
+			cover, _ = cmd.Flags().GetBool("cover")
 			oldYaml := Config{}
 			oldYaml.ReadYaml(cfgFile)
 			addYaml := Config{}
@@ -104,7 +104,7 @@ func init() {
 	addCmd.MarkFlagRequired("file")
 }
 
-func fileExists(path string) bool {
+func FileExists(path string) bool {
 	_, err := os.Stat(path) //os.Stat获取文件信息
 	if err != nil {
 		if os.IsExist(err) {
@@ -133,8 +133,8 @@ func (c *Config) WriteYaml() {
 	}
 	if cover {
 		err = ioutil.WriteFile(cfgFile, buffer, 0777)
-	}else {
-		err = ioutil.WriteFile("./config", buffer, 0777)
+	} else {
+		err = ioutil.WriteFile("./config.yaml", buffer, 0777)
 	}
 	if err != nil {
 		fmt.Println(err.Error())
@@ -155,12 +155,17 @@ func GetName() string {
 
 func (c *Config) MergeConfig(a Config) error {
 	name := GetName()
+	err := c.Check(name)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
 	for i, obj := range a.Clusters {
 		obj.Name = fmt.Sprintf("%s-cluster-%v", name, i)
 		c.Clusters = append(c.Clusters, obj)
 	}
 	for i, obj := range a.Contexts {
-		obj.Name = fmt.Sprintf("%s-%v", name, i)
+		obj.Name = fmt.Sprintf("%s", name)
 		obj.Context.Cluster = fmt.Sprintf("%s-cluster-%v", name, i)
 		obj.Context.User = fmt.Sprintf("%s-user-%v", name, i)
 		c.Contexts = append(c.Contexts, obj)
@@ -170,5 +175,14 @@ func (c *Config) MergeConfig(a Config) error {
 		c.Users = append(c.Users, obj)
 	}
 	c.WriteYaml()
+	return nil
+}
+
+func (c *Config) Check(name string) error {
+	for _, old := range c.Contexts {
+		if old.Name == name {
+			return fmt.Errorf("The name: %s already exists, please replace it.", name)
+		}
+	}
 	return nil
 }

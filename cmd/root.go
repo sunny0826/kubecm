@@ -56,7 +56,7 @@ func init() {
 func initConfig() {
 	home, err := homedir.Dir()
 	kubeconfig := flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", *kubeconfig, "config file (default is $HOME/.kubecm.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", *kubeconfig, "config.yaml file (default is $HOME/.kubecm.yaml)")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

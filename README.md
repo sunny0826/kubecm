@@ -32,10 +32,10 @@ Usage:
 
 Examples:
 
-# Merge example.yaml with ./kube/config
+config.yaml
 kubecm add -f example.yaml 
 
-# Merge example.yaml and name contexts test with ./kube/config
+config.yaml
 kubecm add -f example.yaml -n test
 
 # Overwrite the original kubeconfig file
