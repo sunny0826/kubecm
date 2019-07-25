@@ -67,12 +67,12 @@ type (
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Merge configuration file with ./kube/config.yaml",
+	Short: "Merge configuration file with ./kube/config",
 	Example: `
-# Merge example.yaml with ./kube/config.yaml
+# Merge example.yaml with ./kube/config
 kubecm add -f example.yaml 
 
-# Merge example.yaml and name contexts test with ./kube/config.yaml
+# Merge example.yaml and name contexts test with ./kube/config
 kubecm add -f example.yaml -n test
 
 # Overwrite the original kubeconfig file

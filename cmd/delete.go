@@ -27,7 +27,7 @@ var deleteCmd = &cobra.Command{
 	Short: "Delete the specified context from the kubeconfig",
 	Long:  `Delete the specified context from the kubeconfig`,
 	Example: `
-  # Delete the context for the minikube cluster
+  # Delete the context
   kubecm delete my-context
 `,
 	Run: func(cmd *cobra.Command, args []string) {
