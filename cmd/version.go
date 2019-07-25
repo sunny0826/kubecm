@@ -67,8 +67,8 @@ func (v version) Print(w io.Writer) {
 func Version(w io.Writer) *cobra.Command {
 	return &cobra.Command{
 		Use:     "version",
-		Short:   "Prints the huamal version",
-		Example: "hamal version",
+		Short:   "Prints the kubecm version",
+		Example: "kubecm version",
 		Run: func(cmd *cobra.Command, args []string) {
 			getVersion().Print(w)
 		},
