@@ -25,7 +25,7 @@ import (
 )
 
 var (
-	hamalVersion = "unknown"
+	kubecmVersion = "unknown"
 	goos         = runtime.GOOS
 	goarch       = runtime.GOARCH
 	gitCommit    = "$Format:%H$" // sha1 from git, output of $(git rev-parse HEAD)
@@ -36,7 +36,7 @@ var (
 // version returns the version of kustomize.
 type version struct {
 	// KustomizeVersion is a kustomize binary version.
-	HamaleVersion string `json:"hamalVersion"`
+	kubecmVersion string `json:"hamalVersion"`
 	// GitCommit is a git commit
 	GitCommit string `json:"gitCommit"`
 	// BuildDate is a build date of the binary.
@@ -50,7 +50,7 @@ type version struct {
 // getVersion returns version.
 func getVersion() version {
 	return version{
-		hamalVersion,
+		kubecmVersion,
 		gitCommit,
 		buildDate,
 		goos,
