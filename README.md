@@ -20,17 +20,17 @@ Usage:
   kubecm [command]
 
 Available Commands:
-  add         Merge configuration file with ./kube/config.yaml
+  add         Merge configuration file with ./kube/config
   delete      Delete the specified context from the kubeconfig
   get         Displays one or many contexts from the kubeconfig file.
   help        Help about any command
-  version     Prints the huamal version
+  use         Sets the current-context in a kubeconfig file
+  version     Prints the kubecm version
 
 Flags:
   -h, --help   help for kubecm
 
 Use "kubecm [command] --help" for more information about a command.
-
 ```
 
 ## Quick Start
