@@ -98,6 +98,13 @@ $ kubecm get
 kubecm delete my-context
 ```
 
+### Set context
+
+```bash
+# Use the context for the test cluster
+kubecm use test
+```
+
 ## Contribute
 
 Feel free to open issues and pull requests. Any feedback is highly appreciated!
