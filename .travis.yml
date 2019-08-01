@@ -40,4 +40,4 @@ deploy:
     condition: $TRAVIS_OS_NAME = linux
 
 notifications:
-  email: false
+  email: true
