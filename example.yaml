@@ -8,10 +8,11 @@ contexts:
   - context:
       cluster: development
       user: developer
+      namespace: frontend
     name: dev-frontend
 current-context: dev-frontend
 kind: Config
-preferences: {}
+preferences: {123}
 users:
   - name: developer
     user:

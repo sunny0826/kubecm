@@ -31,12 +31,12 @@ var cover bool
 
 type (
 	Config struct {
-		ApiVersion     string     `yaml:"apiVersion"`
-		Kind           string     `yaml:"kind"`
-		Clusters       []Clusters `yaml:"clusters"`
-		Contexts       []Contexts `yaml:"contexts"`
-		CurrentContext string     `yaml:"current-context"`
-		Users          []Users    `yaml:"users"`
+		ApiVersion     string            `yaml:"apiVersion"`
+		Kind           string            `yaml:"kind"`
+		Clusters       []Clusters        `yaml:"clusters"`
+		Contexts       []Contexts        `yaml:"contexts"`
+		CurrentContext string            `yaml:"current-context"`
+		Users          []Users           `yaml:"users"`
 	}
 	Clusters struct {
 		Cluster Cluster `yaml:"cluster"`
@@ -47,12 +47,13 @@ type (
 		CertificateAuthorityData string `yaml:"certificate-authority-data"`
 	}
 	Contexts struct {
-		Context Context `yaml:"context"`
-		Name    string  `yaml:"name"`
+		Context   Context `yaml:"context"`
+		Name      string  `yaml:"name"`
 	}
 	Context struct {
 		Cluster string `yaml:"cluster"`
 		User    string `yaml:"user"`
+		NameSpace string  `yaml:"namespace,omitempty"`
 	}
 	Users struct {
 		Name string `yaml:"name"`
