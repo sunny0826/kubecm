@@ -12,7 +12,7 @@ contexts:
     name: dev-frontend
 current-context: dev-frontend
 kind: Config
-preferences: {123}
+preferences: {}
 users:
   - name: developer
     user:
