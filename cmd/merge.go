@@ -89,18 +89,19 @@ func (c *Config) MergeAllConfig(a Config, n string) error {
 		fmt.Println(err)
 		os.Exit(-1)
 	}
-	for i, obj := range a.Clusters {
-		obj.Name = fmt.Sprintf("%s-cluster-%v", name, i)
+	suffix := HashSuffix(a)
+	for _, obj := range a.Clusters {
+		obj.Name = fmt.Sprintf("cluster-%v", suffix)
 		c.Clusters = append(c.Clusters, obj)
 	}
-	for i, obj := range a.Contexts {
+	for _, obj := range a.Contexts {
 		obj.Name = fmt.Sprintf("%s", name)
-		obj.Context.Cluster = fmt.Sprintf("%s-cluster-%v", name, i)
-		obj.Context.User = fmt.Sprintf("%s-user-%v", name, i)
+		obj.Context.Cluster = fmt.Sprintf("cluster-%v", suffix)
+		obj.Context.User = fmt.Sprintf("user-%v", suffix)
 		c.Contexts = append(c.Contexts, obj)
 	}
-	for i, obj := range a.Users {
-		obj.Name = fmt.Sprintf("%s-user-%v", name, i)
+	for _, obj := range a.Users {
+		obj.Name = fmt.Sprintf("user-%v", suffix)
 		c.Users = append(c.Users, obj)
 	}
 	return nil
