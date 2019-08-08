@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"k8s.io/client-go/tools/clientcmd"
 	"log"
 	"os"
 	"strings"
@@ -81,12 +82,17 @@ kubecm add -f example.yaml -c
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if FileExists(file) {
+			err := ConfigCheck(file)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 			cover, _ = cmd.Flags().GetBool("cover")
 			oldYaml := Config{}
 			oldYaml.ReadYaml(cfgFile)
 			addYaml := Config{}
 			addYaml.ReadYaml(file)
-			err := oldYaml.MergeConfig(addYaml)
+			err = oldYaml.MergeConfig(addYaml)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -185,6 +191,14 @@ func (c *Config) Check(name string) error {
 		if old.Name == name {
 			return fmt.Errorf("The name: %s already exists, please replace it.", name)
 		}
+	}
+	return nil
+}
+
+func ConfigCheck(kubeconfigPath string) error {
+	_, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
+	if err != nil {
+		return err
 	}
 	return nil
 }

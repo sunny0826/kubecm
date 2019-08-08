@@ -31,7 +31,7 @@ var mergeCmd = &cobra.Command{
 	Use:   "merge",
 	Short: "Merge the kubeconfig files in the specified directory.",
 	Long:  `Merge the kubeconfig files in the specified directory.`,
-	Example:`
+	Example: `
 # Merge kubeconfig in the test directory
 kubecm merge -f test 
 
@@ -41,12 +41,17 @@ kubecm merge -f test -c
 	Run: func(cmd *cobra.Command, args []string) {
 		cover, _ = cmd.Flags().GetBool("cover")
 		files := listFile(folder)
-		fmt.Printf("Loading kubeconfig file:%v \n" , files)
+		fmt.Printf("Loading kubeconfig file: %v \n", files)
 		mergeYaml := Config{}
 		for _, yaml := range files {
+			err := ConfigCheck(yaml)
+			if err != nil {
+				fmt.Printf("Please check kubeconfig file: %v \n%s", yaml, err)
+				os.Exit(1)
+			}
 			tmpYaml := Config{}
 			tmpYaml.ReadYaml(yaml)
-			err := mergeYaml.MergeAllConfig(tmpYaml, yaml)
+			err = mergeYaml.MergeAllConfig(tmpYaml, yaml)
 			if err != nil {
 				fmt.Println(err)
 			}
