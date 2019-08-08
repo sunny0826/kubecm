@@ -17,6 +17,9 @@ package cmd
 
 import (
 	"fmt"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -55,6 +58,7 @@ Sets the current-context in a kubeconfig file
 		} else {
 			fmt.Println("Please input a CONTEXT_NAME.")
 		}
+		ClusterStatus()
 	},
 }
 
@@ -70,4 +74,26 @@ func (c *Config) CheckContext(name string) bool {
 		}
 	}
 	return false
+}
+
+func ClusterStatus() {
+	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	cus, err := clientset.CoreV1().ComponentStatuses().List(metav1.ListOptions{})
+	if err != nil {
+		panic(err.Error())
+	}
+	var names []string
+	for _, k := range cus.Items {
+		names = append(names, k.Name)
+	}
+	fmt.Printf("Cluster check succeeded!\nContains components: %v \n", names)
 }

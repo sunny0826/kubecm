@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/bndr/gotabulate v1.1.2
 	github.com/gogo/protobuf v1.2.1 // indirect
+	github.com/googleapis/gnostic v0.3.0 // indirect
 	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/json-iterator/go v1.1.7 // indirect
 	github.com/mitchellh/go-homedir v1.1.0

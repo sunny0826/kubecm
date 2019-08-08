@@ -48,6 +48,7 @@ var getCmd = &cobra.Command{
 				os.Exit(1)
 			}
 		}
+		ClusterStatus()
 	},
 }
 
