@@ -42,14 +42,23 @@ Sets the current-context in a kubeconfig file
 			kubeYaml := Config{}
 			kubeYaml.ReadYaml(cfgFile)
 			if kubeYaml.CheckContext(context) {
+				tmpContext := kubeYaml.CurrentContext
 				kubeYaml.CurrentContext = context
 				cover = true
 				kubeYaml.WriteYaml()
-				fmt.Println(fmt.Sprintf("Switched to context %s .", context))
-				err := Formatable(nil)
+				err := ClusterStatus()
 				if err != nil {
-					fmt.Println(err)
+					fmt.Printf("Cluster check failure! Please check your kubeconfig.\n%v", err)
+					kubeYaml.CurrentContext = tmpContext
+					kubeYaml.WriteYaml()
 					os.Exit(1)
+				} else {
+					fmt.Println(fmt.Sprintf("Switched to context %s", context))
+					err := Formatable(nil)
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
 				}
 			} else {
 				fmt.Println(fmt.Sprintf("no context exists with the name: %s", context))
@@ -58,7 +67,6 @@ Sets the current-context in a kubeconfig file
 		} else {
 			fmt.Println("Please input a CONTEXT_NAME.")
 		}
-		ClusterStatus()
 	},
 }
 
@@ -76,24 +84,25 @@ func (c *Config) CheckContext(name string) bool {
 	return false
 }
 
-func ClusterStatus() {
+func ClusterStatus() error {
 	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
 	if err != nil {
-		panic(err.Error())
+		return fmt.Errorf(err.Error())
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		panic(err.Error())
+		return fmt.Errorf(err.Error())
 	}
 
 	cus, err := clientset.CoreV1().ComponentStatuses().List(metav1.ListOptions{})
 	if err != nil {
-		panic(err.Error())
+		return fmt.Errorf(err.Error())
 	}
 	var names []string
 	for _, k := range cus.Items {
 		names = append(names, k.Name)
 	}
 	fmt.Printf("Cluster check succeeded!\nContains components: %v \n", names)
+	return nil
 }

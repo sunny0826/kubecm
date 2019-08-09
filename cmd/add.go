@@ -145,8 +145,6 @@ func (c *Config) WriteYaml() {
 	}
 	if err != nil {
 		fmt.Println(err.Error())
-	} else {
-		fmt.Println("Successfully")
 	}
 }
 

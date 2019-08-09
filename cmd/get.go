@@ -48,7 +48,10 @@ var getCmd = &cobra.Command{
 				os.Exit(1)
 			}
 		}
-		ClusterStatus()
+		err := ClusterStatus()
+		if err!=nil {
+			fmt.Printf("Cluster check failure!\n%v", err)
+		}
 	},
 }
 
