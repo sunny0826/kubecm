@@ -25,8 +25,10 @@ Available Commands:
   delete      Delete the specified context from the kubeconfig
   get         Displays one or many contexts from the kubeconfig file.
   help        Help about any command
+  merge       Merge the kubeconfig files in the specified directory.
   use         Sets the current-context in a kubeconfig file
   version     Prints the kubecm version
+
 
 Flags:
   -h, --help   help for kubecm
@@ -67,6 +69,16 @@ kubecm add -f example.yaml -n test
 
 # Overwrite the original kubeconfig file
 kubecm add -f example.yaml -c
+```
+
+### Merge the kubeconfig
+
+```bash
+# Merge kubeconfig in the test directory
+kubecm merge -f test 
+
+# Merge kubeconfig in the test directory and overwrite the original kubeconfig file
+kubecm merge -f test -c
 ```
 
 ### Displays contexts
