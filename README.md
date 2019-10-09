@@ -121,3 +121,13 @@ kubecm use test
 ## Contribute
 
 Feel free to open issues and pull requests. Any feedback is highly appreciated!
+
+## Thanks
+
+- [JetBrains IDEs](https://www.jetbrains.com/?from=kubecm)
+
+<p align="center">
+  <a href="https://www.jetbrains.com/?from=kubecm" title="前往官网了解JetBrains出品的IDEs">
+    <img src="dosc/jetbrains.svg" width="128" alt="JetBrains logo">
+  </a>
+</p>
