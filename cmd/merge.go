@@ -18,7 +18,12 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
 	"os"
+	"sigs.k8s.io/yaml"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -42,27 +47,66 @@ kubecm merge -f test -c
 		cover, _ = cmd.Flags().GetBool("cover")
 		files := listFile(folder)
 		fmt.Printf("Loading kubeconfig file: %v \n", files)
-		mergeYaml := Config{}
+		var loop []string
 		for _, yaml := range files {
-			err := ConfigCheck(yaml)
-			if err != nil {
-				fmt.Printf("Please check kubeconfig file: %v \n%s", yaml, err)
-				os.Exit(1)
-			}
-			tmpYaml := Config{}
-			tmpYaml.ReadYaml(yaml)
-			err = mergeYaml.MergeAllConfig(tmpYaml, yaml)
+			config, err := LoadClientConfig(yaml)
 			if err != nil {
 				fmt.Println(err)
+				os.Exit(-1)
 			}
+			name := NameHandle(yaml)
+			commandLineFile, _ := ioutil.TempFile("", "")
+
+			suffix := HashSuf(config)
+			username := fmt.Sprintf("user-%v", suffix)
+			clustername := fmt.Sprintf("cluster-%v", suffix)
+
+			for key, obj := range config.AuthInfos {
+				config.AuthInfos[username] = obj
+				delete(config.AuthInfos, key)
+				break
+			}
+			for key, obj := range config.Clusters {
+				config.Clusters[clustername] = obj
+				delete(config.Clusters, key)
+				break
+			}
+			for key, obj := range config.Contexts {
+				obj.AuthInfo = username
+				obj.Cluster = clustername
+				config.Contexts[name] = obj
+				delete(config.Contexts, key)
+				break
+			}
+			configType := clientcmdapi.Config{
+				AuthInfos: config.AuthInfos,
+				Clusters:  config.Clusters,
+				Contexts:  config.Contexts,
+			}
+			_ = clientcmd.WriteToFile(configType, commandLineFile.Name())
+			loop = append(loop, commandLineFile.Name())
 		}
-		if cover {
-			fmt.Println("Overwrite the origin kubeconfig file.")
+		loadingRules := &clientcmd.ClientConfigLoadingRules{
+			Precedence: loop,
 		}
-		mergeYaml.ApiVersion = "v1"
-		mergeYaml.Kind = "Config"
-		mergeYaml.CurrentContext = mergeYaml.Contexts[0].Name
-		mergeYaml.WriteYaml()
+		mergedConfig, err := loadingRules.Load()
+		json, err := runtime.Encode(clientcmdlatest.Codec, mergedConfig)
+		if err != nil {
+			fmt.Printf("Unexpected error: %v", err)
+		}
+		output, err := yaml.JSONToYAML(json)
+		if err != nil {
+			fmt.Printf("Unexpected error: %v", err)
+		}
+
+		for _, name := range loop {
+			defer os.Remove(name)
+		}
+
+		err = WriteConfig(output)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 	},
 }
 
@@ -81,35 +125,9 @@ func listFile(folder string) []string {
 			listFile(folder + "/" + file.Name())
 		} else {
 			flist = append(flist, fmt.Sprintf("%s/%s", folder, file.Name()))
-			//fmt.Println(folder + "/" + file.Name())
 		}
 	}
 	return flist
-}
-
-func (c *Config) MergeAllConfig(a Config, n string) error {
-	name := NameHandle(n)
-	err := c.Check(name)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
-	}
-	suffix := HashSuffix(a)
-	for _, obj := range a.Clusters {
-		obj.Name = fmt.Sprintf("cluster-%v", suffix)
-		c.Clusters = append(c.Clusters, obj)
-	}
-	for _, obj := range a.Contexts {
-		obj.Name = fmt.Sprintf("%s", name)
-		obj.Context.Cluster = fmt.Sprintf("cluster-%v", suffix)
-		obj.Context.User = fmt.Sprintf("user-%v", suffix)
-		c.Contexts = append(c.Contexts, obj)
-	}
-	for _, obj := range a.Users {
-		obj.Name = fmt.Sprintf("user-%v", suffix)
-		c.Users = append(c.Users, obj)
-	}
-	return nil
 }
 
 func NameHandle(path string) string {

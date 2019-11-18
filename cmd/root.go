@@ -21,8 +21,6 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
-
-	"github.com/mitchellh/go-homedir"
 )
 
 var cfgFile string
@@ -54,11 +52,13 @@ func init() {
 }
 
 func initConfig() {
-	home, err := homedir.Dir()
-	kubeconfig := flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	kubeconfig := flag.String("kubeconfig", filepath.Join(homeDir(), ".kube", "config"), "(optional) absolute path to the kubeconfig file")
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", *kubeconfig, "config.yaml file (default is $HOME/.kubecm.yaml)")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+}
+
+func homeDir() string {
+	if h := os.Getenv("HOME"); h != "" {
+		return h
 	}
+	return os.Getenv("USERPROFILE") // windows
 }

@@ -49,7 +49,7 @@ var getCmd = &cobra.Command{
 			}
 		}
 		err := ClusterStatus()
-		if err!=nil {
+		if err != nil {
 			fmt.Printf("Cluster check failure!\n%v", err)
 		}
 	},
@@ -60,51 +60,43 @@ func init() {
 	getCmd.SetArgs([]string{""})
 }
 
-func GetContexts() ([]Contexts, string) {
-	c := Config{}
-	c.ReadYaml(cfgFile)
-	return c.Contexts, c.CurrentContext
-}
-
 func Formatable(args []string) error {
-	contexts, curr := GetContexts()
+	config, err := LoadClientConfig(cfgFile)
+	if err != nil {
+		return err
+	}
 	var table [][]string
-	var i int
 	if args == nil {
-		for i = 0; i < len(contexts); i++ {
+		for key, obj := range config.Contexts {
 			var tmp []string
-			if curr == contexts[i].Name {
+			if config.CurrentContext == key {
 				tmp = append(tmp, "*")
 			} else {
 				tmp = append(tmp, "")
 			}
-			tmp = append(tmp, contexts[i].Name)
-			tmp = append(tmp, contexts[i].Context.Cluster)
-			tmp = append(tmp, contexts[i].Context.User)
+			tmp = append(tmp, key)
+			tmp = append(tmp, obj.Cluster)
+			tmp = append(tmp, obj.AuthInfo)
+			tmp = append(tmp, obj.Namespace)
 			table = append(table, tmp)
 		}
 	} else {
-		for i = 0; i < len(contexts); i++ {
+		for key, obj := range config.Contexts {
 			var tmp []string
-			for _, name := range args {
-				if name == contexts[i].Name {
-					if curr == contexts[i].Name {
-						tmp = append(tmp, "*")
-					} else {
-						tmp = append(tmp, "")
-					}
-					tmp = append(tmp, contexts[i].Name)
-					tmp = append(tmp, contexts[i].Context.Cluster)
-					tmp = append(tmp, contexts[i].Context.User)
-					table = append(table, tmp)
-				}
+			if config.CurrentContext == key {
+				tmp = append(tmp, "*")
+				tmp = append(tmp, key)
+				tmp = append(tmp, obj.Cluster)
+				tmp = append(tmp, obj.AuthInfo)
+				tmp = append(tmp, obj.Namespace)
+				table = append(table, tmp)
 			}
 		}
 	}
 
 	if table != nil {
 		tabulate := gotabulate.Create(table)
-		tabulate.SetHeaders([]string{"CURRENT", "NAME", "CLUSTER", "USER"})
+		tabulate.SetHeaders([]string{"CURRENT", "NAME", "CLUSTER", "USER", "Namespace"})
 		// Turn On String Wrapping
 		tabulate.SetWrapStrings(true)
 		// Render the table

@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"os"
 )
 
@@ -32,12 +33,15 @@ var deleteCmd = &cobra.Command{
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 0 {
-			kubeYaml := Config{}
-			kubeYaml.ReadYaml(cfgFile)
-			err := kubeYaml.DeleteContext(args)
+			config, err := LoadClientConfig(cfgFile)
 			if err != nil {
 				fmt.Println(err)
-				os.Exit(1)
+				os.Exit(-1)
+			}
+			err = deleteContext(args, config)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
 			}
 		} else {
 			fmt.Println("Please enter the context you want to delete.")
@@ -50,28 +54,20 @@ func init() {
 	deleteCmd.SetArgs([]string{""})
 }
 
-func (c *Config) DeleteContext(ctxs []string) error {
-	for i, ct := range c.Contexts {
+func deleteContext(ctxs []string, config *clientcmdapi.Config) error {
+	for key, _ := range config.Contexts {
 		for _, ctx := range ctxs {
-			if ct.Name == ctx {
-				fmt.Println(fmt.Sprintf("delete: %s", ctx))
-				c.Contexts = append(c.Contexts[:i], c.Contexts[i+1:]...)
-				user := ct.Context.User
-				cluster := ct.Context.Cluster
-				for j, us := range c.Users {
-					if us.Name == user {
-						c.Users = append(c.Users[:j], c.Users[j+1:]...)
-					}
-				}
-				for k, clu := range c.Clusters {
-					if clu.Name == cluster {
-						c.Clusters = append(c.Clusters[:k], c.Clusters[k+1:]...)
-					}
-				}
+			if ctx == key {
+				delete(config.Contexts, key)
+				break
 			}
 		}
 	}
-	cover = true
-	c.WriteYaml()
+	err := ModifyKubeConfig(config)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Printf("Context delete succeeded!\nDelete: %v \n", ctxs)
 	return nil
 }

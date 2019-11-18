@@ -17,12 +17,13 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
+	"io/ioutil"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"os"
-
-	"github.com/spf13/cobra"
 )
 
 // useCmd represents the use command
@@ -39,30 +40,33 @@ Sets the current-context in a kubeconfig file
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 1 {
 			context := args[0]
-			kubeYaml := Config{}
-			kubeYaml.ReadYaml(cfgFile)
-			if kubeYaml.CheckContext(context) {
-				tmpContext := kubeYaml.CurrentContext
-				kubeYaml.CurrentContext = context
-				cover = true
-				kubeYaml.WriteYaml()
-				err := ClusterStatus()
-				if err != nil {
-					fmt.Printf("Cluster check failure! Please check your kubeconfig.\n%v", err)
-					kubeYaml.CurrentContext = tmpContext
-					kubeYaml.WriteYaml()
-					os.Exit(1)
-				} else {
+			config, err := LoadClientConfig(cfgFile)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
+			var currentContext bool
+			for key, _ := range config.Contexts {
+				if key == context {
+					config.CurrentContext = key
+					currentContext = true
 					fmt.Println(fmt.Sprintf("Switched to context %s", context))
-					err := Formatable(nil)
-					if err != nil {
-						fmt.Println(err)
-						os.Exit(1)
-					}
 				}
-			} else {
+			}
+			if !currentContext {
 				fmt.Println(fmt.Sprintf("no context exists with the name: %s", context))
 				os.Exit(1)
+			} else {
+				err := ModifyKubeConfig(config)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				err = Formatable(nil)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
 			}
 		} else {
 			fmt.Println("Please input a CONTEXT_NAME.")
@@ -75,14 +79,24 @@ func init() {
 	useCmd.SetArgs([]string{""})
 }
 
-func (c *Config) CheckContext(name string) bool {
-	for _, con := range c.Contexts {
-		if con.Name == name {
-			return true
-		}
+func ModifyKubeConfig(config *clientcmdapi.Config) error {
+	commandLineFile, _ := ioutil.TempFile("", "")
+	defer os.Remove(commandLineFile.Name())
+	configType := clientcmdapi.Config{
+		AuthInfos: config.AuthInfos,
+		Clusters:  config.Clusters,
+		Contexts:  config.Contexts,
 	}
-	return false
+	_ = clientcmd.WriteToFile(configType, commandLineFile.Name())
+	pathOptions := clientcmd.NewDefaultPathOptions()
+
+	if err := clientcmd.ModifyConfig(pathOptions, *config, true); err != nil {
+		fmt.Println("Unexpected error: %v", err)
+		return err
+	}
+	return nil
 }
+
 
 func ClusterStatus() error {
 	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)

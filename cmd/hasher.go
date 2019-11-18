@@ -19,6 +19,9 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"k8s.io/apimachinery/pkg/runtime"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
 	"reflect"
 	"sort"
 )
@@ -77,12 +80,11 @@ func Struct2Map(obj interface{}) map[string]interface{} {
 }
 
 // HashSuffix return the string of kubeconfig.
-func HashSuffix(a Config) string {
-	tmp := Struct2Map(a)
-	str, err := json.Marshal(tmp)
+func HashSuf(config *clientcmdapi.Config) string {
+	re_json, err := runtime.Encode(clientcmdlatest.Codec, config)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Unexpected error: %v", err)
 	}
-	sum, _ := Encode(Hash(string(str)))
+	sum, _ := Encode(Hash(string(re_json)))
 	return sum
 }

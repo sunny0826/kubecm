@@ -18,53 +18,19 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/clientcmd"
-	"log"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
 	"os"
+	syaml "sigs.k8s.io/yaml"
 	"strings"
 )
 
 var file string
 var name string
 var cover bool
-
-type (
-	Config struct {
-		ApiVersion     string     `yaml:"apiVersion"`
-		Kind           string     `yaml:"kind"`
-		Clusters       []Clusters `yaml:"clusters"`
-		Contexts       []Contexts `yaml:"contexts"`
-		CurrentContext string     `yaml:"current-context"`
-		Users          []Users    `yaml:"users"`
-	}
-	Clusters struct {
-		Cluster Cluster `yaml:"cluster"`
-		Name    string  `yaml:"name"`
-	}
-	Cluster struct {
-		Server                   string `yaml:"server"`
-		CertificateAuthorityData string `yaml:"certificate-authority-data"`
-	}
-	Contexts struct {
-		Context Context `yaml:"context"`
-		Name    string  `yaml:"name"`
-	}
-	Context struct {
-		Cluster   string `yaml:"cluster"`
-		User      string `yaml:"user"`
-		NameSpace string `yaml:"namespace,omitempty"`
-	}
-	Users struct {
-		Name string `yaml:"name"`
-		User User   `yaml:"user"`
-	}
-	User struct {
-		ClientCertificateData string `yaml:"client-certificate-data"`
-		ClientKeyData         string `yaml:"client-key-data"`
-	}
-)
 
 // addCmd represents the add command
 var addCmd = &cobra.Command{
@@ -88,13 +54,14 @@ kubecm add -f example.yaml -c
 				os.Exit(1)
 			}
 			cover, _ = cmd.Flags().GetBool("cover")
-			oldYaml := Config{}
-			oldYaml.ReadYaml(cfgFile)
-			addYaml := Config{}
-			addYaml.ReadYaml(file)
-			err = oldYaml.MergeConfig(addYaml)
+			config, err := GetAddConfig(file)
 			if err != nil {
 				fmt.Println(err)
+			}
+			output := Merge2Master(config)
+			err = WriteConfig(output)
+			if err != nil {
+				fmt.Println(err.Error())
 			}
 		} else {
 			fmt.Printf("%s file does not exist", file)
@@ -111,6 +78,103 @@ func init() {
 	addCmd.MarkFlagRequired("file")
 }
 
+func LoadClientConfig(kubeconfig string) (*clientcmdapi.Config, error) {
+	b, err := ioutil.ReadFile(kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+	config, err := clientcmd.Load(b)
+	if err != nil {
+		return nil, err
+	}
+	return config, nil
+}
+
+func GetAddConfig(kubeconfig string) (*clientcmdapi.Config, error) {
+
+	config, err := LoadClientConfig(kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(config.AuthInfos) != 1 {
+		fmt.Println("Only support add 1 context.")
+		os.Exit(-1)
+	}
+
+	name := GetName()
+	err = NameCheck(name)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
+	suffix := HashSuf(config)
+	username := fmt.Sprintf("user-%v", suffix)
+	clustername := fmt.Sprintf("cluster-%v", suffix)
+
+	for key, obj := range config.AuthInfos {
+		config.AuthInfos[username] = obj
+		delete(config.AuthInfos, key)
+		break
+	}
+	for key, obj := range config.Clusters {
+		config.Clusters[clustername] = obj
+		delete(config.Clusters, key)
+		break
+	}
+	for key, obj := range config.Contexts {
+		obj.AuthInfo = username
+		obj.Cluster = clustername
+		config.Contexts[name] = obj
+		delete(config.Contexts, key)
+		break
+	}
+
+	return config, nil
+}
+
+func Merge2Master(config *clientcmdapi.Config) []byte {
+	commandLineFile, _ := ioutil.TempFile("", "")
+	defer os.Remove(commandLineFile.Name())
+	configType := clientcmdapi.Config{
+		AuthInfos: config.AuthInfos,
+		Clusters:  config.Clusters,
+		Contexts:  config.Contexts,
+	}
+	_ = clientcmd.WriteToFile(configType, commandLineFile.Name())
+	loadingRules := &clientcmd.ClientConfigLoadingRules{
+		Precedence: []string{cfgFile, commandLineFile.Name()},
+	}
+
+	mergedConfig, err := loadingRules.Load()
+
+	json, err := runtime.Encode(clientcmdlatest.Codec, mergedConfig)
+	if err != nil {
+		fmt.Printf("Unexpected error: %v", err)
+	}
+	output, err := syaml.JSONToYAML(json)
+	if err != nil {
+		fmt.Printf("Unexpected error: %v", err)
+	}
+
+	return output
+}
+
+func WriteConfig(config []byte) error {
+	if cover {
+		err := ioutil.WriteFile(cfgFile, config, 0777)
+		if err != nil {
+			return err
+		}
+	} else {
+		err := ioutil.WriteFile("./config.yaml", config, 0777)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func FileExists(path string) bool {
 	_, err := os.Stat(path) //os.Stat获取文件信息
 	if err != nil {
@@ -120,32 +184,6 @@ func FileExists(path string) bool {
 		return false
 	}
 	return true
-}
-
-func (c *Config) ReadYaml(f string) {
-	buffer, err := ioutil.ReadFile(f)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
-	err = yaml.Unmarshal(buffer, &c)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
-}
-
-func (c *Config) WriteYaml() {
-	buffer, err := yaml.Marshal(&c)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
-	if cover {
-		err = ioutil.WriteFile(cfgFile, buffer, 0777)
-	} else {
-		err = ioutil.WriteFile("./config.yaml", buffer, 0777)
-	}
-	if err != nil {
-		fmt.Println(err.Error())
-	}
 }
 
 func GetName() string {
@@ -158,35 +196,13 @@ func GetName() string {
 	}
 }
 
-func (c *Config) MergeConfig(a Config) error {
-	name := GetName()
-	err := c.Check(name)
+func NameCheck(name string) error {
+	c, err := LoadClientConfig(cfgFile)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
+		return err
 	}
-	suffix := HashSuffix(a)
-	for _, obj := range a.Clusters {
-		obj.Name = fmt.Sprintf("cluster-%v", suffix)
-		c.Clusters = append(c.Clusters, obj)
-	}
-	for _, obj := range a.Contexts {
-		obj.Name = fmt.Sprintf("%s", name)
-		obj.Context.Cluster = fmt.Sprintf("cluster-%v", suffix)
-		obj.Context.User = fmt.Sprintf("user-%v", suffix)
-		c.Contexts = append(c.Contexts, obj)
-	}
-	for _, obj := range a.Users {
-		obj.Name = fmt.Sprintf("user-%v", suffix)
-		c.Users = append(c.Users, obj)
-	}
-	c.WriteYaml()
-	return nil
-}
-
-func (c *Config) Check(name string) error {
-	for _, old := range c.Contexts {
-		if old.Name == name {
+	for key, _ := range c.Contexts {
+		if key == name {
 			return fmt.Errorf("The name: %s already exists, please replace it.", name)
 		}
 	}
