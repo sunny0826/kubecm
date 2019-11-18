@@ -53,9 +53,17 @@ Download the binary:
 curl -Lo kubecm.tar.gz https://github.com/sunny0826/kubecm/releases/download/v${VERSION}/kubecm_${VERSION}_Linux_x86_64.tar.gz
 # macos
 curl -Lo kubecm.tar.gz https://github.com/sunny0826/kubecm/releases/download/v${VERSION}/kubecm_${VERSION}_Darwin_x86_64.tar.gz
+# windows
+curl -Lo kubecm.tar.gz https://github.com/sunny0826/kubecm/releases/download/v${VERSION}/kubecm_${VERSION}_Windows_x86_64.tar.gz
 
+# linux & macos
 tar -zxvf kubecm.tar.gz kubecm
+cd kubecm
 sudo mv kubecm /usr/local/bin/
+
+# windows
+# Unzip kubecm.tar.gz
+# Add the binary in to your $PATH
 ```
 
 ### Add configuration to `./kube/config`
@@ -92,16 +100,15 @@ kubecm get my-context
 
 # example output
 $ kubecm get
-+------------+-----------------------+---------------------------+------------------------+
-|   CURRENT  |          NAME         |          CLUSTER          |          USER          |
-+============+=======================+===========================+========================+
-|      *     |      al_devops        |    al_devops-0-cluster    |    al_devops-0-user    |
-+------------+-----------------------+---------------------------+------------------------+
-|            |       al_prod         |     al_prod-0-cluster     |     al_prod-0-user     |
-+------------+-----------------------+---------------------------+------------------------+
-|            |       al_test         |     al_test-0-cluster     |     al_test-0-user     |
-+------------+-----------------------+---------------------------+------------------------+
-
++------------+-----------------------+-----------------------+--------------------+--------------+
+|   CURRENT  |          NAME         |        CLUSTER        |        USER        |   Namespace  |
++============+=======================+=======================+====================+==============+
+|      *     |         test          |   cluster-28989kd95m  |   user-28989kd95m  |              |
++------------+-----------------------+-----------------------+--------------------+--------------+
+|            |        test-1         |   cluster-7thmtkbk6m  |   user-7thmtkbk6m  |              |
++------------+-----------------------+-----------------------+--------------------+--------------+
+|            |        test-2         |   cluster-4h9m74h8d6  |   user-4h9m74h8d6  |              |
++------------+-----------------------+-----------------------+--------------------+--------------+
 ```
 
 ### Delete context
