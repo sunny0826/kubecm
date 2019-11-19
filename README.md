@@ -5,10 +5,10 @@
 ![GitHub](https://img.shields.io/github/license/sunny0826/kubecm.svg)
 ![GitHub release](https://img.shields.io/github/release/sunny0826/kubecm)
 
-Merge multiple kubeconfig
+KubeConfig Manager
 
 ```bash
-Merge multiple kubeconfig
+KubeConfig Manager
  _          _
 | | ___   _| |__   ___  ___ _ __ ___
 | |/ / | | | '_ \ / _ \/ __| '_ \ _ \
@@ -38,7 +38,7 @@ Use "kubecm [command] --help" for more information about a command.
 
 ## Quick Start
 
-### Install kubecm
+### Install
 
 Homebrew:
 
@@ -118,7 +118,7 @@ $ kubecm get
 kubecm delete my-context
 ```
 
-### Set context
+### Switch context
 
 ```bash
 # Use the context for the test cluster

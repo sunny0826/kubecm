@@ -27,9 +27,9 @@ var cfgFile string
 
 var rootCmd = &cobra.Command{
 	Use:   "kubecm",
-	Short: "Merge the kubeconfig file.",
+	Short: "KubeConfig Manager.",
 	Long: `
-Merge multiple kubeconfig
+KubeConfig Manager
  _          _
 | | ___   _| |__   ___  ___ _ __ ___
 | |/ / | | | '_ \ / _ \/ __| '_ \ _ \
