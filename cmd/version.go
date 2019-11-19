@@ -36,7 +36,7 @@ var (
 // version returns the version of kustomize.
 type version struct {
 	// KustomizeVersion is a kustomize binary version.
-	kubecmVersion string `json:"hamalVersion"`
+	kubecmVersion string `json:"kubecmVersion"`
 	// GitCommit is a git commit
 	GitCommit string `json:"gitCommit"`
 	// BuildDate is a build date of the binary.
