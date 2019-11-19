@@ -54,7 +54,7 @@ kubecm merge -f test -c
 				fmt.Println(err)
 				os.Exit(-1)
 			}
-			name := NameHandle(yaml)
+			name := nameHandle(yaml)
 			commandLineFile, _ := ioutil.TempFile("", "")
 
 			suffix := HashSuf(config)
@@ -130,7 +130,7 @@ func listFile(folder string) []string {
 	return flist
 }
 
-func NameHandle(path string) string {
+func nameHandle(path string) string {
 	n := strings.Split(path, "/")
 	result := strings.Split(n[len(n)-1], ".")
 	return result[0]

@@ -47,18 +47,18 @@ kubecm add -f example.yaml -n test
 kubecm add -f example.yaml -c
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		if FileExists(file) {
-			err := ConfigCheck(file)
+		if fileExists(file) {
+			err := configCheck(file)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
 			cover, _ = cmd.Flags().GetBool("cover")
-			config, err := GetAddConfig(file)
+			config, err := getAddConfig(file)
 			if err != nil {
 				fmt.Println(err)
 			}
-			output := Merge2Master(config)
+			output := merge2Master(config)
 			err = WriteConfig(output)
 			if err != nil {
 				fmt.Println(err.Error())
@@ -78,19 +78,7 @@ func init() {
 	addCmd.MarkFlagRequired("file")
 }
 
-func LoadClientConfig(kubeconfig string) (*clientcmdapi.Config, error) {
-	b, err := ioutil.ReadFile(kubeconfig)
-	if err != nil {
-		return nil, err
-	}
-	config, err := clientcmd.Load(b)
-	if err != nil {
-		return nil, err
-	}
-	return config, nil
-}
-
-func GetAddConfig(kubeconfig string) (*clientcmdapi.Config, error) {
+func getAddConfig(kubeconfig string) (*clientcmdapi.Config, error) {
 
 	config, err := LoadClientConfig(kubeconfig)
 	if err != nil {
@@ -102,8 +90,8 @@ func GetAddConfig(kubeconfig string) (*clientcmdapi.Config, error) {
 		os.Exit(-1)
 	}
 
-	name := GetName()
-	err = NameCheck(name)
+	name := getName()
+	err = nameCheck(name)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(-1)
@@ -133,7 +121,61 @@ func GetAddConfig(kubeconfig string) (*clientcmdapi.Config, error) {
 	return config, nil
 }
 
-func Merge2Master(config *clientcmdapi.Config) []byte {
+func nameCheck(name string) error {
+	c, err := LoadClientConfig(cfgFile)
+	if err != nil {
+		return err
+	}
+	for key, _ := range c.Contexts {
+		if key == name {
+			return fmt.Errorf("The name: %s already exists, please replace it.", name)
+		}
+	}
+	return nil
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path) //os.Stat获取文件信息
+	if err != nil {
+		if os.IsExist(err) {
+			return true
+		}
+		return false
+	}
+	return true
+}
+
+func getName() string {
+	if name == "" {
+		n := strings.Split(file, "/")
+		result := strings.Split(n[len(n)-1], ".")
+		return result[0]
+	} else {
+		return name
+	}
+}
+
+func configCheck(kubeconfigPath string) error {
+	_, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func LoadClientConfig(kubeconfig string) (*clientcmdapi.Config, error) {
+	b, err := ioutil.ReadFile(kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+	config, err := clientcmd.Load(b)
+	if err != nil {
+		return nil, err
+	}
+	return config, nil
+}
+
+func merge2Master(config *clientcmdapi.Config) []byte {
 	commandLineFile, _ := ioutil.TempFile("", "")
 	defer os.Remove(commandLineFile.Name())
 	configType := clientcmdapi.Config{
@@ -171,48 +213,6 @@ func WriteConfig(config []byte) error {
 		if err != nil {
 			return err
 		}
-	}
-	return nil
-}
-
-func FileExists(path string) bool {
-	_, err := os.Stat(path) //os.Stat获取文件信息
-	if err != nil {
-		if os.IsExist(err) {
-			return true
-		}
-		return false
-	}
-	return true
-}
-
-func GetName() string {
-	if name == "" {
-		n := strings.Split(file, "/")
-		result := strings.Split(n[len(n)-1], ".")
-		return result[0]
-	} else {
-		return name
-	}
-}
-
-func NameCheck(name string) error {
-	c, err := LoadClientConfig(cfgFile)
-	if err != nil {
-		return err
-	}
-	for key, _ := range c.Contexts {
-		if key == name {
-			return fmt.Errorf("The name: %s already exists, please replace it.", name)
-		}
-	}
-	return nil
-}
-
-func ConfigCheck(kubeconfigPath string) error {
-	_, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
-	if err != nil {
-		return err
 	}
 	return nil
 }

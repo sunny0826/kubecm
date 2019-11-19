@@ -97,7 +97,6 @@ func ModifyKubeConfig(config *clientcmdapi.Config) error {
 	return nil
 }
 
-
 func ClusterStatus() error {
 	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
 	if err != nil {

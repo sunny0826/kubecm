@@ -22,7 +22,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
-	"reflect"
 	"sort"
 )
 
@@ -65,18 +64,6 @@ func Encode(hex string) (string, error) {
 // Hash returns the hex form of the sha256 of the argument.
 func Hash(data string) string {
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(data)))
-}
-
-// Struct2Map
-func Struct2Map(obj interface{}) map[string]interface{} {
-	t := reflect.TypeOf(obj)
-	v := reflect.ValueOf(obj)
-
-	var data = make(map[string]interface{})
-	for i := 0; i < t.NumField(); i++ {
-		data[t.Field(i).Name] = v.Field(i).Interface()
-	}
-	return data
 }
 
 // HashSuffix return the string of kubeconfig.
