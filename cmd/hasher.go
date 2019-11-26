@@ -17,28 +17,26 @@ package cmd
 
 import (
 	"crypto/sha256"
-	"encoding/json"
 	"fmt"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
-	"sort"
 )
 
 // SortArrayAndComputeHash sorts a string array and
 // returns a hash for it
-func SortArrayAndComputeHash(s []string) (string, error) {
-	sort.Strings(s)
-	data, err := json.Marshal(s)
-	if err != nil {
-		return "", err
-	}
-	return Encode(Hash(string(data)))
-}
+//func SortArrayAndComputeHash(s []string) (string, error) {
+//	sort.Strings(s)
+//	data, err := json.Marshal(s)
+//	if err != nil {
+//		return "", err
+//	}
+//	return hEncode(Hash(string(data)))
+//}
 
 // Copied from https://github.com/kubernetes/kubernetes
 // /blob/master/pkg/kubectl/util/hash/hash.go
-func Encode(hex string) (string, error) {
+func hEncode(hex string) (string, error) {
 	if len(hex) < 10 {
 		return "", fmt.Errorf(
 			"input length must be at least 10")
@@ -72,6 +70,6 @@ func HashSuf(config *clientcmdapi.Config) string {
 	if err != nil {
 		fmt.Printf("Unexpected error: %v", err)
 	}
-	sum, _ := Encode(Hash(string(re_json)))
+	sum, _ := hEncode(Hash(string(re_json)))
 	return sum
 }
