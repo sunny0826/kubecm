@@ -21,7 +21,7 @@ Usage:
   kubecm [command]
 
 Available Commands:
-  add         Merge configuration file with ./kube/config
+  add         Merge configuration file with $HOME/.kube/config
   delete      Delete the specified context from the kubeconfig
   get         Displays one or many contexts from the kubeconfig file.
   help        Help about any command
@@ -67,13 +67,13 @@ sudo mv kubecm /usr/local/bin/
 # Add the binary in to your $PATH
 ```
 
-### Add configuration to `./kube/config`
+### Add configuration to `$HOME/.kube/config`
 
 ```bash
-# Merge example.yaml with ./kube/config.yaml
+# Merge example.yaml with $HOME/.kube/config.yaml
 kubecm add -f example.yaml 
 
-# Merge example.yaml and name contexts test with ./kube/config.yaml
+# Merge example.yaml and name contexts test with $HOME/.kube/config.yaml
 kubecm add -f example.yaml -n test
 
 # Overwrite the original kubeconfig file

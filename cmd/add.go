@@ -35,12 +35,12 @@ var cover bool
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Merge configuration file with ./kube/config",
+	Short: "Merge configuration file with $HOME/.kube/config",
 	Example: `
-# Merge example.yaml with ./kube/config
+# Merge example.yaml with $HOME/.kube/config
 kubecm add -f example.yaml 
 
-# Merge example.yaml and name contexts test with ./kube/config
+# Merge example.yaml and name contexts test with $HOME/.kube/config
 kubecm add -f example.yaml -n test
 
 # Overwrite the original kubeconfig file
