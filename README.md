@@ -26,6 +26,7 @@ Available Commands:
   get         Displays one or many contexts from the kubeconfig file.
   help        Help about any command
   merge       Merge the kubeconfig files in the specified directory.
+  rename      Rename the contexts of kubeconfig
   use         Sets the current-context in a kubeconfig file
   version     Prints the kubecm version
 
@@ -123,6 +124,15 @@ kubecm delete my-context
 ```bash
 # Use the context for the test cluster
 kubecm use test
+```
+
+### Rename context
+
+```bash
+# Renamed dev to test
+kubecm rename -o dev -n test
+# Renamed current-context name to dev
+kubecm rename -n dev -c
 ```
 
 ## Contribute
