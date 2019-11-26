@@ -21,7 +21,9 @@ snapshot:
   name_template: "{{ .Tag }}-rc"
 changelog:
   sort: asc
-  filters:
-    exclude:
-    - '^docs:'
-    - '^test:'
+release:
+  github:
+    owner: sunny0826
+    name: kubecm
+
+  name_template: '{{.ProjectName}}-v{{.Version}}'
