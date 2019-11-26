@@ -1,12 +1,3 @@
-branches:
-  only:
-    - master
-
-cache:
-  directories:
-    - $GOPATH/pkg
-    - $GOPATH/bin
-
 os:
   - linux
   - osx
@@ -37,6 +28,9 @@ sudo: required
 
 install:
   - go install
+
+script:
+  - echo "script"
 
 deploy:
 - provider: script
