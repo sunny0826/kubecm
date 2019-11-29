@@ -85,7 +85,7 @@ Switch Kube Context interactively.
 		}
 
 		prompt := promptui.Select{
-			Label:     "Spicy Level",
+			Label:     "Select Kube Context",
 			Items:     kubeItems,
 			Templates: templates,
 			Size:      4,
