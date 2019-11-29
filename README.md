@@ -5,8 +5,6 @@
 ![GitHub](https://img.shields.io/github/license/sunny0826/kubecm.svg)
 ![GitHub release](https://img.shields.io/github/release/sunny0826/kubecm)
 
-KubeConfig Manager
-
 ```bash
 KubeConfig Manager
  _          _
