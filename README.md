@@ -21,10 +21,11 @@ Usage:
 Available Commands:
   add         Merge configuration file with $HOME/.kube/config
   delete      Delete the specified context from the kubeconfig
-  get         Displays one or many contexts from the kubeconfig file.
+  get         Displays one or many contexts from the kubeconfig file
   help        Help about any command
-  merge       Merge the kubeconfig files in the specified directory.
+  merge       Merge the kubeconfig files in the specified directory
   rename      Rename the contexts of kubeconfig
+  switch      Switch Kube Context interactively
   use         Sets the current-context in a kubeconfig file
   version     Prints the kubecm version
 
@@ -86,6 +87,19 @@ kubecm merge -f test
 
 # Merge kubeconfig in the test directory and overwrite the original kubeconfig file
 kubecm merge -f test -c
+```
+
+### Switch Kube Context interactively
+
+```bash
+# Switch Kube Context interactively
+kubecm switch
+Use the arrow keys to navigate: ↓ ↑ → ← 
+? Select Kube Context: 
+  ▸ test
+    prod
+    devops
+↓   docker-desktop
 ```
 
 ### Displays contexts

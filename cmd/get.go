@@ -25,8 +25,8 @@ import (
 // getCmd represents the get command
 var getCmd = &cobra.Command{
 	Use:   "get",
-	Short: "Displays one or many contexts from the kubeconfig file.",
-	Long:  `Displays one or many contexts from the kubeconfig file.`,
+	Short: "Displays one or many contexts from the kubeconfig file",
+	Long:  `Displays one or many contexts from the kubeconfig file`,
 	Example: `
   # List all the contexts in your kubeconfig file
   kubecm get

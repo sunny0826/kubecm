@@ -34,8 +34,8 @@ var folder string
 // mergeCmd represents the merge command
 var mergeCmd = &cobra.Command{
 	Use:   "merge",
-	Short: "Merge the kubeconfig files in the specified directory.",
-	Long:  `Merge the kubeconfig files in the specified directory.`,
+	Short: "Merge the kubeconfig files in the specified directory",
+	Long:  `Merge the kubeconfig files in the specified directory`,
 	Example: `
 # Merge kubeconfig in the test directory
 kubecm merge -f test 
