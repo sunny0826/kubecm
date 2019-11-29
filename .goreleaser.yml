@@ -15,6 +15,44 @@ archives:
     windows: Windows
     386: i386
     amd64: x86_64
+brews:
+  # 食谱的名称模板
+  # 默认为项目名称
+  - name: program
+
+    # 用于push 的 tap存储库。
+    github:
+      owner: sunny0826
+      name: homebrew-tap
+
+    # 网址模板。
+    # 默认为 "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/sunny0826/kubecm/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+
+
+    # 提交存储库的 Git作者。
+    # 显示默认值。
+    commit_author:
+      name: guoxudong
+      email: guoxudong@keking.cn
+
+    # 您应用的主页。
+    homepage: "https://github.com/sunny0826/kubecm"
+
+    # 你的应用程序的描述。
+    description: "KubeConfig Manager."
+
+    # 设置此项，将阻止goreleaser实际提交更新配方
+    # 替代为，配方文件仅存储在dist文件夹中，
+    # 将push的责任给用户。
+    # 默认值为false。
+    skip_upload: true
+
+    # brew的自定义安装脚本。
+    # 默认为'bin.install "program"'。
+    install: |
+      bin.install "program"
+      ...
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -27,3 +65,4 @@ release:
     name: kubecm
 
   name_template: '{{.ProjectName}}-v{{.Version}}'
+
