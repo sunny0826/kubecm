@@ -94,12 +94,16 @@ kubecm merge -f test -c
 ```bash
 # Switch Kube Context interactively
 kubecm switch
-Use the arrow keys to navigate: ↓ ↑ → ← 
-? Select Kube Context: 
-  ▸ test
-    prod
-    devops
-↓   docker-desktop
+Use the arrow keys to navigate: ↓ ↑ → ←  and / toggles search
+Spicy Level
+  😼 devops
+    test
+↓   prod
+
+--------- Info ----------
+Name:           devops
+Cluster:        cluster-xxxx
+User:           user-xxxx
 ```
 
 ### Displays contexts
