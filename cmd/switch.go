@@ -18,10 +18,23 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 )
+
+type pepper struct {
+	Name     string
+	HeatUnit int
+	Peppers  int
+}
+
+type needle struct {
+	Name    string
+	Cluster string
+	User    string
+}
 
 // switchCmd represents the switch command
 var switchCmd = &cobra.Command{
@@ -40,33 +53,59 @@ Switch Kube Context interactively.
 			fmt.Println(err)
 			os.Exit(-1)
 		}
-		var kubeItems []string
+
+		var kubeItems []needle
 		current := config.CurrentContext
-		for key, _ := range config.Contexts {
+		for key, obj := range config.Contexts {
 			if key != current {
-				kubeItems = append(kubeItems, key)
+				kubeItems = append(kubeItems, needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
 			} else {
-				kubeItems = append([]string{current}, kubeItems...)
+				kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo}}, kubeItems...)
 			}
 		}
-		prompt := promptui.Select{
-			Label: "Select Kube Context",
-			Items: kubeItems,
+
+		templates := &promptui.SelectTemplates{
+			Label:    "{{ . }}",
+			Active:   "\U0001F63C {{ .Name | red }}",
+			Inactive: "  {{ .Name | cyan }}",
+			Selected: "\U0001F638 {{ .Name | green }}",
+			Details: `
+--------- Info ----------
+{{ "Name:" | faint }}	{{ .Name }}
+{{ "Cluster:" | faint }}	{{ .Cluster }}
+{{ "User:" | faint }}	{{ .User }}`,
 		}
 
-		_, result, err := prompt.Run()
+		searcher := func(input string, index int) bool {
+			pepper := kubeItems[index]
+			name := strings.Replace(strings.ToLower(pepper.Name), " ", "", -1)
+			input = strings.Replace(strings.ToLower(input), " ", "", -1)
 
+			return strings.Contains(name, input)
+		}
+
+		prompt := promptui.Select{
+			Label:     "Spicy Level",
+			Items:     kubeItems,
+			Templates: templates,
+			Size:      4,
+			Searcher:  searcher,
+		}
+
+		i, _, err := prompt.Run()
+		kubeName := kubeItems[i].Name
 		if err != nil {
 			fmt.Printf("Prompt failed %v\n", err)
 			return
 		}
-		config.CurrentContext = result
+		config.CurrentContext = kubeName
+
 		err = ModifyKubeConfig(config)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Printf("Switched to context %s\n", result)
+		fmt.Printf("Switched to context %s\n", kubeName)
 		err = Formatable(nil)
 		if err != nil {
 			fmt.Println(err)
