@@ -29,17 +29,35 @@ var deleteCmd = &cobra.Command{
 	Short: "Delete the specified context from the kubeconfig",
 	Long:  `Delete the specified context from the kubeconfig`,
 	Example: `
-  # Delete the context
-  kubecm delete my-context
+# Delete the context interactively
+kubecm delete
+# Delete the context
+kubecm delete my-context
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		config, err := LoadClientConfig(cfgFile)
 		if len(args) != 0 {
-			config, err := LoadClientConfig(cfgFile)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(-1)
 			}
 			err = deleteContext(args, config)
+			if err != nil {
+				Error.Println(err)
+				os.Exit(-1)
+			}
+		} else if len(args) == 0 {
+			var kubeItems []needle
+			for key, obj := range config.Contexts {
+				if key != config.CurrentContext {
+					kubeItems = append(kubeItems, needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
+				} else {
+					kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
+				}
+			}
+			num := SelectUI(kubeItems, "Select The Delete Kube Context")
+			kubeName := kubeItems[num].Name
+			err = deleteContext([]string{kubeName}, config)
 			if err != nil {
 				Error.Println(err)
 				os.Exit(-1)

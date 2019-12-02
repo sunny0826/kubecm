@@ -33,6 +33,7 @@ type needle struct {
 	Name    string
 	Cluster string
 	User    string
+	Center  string
 }
 
 // switchCmd represents the switch command
@@ -52,59 +53,24 @@ Switch Kube Context interactively.
 			Error.Println(err)
 			os.Exit(-1)
 		}
-
 		var kubeItems []needle
 		current := config.CurrentContext
 		for key, obj := range config.Contexts {
 			if key != current {
 				kubeItems = append(kubeItems, needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
 			} else {
-				kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo}}, kubeItems...)
+				kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
 			}
 		}
-
-		templates := &promptui.SelectTemplates{
-			Label:    "{{ . }}",
-			Active:   "\U0001F63C {{ .Name | red }}",
-			Inactive: "  {{ .Name | cyan }}",
-			Selected: "\U0001F638 {{ .Name | green }}",
-			Details: `
---------- Info ----------
-{{ "Name:" | faint }}	{{ .Name }}
-{{ "Cluster:" | faint }}	{{ .Cluster }}
-{{ "User:" | faint }}	{{ .User }}`,
-		}
-
-		searcher := func(input string, index int) bool {
-			pepper := kubeItems[index]
-			name := strings.Replace(strings.ToLower(pepper.Name), " ", "", -1)
-			input = strings.Replace(strings.ToLower(input), " ", "", -1)
-
-			return strings.Contains(name, input)
-		}
-
-		prompt := promptui.Select{
-			Label:     "Select Kube Context",
-			Items:     kubeItems,
-			Templates: templates,
-			Size:      4,
-			Searcher:  searcher,
-		}
-
-		i, _, err := prompt.Run()
-		kubeName := kubeItems[i].Name
-		if err != nil {
-			log.Printf("Prompt failed %v\n", err)
-			return
-		}
+		num := SelectUI(kubeItems, "Select Kube Context")
+		kubeName := kubeItems[num].Name
 		config.CurrentContext = kubeName
-
 		err = ModifyKubeConfig(config)
 		if err != nil {
 			Error.Println(err)
 			os.Exit(1)
 		}
-		log.Printf("Switched to context %s\n", kubeName)
+		log.Printf("Switched to context 「%s」\n", config.CurrentContext)
 		err = Formatable(nil)
 		if err != nil {
 			Error.Println(err)
@@ -156,4 +122,37 @@ func ClusterStatus() error {
 	}
 	log.Printf("Cluster check succeeded!\nContains components: %v \n", names)
 	return nil
+}
+
+func SelectUI(kubeItems []needle, label string) int {
+	templates := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "\U0001F63C {{ .Name | red }}{{ .Center | red}}",
+		Inactive: "  {{ .Name | cyan }}{{ .Center | red}}",
+		Selected: "\U0001F638 {{ .Name | green }}",
+		Details: `
+--------- Info ----------
+{{ "Name:" | faint }}	{{ .Name }}
+{{ "Cluster:" | faint }}	{{ .Cluster }}
+{{ "User:" | faint }}	{{ .User }}`,
+	}
+	searcher := func(input string, index int) bool {
+		pepper := kubeItems[index]
+		name := strings.Replace(strings.ToLower(pepper.Name), " ", "", -1)
+		input = strings.Replace(strings.ToLower(input), " ", "", -1)
+		return strings.Contains(name, input)
+	}
+	prompt := promptui.Select{
+		Label:     label,
+		Items:     kubeItems,
+		Templates: templates,
+		Size:      4,
+		Searcher:  searcher,
+	}
+	i, _, err := prompt.Run()
+	if err != nil {
+		Error.Printf("Prompt failed %v\n", err)
+		os.Exit(-1)
+	}
+	return i
 }

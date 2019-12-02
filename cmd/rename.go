@@ -16,6 +16,9 @@ limitations under the License.
 package cmd
 
 import (
+	"errors"
+	"fmt"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
@@ -29,51 +32,33 @@ var renameCmd = &cobra.Command{
 	Use:   "rename",
 	Short: "Rename the contexts of kubeconfig",
 	Long: `
+# Renamed the context interactively
+kubecm rename
 # Renamed dev to test
 kubecm rename -o dev -n test
 # Renamed current-context name to dev
 kubecm rename -n dev -c
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		cover, _ = cmd.Flags().GetBool("cover")
-		if cover && oldName != "" {
-			log.Println("parameter `-c` and `-n` cannot be set at the same time")
-			os.Exit(1)
-		} else {
-			config, err := LoadClientConfig(cfgFile)
-			if err != nil {
-				Error.Println(err)
-				os.Exit(-1)
-			}
-			if _, ok := config.Contexts[newName]; ok {
-				Error.Printf("the name:%s is exit.",newName)
-				os.Exit(-1)
-			}
-			if cover {
-				for key, obj := range config.Contexts {
-					if current := config.CurrentContext; key == current {
-						config.Contexts[newName] = obj
-						delete(config.Contexts, key)
-						config.CurrentContext = newName
-						log.Printf("Rename %s to %s", key, newName)
-						break
-					}
-				}
-			} else {
-				if obj, ok := config.Contexts[oldName]; ok {
-					config.Contexts[newName] = obj
-					delete(config.Contexts, oldName)
-					if config.CurrentContext == oldName {
-						config.CurrentContext = newName
-					}
+		config, err := LoadClientConfig(cfgFile)
+		if newName == "" && oldName == "" {
+			var kubeItems []needle
+			for key, obj := range config.Contexts {
+				if key != config.CurrentContext {
+					kubeItems = append(kubeItems, needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
 				} else {
-					log.Printf("Can not find context: %s", oldName)
-					err := Formatable(nil)
-					if err != nil {
-						Error.Println(err)
-						os.Exit(1)
-					}
-					os.Exit(-1)
+					kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
+				}
+			}
+			num := SelectUI(kubeItems, "Select The Rename Kube Context")
+			kubeName := kubeItems[num].Name
+			rename := InputStr(kubeName)
+			fmt.Println(rename)
+			if obj, ok := config.Contexts[kubeName]; ok {
+				config.Contexts[rename] = obj
+				delete(config.Contexts, kubeName)
+				if config.CurrentContext == kubeName {
+					config.CurrentContext = rename
 				}
 			}
 			err = ModifyKubeConfig(config)
@@ -81,8 +66,55 @@ kubecm rename -n dev -c
 				Error.Println(err)
 				os.Exit(1)
 			}
+		} else {
+			cover, _ = cmd.Flags().GetBool("cover")
+			if cover && oldName != "" {
+				log.Println("parameter `-c` and `-n` cannot be set at the same time")
+				os.Exit(1)
+			} else {
+				if err != nil {
+					Error.Println(err)
+					os.Exit(-1)
+				}
+				if _, ok := config.Contexts[newName]; ok {
+					Error.Printf("the name:%s is exit.", newName)
+					os.Exit(-1)
+				}
+				if cover {
+					for key, obj := range config.Contexts {
+						if current := config.CurrentContext; key == current {
+							config.Contexts[newName] = obj
+							delete(config.Contexts, key)
+							config.CurrentContext = newName
+							log.Printf("Rename %s to %s", key, newName)
+							break
+						}
+					}
+				} else {
+					if obj, ok := config.Contexts[oldName]; ok {
+						config.Contexts[newName] = obj
+						delete(config.Contexts, oldName)
+						if config.CurrentContext == oldName {
+							config.CurrentContext = newName
+						}
+					} else {
+						log.Printf("Can not find context: %s", oldName)
+						err := Formatable(nil)
+						if err != nil {
+							Error.Println(err)
+							os.Exit(1)
+						}
+						os.Exit(-1)
+					}
+				}
+				err = ModifyKubeConfig(config)
+				if err != nil {
+					Error.Println(err)
+					os.Exit(1)
+				}
+			}
 		}
-		err := Formatable(nil)
+		err = Formatable(nil)
 		if err != nil {
 			Error.Println(err)
 			os.Exit(1)
@@ -95,5 +127,25 @@ func init() {
 	renameCmd.Flags().StringVarP(&oldName, "old", "o", "", "Old context name")
 	renameCmd.Flags().StringVarP(&newName, "new", "n", "", "New context name")
 	renameCmd.Flags().BoolP("cover", "c", false, "")
-	renameCmd.MarkFlagRequired("new")
+}
+
+func InputStr(name string) string {
+	validate := func(input string) error {
+		if len(input) < 3 {
+			return errors.New("Context name must have more than 3 characters")
+		}
+		return nil
+	}
+	prompt := promptui.Prompt{
+		Label:    "Rename",
+		Validate: validate,
+		Default:  name,
+	}
+	result, err := prompt.Run()
+
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		os.Exit(-1)
+	}
+	return result
 }

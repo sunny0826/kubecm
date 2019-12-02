@@ -129,12 +129,16 @@ kubecm delete my-context
 ### Delete context
 
 ```bash
+# Delete the context interactively
+kubecm delete
 # Delete the context
 kubecm delete my-context
 ```
 ### Rename context
 
 ```bash
+# Renamed the context interactively
+kubecm rename
 # Renamed dev to test
 kubecm rename -o dev -n test
 # Renamed current-context name to dev
