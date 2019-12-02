@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"log"
 	"os"
 )
 
@@ -40,7 +41,7 @@ var deleteCmd = &cobra.Command{
 			}
 			err = deleteContext(args, config)
 			if err != nil {
-				fmt.Println(err)
+				Error.Println(err)
 				os.Exit(-1)
 			}
 		} else {
@@ -55,19 +56,18 @@ func init() {
 }
 
 func deleteContext(ctxs []string, config *clientcmdapi.Config) error {
-	for key, _ := range config.Contexts {
-		for _, ctx := range ctxs {
-			if ctx == key {
-				delete(config.Contexts, key)
-				break
-			}
+	for _, ctx := range ctxs {
+		if _, ok := config.Contexts[ctx]; ok {
+			delete(config.Contexts, ctx)
+			log.Printf("Context Delete: %s \n", ctx)
+		} else {
+			Error.Printf("「%s」do not exit.", ctx)
 		}
 	}
 	err := ModifyKubeConfig(config)
 	if err != nil {
-		fmt.Println(err)
+		Error.Println(err)
 		os.Exit(1)
 	}
-	fmt.Printf("Context delete succeeded!\nDelete: %v \n", ctxs)
 	return nil
 }

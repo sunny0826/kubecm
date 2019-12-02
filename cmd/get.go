@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/bndr/gotabulate"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -25,8 +24,8 @@ import (
 // getCmd represents the get command
 var getCmd = &cobra.Command{
 	Use:   "get",
-	Short: "Displays one or many contexts from the kubeconfig file",
-	Long:  `Displays one or many contexts from the kubeconfig file`,
+	Short: "Displays one or many contexts from the kubeconfig file(Will be removed in new version, move to kubecm)",
+	Long:  `Displays one or many contexts from the kubeconfig file(Will be removed in new version, move to kubecm)`,
 	Example: `
   # List all the contexts in your kubeconfig file
   kubecm get
@@ -35,6 +34,7 @@ var getCmd = &cobra.Command{
   kubecm get my-context
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		Warning.Println("This command Will be removed in new version, move to kubecm.")
 		if len(args) == 0 {
 			err := Formatable(nil)
 			if err != nil {
@@ -60,50 +60,50 @@ func init() {
 	getCmd.SetArgs([]string{""})
 }
 
-func Formatable(args []string) error {
-	config, err := LoadClientConfig(cfgFile)
-	if err != nil {
-		return err
-	}
-	var table [][]string
-	if args == nil {
-		for key, obj := range config.Contexts {
-			var tmp []string
-			if config.CurrentContext == key {
-				tmp = append(tmp, "*")
-			} else {
-				tmp = append(tmp, "")
-			}
-			tmp = append(tmp, key)
-			tmp = append(tmp, obj.Cluster)
-			tmp = append(tmp, obj.AuthInfo)
-			tmp = append(tmp, obj.Namespace)
-			table = append(table, tmp)
-		}
-	} else {
-		for key, obj := range config.Contexts {
-			var tmp []string
-			if config.CurrentContext == key {
-				tmp = append(tmp, "*")
-				tmp = append(tmp, key)
-				tmp = append(tmp, obj.Cluster)
-				tmp = append(tmp, obj.AuthInfo)
-				tmp = append(tmp, obj.Namespace)
-				table = append(table, tmp)
-			}
-		}
-	}
-
-	if table != nil {
-		tabulate := gotabulate.Create(table)
-		tabulate.SetHeaders([]string{"CURRENT", "NAME", "CLUSTER", "USER", "Namespace"})
-		// Turn On String Wrapping
-		tabulate.SetWrapStrings(true)
-		// Render the table
-		tabulate.SetAlign("center")
-		fmt.Println(tabulate.Render("grid", "left"))
-	} else {
-		return fmt.Errorf("context %v not found", args)
-	}
-	return nil
-}
+//func Formatable(args []string) error {
+//	config, err := LoadClientConfig(cfgFile)
+//	if err != nil {
+//		return err
+//	}
+//	var table [][]string
+//	if args == nil {
+//		for key, obj := range config.Contexts {
+//			var tmp []string
+//			if config.CurrentContext == key {
+//				tmp = append(tmp, "*")
+//			} else {
+//				tmp = append(tmp, "")
+//			}
+//			tmp = append(tmp, key)
+//			tmp = append(tmp, obj.Cluster)
+//			tmp = append(tmp, obj.AuthInfo)
+//			tmp = append(tmp, obj.Namespace)
+//			table = append(table, tmp)
+//		}
+//	} else {
+//		for key, obj := range config.Contexts {
+//			var tmp []string
+//			if config.CurrentContext == key {
+//				tmp = append(tmp, "*")
+//				tmp = append(tmp, key)
+//				tmp = append(tmp, obj.Cluster)
+//				tmp = append(tmp, obj.AuthInfo)
+//				tmp = append(tmp, obj.Namespace)
+//				table = append(table, tmp)
+//			}
+//		}
+//	}
+//
+//	if table != nil {
+//		tabulate := gotabulate.Create(table)
+//		tabulate.SetHeaders([]string{"CURRENT", "NAME", "CLUSTER", "USER", "Namespace"})
+//		// Turn On String Wrapping
+//		tabulate.SetWrapStrings(true)
+//		// Render the table
+//		tabulate.SetAlign("center")
+//		fmt.Println(tabulate.Render("grid", "left"))
+//	} else {
+//		return fmt.Errorf("context %v not found", args)
+//	}
+//	return nil
+//}

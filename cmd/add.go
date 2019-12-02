@@ -23,6 +23,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
+	"log"
 	"os"
 	syaml "sigs.k8s.io/yaml"
 	"strings"
@@ -50,21 +51,28 @@ kubecm add -f example.yaml -c
 		if fileExists(file) {
 			err := configCheck(file)
 			if err != nil {
-				fmt.Println(err)
+				Error.Println(err)
 				os.Exit(1)
 			}
 			cover, _ = cmd.Flags().GetBool("cover")
 			config, err := getAddConfig(file)
 			if err != nil {
-				fmt.Println(err)
+				Error.Println(err)
 			}
 			output := merge2Master(config)
 			err = WriteConfig(output)
 			if err != nil {
-				fmt.Println(err.Error())
+				Error.Println(err.Error())
+			} else {
+				log.Printf("「%s」 add successful!", file)
+				err = Formatable(nil)
+				if err != nil {
+					log.Println(err)
+					os.Exit(1)
+				}
 			}
 		} else {
-			fmt.Printf("%s file does not exist", file)
+			Error.Printf("%s file does not exist", file)
 			os.Exit(1)
 		}
 	},
@@ -86,14 +94,15 @@ func getAddConfig(kubeconfig string) (*clientcmdapi.Config, error) {
 	}
 
 	if len(config.AuthInfos) != 1 {
-		fmt.Println("Only support add 1 context.")
+		//fmt.Println("Only support add 1 context.")
+		Error.Println("Only support add 1 context.")
 		os.Exit(-1)
 	}
 
 	name := getName()
 	err = nameCheck(name)
 	if err != nil {
-		fmt.Println(err)
+		Error.Println(err)
 		os.Exit(-1)
 	}
 	suffix := HashSuf(config)
@@ -192,11 +201,11 @@ func merge2Master(config *clientcmdapi.Config) []byte {
 
 	json, err := runtime.Encode(clientcmdlatest.Codec, mergedConfig)
 	if err != nil {
-		fmt.Printf("Unexpected error: %v", err)
+		Error.Printf("Unexpected error: %v", err)
 	}
 	output, err := syaml.JSONToYAML(json)
 	if err != nil {
-		fmt.Printf("Unexpected error: %v", err)
+		Error.Printf("Unexpected error: %v", err)
 	}
 
 	return output

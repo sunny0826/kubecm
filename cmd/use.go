@@ -18,26 +18,22 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"io/ioutil"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"os"
 )
 
 // useCmd represents the use command
 var useCmd = &cobra.Command{
 	Use:   "use",
-	Short: "Sets the current-context in a kubeconfig file",
+	Short: "Sets the current-context in a kubeconfig file(Will be removed in new version, please use kubecm swtich)",
 	Example: `
 # Use the context for the test cluster
 kubecm use test
 `,
 	Long: `
-Sets the current-context in a kubeconfig file
+Sets the current-context in a kubeconfig file(Will be removed in new version, please use kubecm swtich)
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		Warning.Println("This command Will be removed in new version, please use kubecm swtich.")
 		if len(args) == 1 {
 			context := args[0]
 			config, err := LoadClientConfig(cfgFile)
@@ -77,45 +73,4 @@ Sets the current-context in a kubeconfig file
 func init() {
 	rootCmd.AddCommand(useCmd)
 	useCmd.SetArgs([]string{""})
-}
-
-func ModifyKubeConfig(config *clientcmdapi.Config) error {
-	commandLineFile, _ := ioutil.TempFile("", "")
-	defer os.Remove(commandLineFile.Name())
-	configType := clientcmdapi.Config{
-		AuthInfos: config.AuthInfos,
-		Clusters:  config.Clusters,
-		Contexts:  config.Contexts,
-	}
-	_ = clientcmd.WriteToFile(configType, commandLineFile.Name())
-	pathOptions := clientcmd.NewDefaultPathOptions()
-
-	if err := clientcmd.ModifyConfig(pathOptions, *config, true); err != nil {
-		fmt.Println("Unexpected error: %v", err)
-		return err
-	}
-	return nil
-}
-
-func ClusterStatus() error {
-	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
-	if err != nil {
-		return fmt.Errorf(err.Error())
-	}
-
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return fmt.Errorf(err.Error())
-	}
-
-	cus, err := clientset.CoreV1().ComponentStatuses().List(metav1.ListOptions{})
-	if err != nil {
-		return fmt.Errorf(err.Error())
-	}
-	var names []string
-	for _, k := range cus.Items {
-		names = append(names, k.Name)
-	}
-	fmt.Printf("Cluster check succeeded!\nContains components: %v \n", names)
-	return nil
 }

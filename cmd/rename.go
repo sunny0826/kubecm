@@ -16,8 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
 )
 
@@ -37,12 +37,16 @@ kubecm rename -n dev -c
 	Run: func(cmd *cobra.Command, args []string) {
 		cover, _ = cmd.Flags().GetBool("cover")
 		if cover && oldName != "" {
-			fmt.Println("parameter `-c` and `-n` cannot be set at the same time")
+			log.Println("parameter `-c` and `-n` cannot be set at the same time")
 			os.Exit(1)
 		} else {
 			config, err := LoadClientConfig(cfgFile)
 			if err != nil {
-				fmt.Println(err)
+				Error.Println(err)
+				os.Exit(-1)
+			}
+			if _, ok := config.Contexts[newName]; ok {
+				Error.Printf("the name:%s is exit.",newName)
 				os.Exit(-1)
 			}
 			if cover {
@@ -51,7 +55,7 @@ kubecm rename -n dev -c
 						config.Contexts[newName] = obj
 						delete(config.Contexts, key)
 						config.CurrentContext = newName
-						fmt.Println(fmt.Sprintf("Rename %s to %s", key, newName))
+						log.Printf("Rename %s to %s", key, newName)
 						break
 					}
 				}
@@ -63,10 +67,10 @@ kubecm rename -n dev -c
 						config.CurrentContext = newName
 					}
 				} else {
-					fmt.Println(fmt.Sprintf("Can not find context: %s", oldName))
+					log.Printf("Can not find context: %s", oldName)
 					err := Formatable(nil)
 					if err != nil {
-						fmt.Println(err)
+						Error.Println(err)
 						os.Exit(1)
 					}
 					os.Exit(-1)
@@ -74,13 +78,13 @@ kubecm rename -n dev -c
 			}
 			err = ModifyKubeConfig(config)
 			if err != nil {
-				fmt.Println(err)
+				Error.Println(err)
 				os.Exit(1)
 			}
 		}
 		err := Formatable(nil)
 		if err != nil {
-			fmt.Println(err)
+			Error.Println(err)
 			os.Exit(1)
 		}
 	},

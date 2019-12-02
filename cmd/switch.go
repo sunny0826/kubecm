@@ -17,18 +17,17 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"strings"
-
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"io/ioutil"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"log"
+	"os"
+	"strings"
 )
-
-type pepper struct {
-	Name     string
-	HeatUnit int
-	Peppers  int
-}
 
 type needle struct {
 	Name    string
@@ -50,7 +49,7 @@ Switch Kube Context interactively.
 	Run: func(cmd *cobra.Command, args []string) {
 		config, err := LoadClientConfig(cfgFile)
 		if err != nil {
-			fmt.Println(err)
+			Error.Println(err)
 			os.Exit(-1)
 		}
 
@@ -95,20 +94,20 @@ Switch Kube Context interactively.
 		i, _, err := prompt.Run()
 		kubeName := kubeItems[i].Name
 		if err != nil {
-			fmt.Printf("Prompt failed %v\n", err)
+			log.Printf("Prompt failed %v\n", err)
 			return
 		}
 		config.CurrentContext = kubeName
 
 		err = ModifyKubeConfig(config)
 		if err != nil {
-			fmt.Println(err)
+			Error.Println(err)
 			os.Exit(1)
 		}
-		fmt.Printf("Switched to context %s\n", kubeName)
+		log.Printf("Switched to context %s\n", kubeName)
 		err = Formatable(nil)
 		if err != nil {
-			fmt.Println(err)
+			Error.Println(err)
 			os.Exit(1)
 		}
 	},
@@ -116,4 +115,45 @@ Switch Kube Context interactively.
 
 func init() {
 	rootCmd.AddCommand(switchCmd)
+}
+
+func ModifyKubeConfig(config *clientcmdapi.Config) error {
+	commandLineFile, _ := ioutil.TempFile("", "")
+	defer os.Remove(commandLineFile.Name())
+	configType := clientcmdapi.Config{
+		AuthInfos: config.AuthInfos,
+		Clusters:  config.Clusters,
+		Contexts:  config.Contexts,
+	}
+	_ = clientcmd.WriteToFile(configType, commandLineFile.Name())
+	pathOptions := clientcmd.NewDefaultPathOptions()
+
+	if err := clientcmd.ModifyConfig(pathOptions, *config, true); err != nil {
+		log.Println("Unexpected error: %v", err)
+		return err
+	}
+	return nil
+}
+
+func ClusterStatus() error {
+	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+
+	cus, err := clientset.CoreV1().ComponentStatuses().List(metav1.ListOptions{})
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+	var names []string
+	for _, k := range cus.Items {
+		names = append(names, k.Name)
+	}
+	log.Printf("Cluster check succeeded!\nContains components: %v \n", names)
+	return nil
 }
