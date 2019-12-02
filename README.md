@@ -16,19 +16,25 @@ KubeConfig Manager
 Find more information at: https://github.com/sunny0826/kubecm
 
 Usage:
+  kubecm [flags]
   kubecm [command]
+
+Examples:
+# List all the contexts in your kubeconfig file
+kubecm
+
 
 Available Commands:
   add         Merge configuration file with $HOME/.kube/config
+  completion  Generates bash/zsh completion scripts
   delete      Delete the specified context from the kubeconfig
-  get         Displays one or many contexts from the kubeconfig file
+  get         Displays one or many contexts from the kubeconfig file(Will be removed in new version, move to kubecm)
   help        Help about any command
   merge       Merge the kubeconfig files in the specified directory
   rename      Rename the contexts of kubeconfig
-  switch      Switch Kube Context interactively
-  use         Sets the current-context in a kubeconfig file
+  switch      Switch Kube Context interactively.
+  use         Sets the current-context in a kubeconfig file(Will be removed in new version, please use kubecm swtich)
   version     Prints the kubecm version
-
 
 Flags:
   -h, --help   help for kubecm
@@ -66,6 +72,23 @@ sudo mv kubecm /usr/local/bin/
 # Add the binary in to your $PATH
 ```
 
+### Auto-Completion
+
+```bash
+# bash
+kubecm completion bash > ~/.kube/kubecm.bash.inc
+printf "
+# kubecm shell completion
+source '$HOME/.kube/kubecm.bash.inc'
+" >> $HOME/.bash_profile
+source $HOME/.bash_profile
+
+# add to $HOME/.zshrc 
+source <(kubecm completion zsh)
+# or
+kubecm completion zsh > "${fpath[1]}/_kubecm"
+```
+
 ### Add configuration to `$HOME/.kube/config`
 
 ```bash
@@ -97,7 +120,7 @@ kubecm switch
 ```
 ![switch](dosc/switch.gif)
 
-### Displays contexts
+### Displays contexts(*Will be removed*)
 
 ```bash
 # List all the contexts in your kubeconfig file
@@ -126,7 +149,7 @@ $ kubecm get
 kubecm delete my-context
 ```
 
-### Switch context
+### Switch context(*Will be removed*)
 
 ```bash
 # Use the context for the test cluster

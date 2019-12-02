@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	zsh "github.com/rsteube/cobra-zsh-gen"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -24,21 +25,27 @@ import (
 var completionCmd = &cobra.Command{
 	Use:   "completion",
 	Short: "Generates bash/zsh completion scripts",
-	Long: `To load completion run
+	Long:  `Output shell completion code for the specified shell (bash or zsh).`,
+	Example: `
+# bash
+kubecm completion bash > ~/.kube/kubecm.bash.inc
+printf "
+# kubecm shell completion
+source '$HOME/.kube/kubecm.bash.inc'
+" >> $HOME/.bash_profile
+source $HOME/.bash_profile
 
-. <(bitbucket completion)
-
-To configure your bash shell to load completions for each session add to your bashrc
-
-# ~/.bashrc or ~/.profile
-. <(bitbucket completion)
+# add to $HOME/.zshrc
+source <(kubecm completion zsh)
+# or
+kubecm completion zsh > "${fpath[1]}/_kubecm"
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		complet := args[0]
 		if complet == "bash" {
 			rootCmd.GenBashCompletion(os.Stdout)
-		}else if complet == "zsh" {
-			rootCmd.GenZshCompletion(os.Stdout)
+		} else if complet == "zsh" {
+			zsh.Wrap(rootCmd).GenZshCompletion(os.Stdout)
 		}
 	},
 }
