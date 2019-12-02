@@ -120,7 +120,28 @@ kubecm switch
 ```
 ![switch](dosc/switch.gif)
 
-### Displays contexts(*Will be removed*)
+### Delete context
+
+```bash
+# Delete the context
+kubecm delete my-context
+```
+### Delete context
+
+```bash
+# Delete the context
+kubecm delete my-context
+```
+### Rename context
+
+```bash
+# Renamed dev to test
+kubecm rename -o dev -n test
+# Renamed current-context name to dev
+kubecm rename -n dev -c
+```
+ 
+### Displays contexts(*Will be removed in new version*)
 
 ```bash
 # List all the contexts in your kubeconfig file
@@ -142,27 +163,11 @@ $ kubecm get
 +------------+-----------------------+-----------------------+--------------------+--------------+
 ```
 
-### Delete context
-
-```bash
-# Delete the context
-kubecm delete my-context
-```
-
-### Switch context(*Will be removed*)
+### Switch context(*Will be removed in new version*)
 
 ```bash
 # Use the context for the test cluster
 kubecm use test
-```
-
-### Rename context
-
-```bash
-# Renamed dev to test
-kubecm rename -o dev -n test
-# Renamed current-context name to dev
-kubecm rename -n dev -c
 ```
 
 ## Contribute
