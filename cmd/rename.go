@@ -53,19 +53,27 @@ kubecm rename -n dev -c
 			num := SelectUI(kubeItems, "Select The Rename Kube Context")
 			kubeName := kubeItems[num].Name
 			rename := InputStr(kubeName)
-			if rename != kubeName{
-				if obj, ok := config.Contexts[kubeName]; ok {
-					config.Contexts[rename] = obj
-					delete(config.Contexts, kubeName)
-					if config.CurrentContext == kubeName {
-						config.CurrentContext = rename
+			if rename != kubeName {
+				if _, ok := config.Contexts[rename]; ok {
+					log.Printf("Name: %s already exists", rename)
+					os.Exit(-1)
+				} else {
+					if obj, ok := config.Contexts[kubeName]; ok {
+						config.Contexts[rename] = obj
+						delete(config.Contexts, kubeName)
+						if config.CurrentContext == kubeName {
+							config.CurrentContext = rename
+						}
+					}
+					err = ModifyKubeConfig(config)
+					if err != nil {
+						Error.Println(err)
+						os.Exit(1)
 					}
 				}
-				err = ModifyKubeConfig(config)
-				if err != nil {
-					Error.Println(err)
-					os.Exit(1)
-				}
+			} else {
+				log.Printf("No name: %s changes", rename)
+				os.Exit(-1)
 			}
 		} else {
 			cover, _ = cmd.Flags().GetBool("cover")
