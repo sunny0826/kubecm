@@ -89,6 +89,10 @@ source <(kubecm completion zsh)
 kubecm completion zsh > "${fpath[1]}/_kubecm"
 ```
 
+### Interactive operation
+
+![Interactive](dosc/Interaction.gif)
+
 ### Add configuration to `$HOME/.kube/config`
 
 ```bash

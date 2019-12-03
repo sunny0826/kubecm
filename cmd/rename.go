@@ -53,7 +53,6 @@ kubecm rename -n dev -c
 			num := SelectUI(kubeItems, "Select The Rename Kube Context")
 			kubeName := kubeItems[num].Name
 			rename := InputStr(kubeName)
-			fmt.Println(rename)
 			if obj, ok := config.Contexts[kubeName]; ok {
 				config.Contexts[rename] = obj
 				delete(config.Contexts, kubeName)
