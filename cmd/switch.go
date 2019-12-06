@@ -129,7 +129,7 @@ func SelectUI(kubeItems []needle, label string) int {
 		Label:    "{{ . }}",
 		Active:   "\U0001F63C {{ .Name | red }}{{ .Center | red}}",
 		Inactive: "  {{ .Name | cyan }}{{ .Center | red}}",
-		Selected: "\U0001F638 {{ .Name | green }}",
+		Selected: "\U0001F638 Select:{{ .Name | green }}",
 		Details: `
 --------- Info ----------
 {{ "Name:" | faint }}	{{ .Name }}

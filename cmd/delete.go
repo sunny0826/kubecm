@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"log"
@@ -57,10 +58,15 @@ kubecm delete my-context
 			}
 			num := SelectUI(kubeItems, "Select The Delete Kube Context")
 			kubeName := kubeItems[num].Name
-			err = deleteContext([]string{kubeName}, config)
-			if err != nil {
-				Error.Println(err)
-				os.Exit(-1)
+			confirm := BoolUI(fmt.Sprintf("Are you sure you want to delete「%s」?", kubeName))
+			if confirm == "True" {
+				err = deleteContext([]string{kubeName}, config)
+				if err != nil {
+					Error.Println(err)
+					os.Exit(-1)
+				}
+			} else {
+				log.Println("Nothing deleted！")
 			}
 		} else {
 			fmt.Println("Please enter the context you want to delete.")
@@ -77,7 +83,7 @@ func deleteContext(ctxs []string, config *clientcmdapi.Config) error {
 	for _, ctx := range ctxs {
 		if _, ok := config.Contexts[ctx]; ok {
 			delete(config.Contexts, ctx)
-			log.Printf("Context Delete: %s \n", ctx)
+			log.Printf("Context Delete:「%s」\n", ctx)
 		} else {
 			Error.Printf("「%s」do not exit.", ctx)
 		}
@@ -88,4 +94,25 @@ func deleteContext(ctxs []string, config *clientcmdapi.Config) error {
 		os.Exit(1)
 	}
 	return nil
+}
+
+func BoolUI(label string) string {
+	templates := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "\U0001F37A {{ . | red }}",
+		Inactive: "  {{ . | cyan }}",
+		Selected: "\U0001F47B {{ . | green }}",
+	}
+	prompt := promptui.Select{
+		Label:     label,
+		Items:     []string{"True", "False"},
+		Templates: templates,
+		Size:      2,
+	}
+	_, obj, err := prompt.Run()
+	if err != nil {
+		Error.Printf("Prompt failed %v\n", err)
+		os.Exit(-1)
+	}
+	return obj
 }
