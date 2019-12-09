@@ -64,8 +64,12 @@ kubecm add -f example.yaml -c
 			if err != nil {
 				Error.Println(err.Error())
 			} else {
-				log.Printf("「%s」 add successful!", file)
-				err = Formatable(nil)
+				if cover {
+					log.Printf("「%s」 add successful!", file)
+					err = Formatable(nil)
+				}else {
+					log.Println("generate ./config.yaml")
+				}
 				if err != nil {
 					log.Println(err)
 					os.Exit(1)
