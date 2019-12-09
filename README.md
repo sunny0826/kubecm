@@ -127,12 +127,6 @@ kubecm switch
 ### Delete context
 
 ```bash
-# Delete the context
-kubecm delete my-context
-```
-### Delete context
-
-```bash
 # Delete the context interactively
 kubecm delete
 # Delete the context
