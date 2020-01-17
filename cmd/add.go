@@ -69,7 +69,7 @@ func (ac *AddCommand) runAdd(command *cobra.Command, args []string) error {
 			Error.Println(err.Error())
 		} else {
 			if cover {
-				ac.command.Printf("「%s」 add successful!", file)
+				ac.command.Printf("「%s」 add successful!\n", file)
 				err = Formatable(nil)
 			} else {
 				ac.command.Println("generate ./config.yaml")

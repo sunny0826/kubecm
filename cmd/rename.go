@@ -94,7 +94,7 @@ func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error 
 						config.Contexts[newName] = obj
 						delete(config.Contexts, key)
 						config.CurrentContext = newName
-						rc.command.Printf("Rename %s to %s", key, newName)
+						rc.command.Printf("Rename %s to %s\n", key, newName)
 						break
 					}
 				}
@@ -106,7 +106,7 @@ func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error 
 						config.CurrentContext = newName
 					}
 				} else {
-					rc.command.Printf("Can not find context: %s", oldName)
+					rc.command.Printf("Can not find context: %s\n", oldName)
 					err := Formatable(nil)
 					if err != nil {
 						log.Fatal(err)
