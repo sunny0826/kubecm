@@ -46,7 +46,7 @@ func (dc *DeleteCommand) runDelete(command *cobra.Command, args []string) error 
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = deleteContext(args, config)
+		err = dc.deleteContext(args, config)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -63,7 +63,7 @@ func (dc *DeleteCommand) runDelete(command *cobra.Command, args []string) error 
 		kubeName := kubeItems[num].Name
 		confirm := BoolUI(fmt.Sprintf("Are you sure you want to delete「%s」?", kubeName))
 		if confirm == "True" {
-			err = deleteContext([]string{kubeName}, config)
+			err = dc.deleteContext([]string{kubeName}, config)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -76,11 +76,11 @@ func (dc *DeleteCommand) runDelete(command *cobra.Command, args []string) error 
 	return nil
 }
 
-func deleteContext(ctxs []string, config *clientcmdapi.Config) error {
+func (dc *DeleteCommand)deleteContext(ctxs []string, config *clientcmdapi.Config) error {
 	for _, ctx := range ctxs {
 		if _, ok := config.Contexts[ctx]; ok {
 			delete(config.Contexts, ctx)
-			log.Printf("Context Delete:「%s」\n", ctx)
+			dc.command.Printf("Context Delete:「%s」\n", ctx)
 		} else {
 			Error.Printf("「%s」do not exit.", ctx)
 		}
