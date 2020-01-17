@@ -23,82 +23,50 @@ import (
 	"os"
 )
 
+type RenameCommand struct {
+	baseCommand
+}
+
 var oldName string
 var newName string
 
-// renameCmd represents the rename command
-var renameCmd = &cobra.Command{
-	Use:   "rename",
-	Short: "Rename the contexts of kubeconfig",
-	Long: renameExample(),
-	Run: func(cmd *cobra.Command, args []string) {
-		config, err := LoadClientConfig(cfgFile)
-		if newName == "" && oldName == "" {
-			var kubeItems []needle
-			for key, obj := range config.Contexts {
-				if key != config.CurrentContext {
-					kubeItems = append(kubeItems, needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
-				} else {
-					kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
-				}
-			}
-			num := SelectUI(kubeItems, "Select The Rename Kube Context")
-			kubeName := kubeItems[num].Name
-			rename := InputStr(kubeName)
-			if rename != kubeName {
-				if _, ok := config.Contexts[rename]; ok {
-					log.Fatal("Name: %s already exists", rename)
-				} else {
-					if obj, ok := config.Contexts[kubeName]; ok {
-						config.Contexts[rename] = obj
-						delete(config.Contexts, kubeName)
-						if config.CurrentContext == kubeName {
-							config.CurrentContext = rename
-						}
-					}
-					err = ModifyKubeConfig(config)
-					if err != nil {
-						log.Fatal(err)
-					}
-				}
+func (rc *RenameCommand) Init() {
+	rc.command = &cobra.Command{
+		Use:   "rename",
+		Short: "Rename the contexts of kubeconfig",
+		Long:  renameExample(),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return rc.runRename(cmd, args)
+		},
+	}
+	rc.command.Flags().StringVarP(&oldName, "old", "o", "", "Old context name")
+	rc.command.Flags().StringVarP(&newName, "new", "n", "", "New context name")
+	rc.command.Flags().BoolP("cover", "c", false, "")
+}
+
+func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error {
+	config, err := LoadClientConfig(cfgFile)
+	if newName == "" && oldName == "" {
+		var kubeItems []needle
+		for key, obj := range config.Contexts {
+			if key != config.CurrentContext {
+				kubeItems = append(kubeItems, needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
 			} else {
-				log.Fatalf("No name: %s changes", rename)
+				kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
 			}
-		} else {
-			cover, _ = cmd.Flags().GetBool("cover")
-			if cover && oldName != "" {
-				log.Fatalln("parameter `-c` and `-n` cannot be set at the same time")
+		}
+		num := SelectUI(kubeItems, "Select The Rename Kube Context")
+		kubeName := kubeItems[num].Name
+		rename := InputStr(kubeName)
+		if rename != kubeName {
+			if _, ok := config.Contexts[rename]; ok {
+				log.Fatal("Name: %s already exists", rename)
 			} else {
-				if err != nil {
-					log.Fatal(err)
-				}
-				if _, ok := config.Contexts[newName]; ok {
-					log.Fatalf("the name:%s is exit.", newName)
-				}
-				if cover {
-					for key, obj := range config.Contexts {
-						if current := config.CurrentContext; key == current {
-							config.Contexts[newName] = obj
-							delete(config.Contexts, key)
-							config.CurrentContext = newName
-							cmd.Printf("Rename %s to %s", key, newName)
-							break
-						}
-					}
-				} else {
-					if obj, ok := config.Contexts[oldName]; ok {
-						config.Contexts[newName] = obj
-						delete(config.Contexts, oldName)
-						if config.CurrentContext == oldName {
-							config.CurrentContext = newName
-						}
-					} else {
-						cmd.Printf("Can not find context: %s", oldName)
-						err := Formatable(nil)
-						if err != nil {
-							log.Fatal(err)
-						}
-						os.Exit(-1)
+				if obj, ok := config.Contexts[kubeName]; ok {
+					config.Contexts[rename] = obj
+					delete(config.Contexts, kubeName)
+					if config.CurrentContext == kubeName {
+						config.CurrentContext = rename
 					}
 				}
 				err = ModifyKubeConfig(config)
@@ -106,19 +74,57 @@ var renameCmd = &cobra.Command{
 					log.Fatal(err)
 				}
 			}
+		} else {
+			log.Fatalf("No name: %s changes", rename)
 		}
-		err = Formatable(nil)
-		if err != nil {
-			log.Fatal(err)
+	} else {
+		cover, _ = rc.command.Flags().GetBool("cover")
+		if cover && oldName != "" {
+			log.Fatalln("parameter `-c` and `-n` cannot be set at the same time")
+		} else {
+			if err != nil {
+				log.Fatal(err)
+			}
+			if _, ok := config.Contexts[newName]; ok {
+				log.Fatalf("the name:%s is exit.", newName)
+			}
+			if cover {
+				for key, obj := range config.Contexts {
+					if current := config.CurrentContext; key == current {
+						config.Contexts[newName] = obj
+						delete(config.Contexts, key)
+						config.CurrentContext = newName
+						rc.command.Printf("Rename %s to %s", key, newName)
+						break
+					}
+				}
+			} else {
+				if obj, ok := config.Contexts[oldName]; ok {
+					config.Contexts[newName] = obj
+					delete(config.Contexts, oldName)
+					if config.CurrentContext == oldName {
+						config.CurrentContext = newName
+					}
+				} else {
+					rc.command.Printf("Can not find context: %s", oldName)
+					err := Formatable(nil)
+					if err != nil {
+						log.Fatal(err)
+					}
+					os.Exit(-1)
+				}
+			}
+			err = ModifyKubeConfig(config)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(renameCmd)
-	renameCmd.Flags().StringVarP(&oldName, "old", "o", "", "Old context name")
-	renameCmd.Flags().StringVarP(&newName, "new", "n", "", "New context name")
-	renameCmd.Flags().BoolP("cover", "c", false, "")
+	}
+	err = Formatable(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return nil
 }
 
 func InputStr(name string) string {

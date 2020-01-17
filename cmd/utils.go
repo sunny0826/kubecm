@@ -20,7 +20,10 @@ import (
 	"fmt"
 	"github.com/bndr/gotabulate"
 	"github.com/manifoldco/promptui"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
 	"log"
@@ -147,4 +150,28 @@ func SelectUI(kubeItems []needle, label string) int {
 		log.Fatalf("Prompt failed %v\n", err)
 	}
 	return i
+}
+
+// ClusterStatus output cluster status
+func ClusterStatus() error {
+	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+
+	cus, err := clientset.CoreV1().ComponentStatuses().List(metav1.ListOptions{})
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+	var names []string
+	for _, k := range cus.Items {
+		names = append(names, k.Name)
+	}
+	log.Printf("Cluster check succeeded!\nContains components: %v \n", names)
+	return nil
 }

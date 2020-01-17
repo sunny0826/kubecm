@@ -31,10 +31,17 @@ var (
 	Error   *log.Logger
 )
 
-var rootCmd = &cobra.Command{
-	Use:   "kubecm",
-	Short: "KubeConfig Manager.",
-	Long: `
+type Cli struct {
+	rootCmd *cobra.Command
+}
+
+//NewCli returns the cli instance used to register and execute command
+func NewCli() *Cli {
+	cli := &Cli{
+		rootCmd: &cobra.Command{
+			Use:   "kubecm",
+			Short: "KubeConfig Manager.",
+			Long: `
 KubeConfig Manager
  _          _
 | | ___   _| |__   ___  ___ _ __ ___
@@ -44,42 +51,44 @@ KubeConfig Manager
 
 Find more information at: https://github.com/sunny0826/kubecm
 `,
-	Example: cliExample(),
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			err := Formatable(nil)
-			if err != nil {
-				log.Fatal(err)
-			}
-		} else {
-			err := Formatable(args)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-		err := ClusterStatus()
-		if err != nil {
-			log.Fatalf("Cluster check failure!\n%v", err)
-		}
-	},
-}
-
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		log.Fatal(err)
+			Example: cliExample(),
+			Run: func(cmd *cobra.Command, args []string) {
+				runCli(cmd, args)
+			},
+		},
 	}
+	cli.rootCmd.SetOutput(os.Stdout)
+	cli.setFlags()
+	return cli
 }
 
-func init() {
-	cobra.OnInitialize(initConfig)
-	Info = log.New(os.Stdout, "Info:", log.Ldate|log.Ltime|log.Lshortfile)
-	Warning = log.New(os.Stdout, "Warning:", log.Ldate|log.Ltime|log.Lshortfile)
-	Error = log.New(os.Stderr, "Error:", log.Ldate|log.Ltime|log.Lshortfile)
-}
-
-func initConfig() {
+func (cli *Cli) setFlags() {
 	kubeconfig := flag.String("kubeconfig", filepath.Join(homeDir(), ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	rootCmd.Flags().StringVar(&cfgFile, "config", *kubeconfig, "config.yaml file (default is $HOME/.kubecm.yaml)")
+	flags := cli.rootCmd.PersistentFlags()
+	flags.StringVar(&cfgFile, "config", *kubeconfig, "config.yaml file (default is $HOME/.kubecm.yaml)")
+}
+
+//Run command
+func (cli *Cli) Run() error {
+	return cli.rootCmd.Execute()
+}
+
+func runCli(cmd *cobra.Command, args []string) {
+	if len(args) == 0 {
+		err := Formatable(nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		err := Formatable(args)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	err := ClusterStatus()
+	if err != nil {
+		log.Fatalf("Cluster check failure!\n%v", err)
+	}
 }
 
 func homeDir() string {

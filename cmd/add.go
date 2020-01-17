@@ -33,49 +33,55 @@ var file string
 var name string
 var cover bool
 
-// addCmd represents the add command
-var addCmd = &cobra.Command{
-	Use:   "add",
-	Short: "Merge configuration file with $HOME/.kube/config",
-	Example: addExample(),
-	Run: func(cmd *cobra.Command, args []string) {
-		if fileExists(file) {
-			err := configCheck(file)
+type AddCommand struct {
+	baseCommand
+}
+
+func (ac *AddCommand) Init() {
+	ac.command = &cobra.Command{
+		Use:     "add",
+		Short:   "Merge configuration file with $HOME/.kube/config",
+		Example: addExample(),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return ac.runAdd(cmd, args)
+		},
+	}
+	ac.command.Flags().StringVarP(&file, "file", "f", "", "Path to merge kubeconfig files")
+	ac.command.Flags().StringVarP(&name, "name", "n", "", "The name of contexts. if this field is null,it will be named with file name.")
+	ac.command.Flags().BoolP("cover", "c", false, "Overwrite the original kubeconfig file")
+	ac.command.MarkFlagRequired("file")
+}
+
+func (ac *AddCommand) runAdd(command *cobra.Command, args []string) error {
+	if fileExists(file) {
+		err := configCheck(file)
+		if err != nil {
+			log.Fatal(err)
+		}
+		cover, _ = ac.command.Flags().GetBool("cover")
+		config, err := getAddConfig(file)
+		if err != nil {
+			Error.Println(err)
+		}
+		output := merge2Master(config)
+		err = WriteConfig(output)
+		if err != nil {
+			Error.Println(err.Error())
+		} else {
+			if cover {
+				ac.command.Printf("「%s」 add successful!", file)
+				err = Formatable(nil)
+			} else {
+				ac.command.Println("generate ./config.yaml")
+			}
 			if err != nil {
 				log.Fatal(err)
 			}
-			cover, _ = cmd.Flags().GetBool("cover")
-			config, err := getAddConfig(file)
-			if err != nil {
-				Error.Println(err)
-			}
-			output := merge2Master(config)
-			err = WriteConfig(output)
-			if err != nil {
-				Error.Println(err.Error())
-			} else {
-				if cover {
-					cmd.Printf("「%s」 add successful!", file)
-					err = Formatable(nil)
-				}else {
-					cmd.Println("generate ./config.yaml")
-				}
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
-		} else {
-			log.Fatalf("%s file does not exist", file)
 		}
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(addCmd)
-	addCmd.Flags().StringVarP(&file, "file", "f", "", "Path to merge kubeconfig files")
-	addCmd.Flags().StringVarP(&name, "name", "n", "", "The name of contexts. if this field is null,it will be named with file name.")
-	addCmd.Flags().BoolP("cover", "c", false, "Overwrite the original kubeconfig file")
-	addCmd.MarkFlagRequired("file")
+	} else {
+		log.Fatalf("%s file does not exist", file)
+	}
+	return nil
 }
 
 func getAddConfig(kubeconfig string) (*clientcmdapi.Config, error) {

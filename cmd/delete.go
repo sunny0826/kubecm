@@ -23,51 +23,57 @@ import (
 	"log"
 )
 
-// deleteCmd represents the delete command
-var deleteCmd = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete the specified context from the kubeconfig",
-	Long:  `Delete the specified context from the kubeconfig`,
-	Example: deleteExample(),
-	Run: func(cmd *cobra.Command, args []string) {
-		config, err := LoadClientConfig(cfgFile)
-		if len(args) != 0 {
-			if err != nil {
-				log.Fatal(err)
-			}
-			err = deleteContext(args, config)
-			if err != nil {
-				log.Fatal(err)
-			}
-		} else if len(args) == 0 {
-			var kubeItems []needle
-			for key, obj := range config.Contexts {
-				if key != config.CurrentContext {
-					kubeItems = append(kubeItems, needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
-				} else {
-					kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
-				}
-			}
-			num := SelectUI(kubeItems, "Select The Delete Kube Context")
-			kubeName := kubeItems[num].Name
-			confirm := BoolUI(fmt.Sprintf("Are you sure you want to delete「%s」?", kubeName))
-			if confirm == "True" {
-				err = deleteContext([]string{kubeName}, config)
-				if err != nil {
-					log.Fatal(err)
-				}
-			} else {
-				cmd.Println("Nothing deleted！")
-			}
-		} else {
-			cmd.Println("Please enter the context you want to delete.")
-		}
-	},
+type DeleteCommand struct {
+	baseCommand
 }
 
-func init() {
-	rootCmd.AddCommand(deleteCmd)
-	deleteCmd.SetArgs([]string{""})
+func (dc *DeleteCommand) Init() {
+	dc.command = &cobra.Command{
+		Use:     "delete",
+		Short:   "Delete the specified context from the kubeconfig",
+		Long:    `Delete the specified context from the kubeconfig`,
+		Example: deleteExample(),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return dc.runDelete(cmd, args)
+		},
+	}
+
+}
+
+func (dc *DeleteCommand) runDelete(command *cobra.Command, args []string) error {
+	config, err := LoadClientConfig(cfgFile)
+	if len(args) != 0 {
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = deleteContext(args, config)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else if len(args) == 0 {
+		var kubeItems []needle
+		for key, obj := range config.Contexts {
+			if key != config.CurrentContext {
+				kubeItems = append(kubeItems, needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
+			} else {
+				kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
+			}
+		}
+		num := SelectUI(kubeItems, "Select The Delete Kube Context")
+		kubeName := kubeItems[num].Name
+		confirm := BoolUI(fmt.Sprintf("Are you sure you want to delete「%s」?", kubeName))
+		if confirm == "True" {
+			err = deleteContext([]string{kubeName}, config)
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			dc.command.Println("Nothing deleted！")
+		}
+	} else {
+		dc.command.Println("Please enter the context you want to delete.")
+	}
+	return nil
 }
 
 func deleteContext(ctxs []string, config *clientcmdapi.Config) error {

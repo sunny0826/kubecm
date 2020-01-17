@@ -21,32 +21,36 @@ import (
 	"os"
 )
 
-// completionCmd represents the completion command
-var completionCmd = &cobra.Command{
-	Use:     "completion",
-	Short:   "Generates bash/zsh completion scripts",
-	Long:    `Output shell completion code for the specified shell (bash or zsh).`,
-	Example: completionExample(),
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 1 {
-			complet := args[0]
-			if complet == "bash" {
-				rootCmd.GenBashCompletion(os.Stdout)
-			} else if complet == "zsh" {
-				zsh.Wrap(rootCmd).GenZshCompletion(os.Stdout)
-			} else {
-				Warning.Println("Parameter error! Please input bash or zsh")
-			}
-		} else {
-			Warning.Println("Please input bash or zsh.")
-		}
-
-	},
+type CompletionCommand struct {
+	baseCommand
 }
 
-func init() {
-	rootCmd.AddCommand(completionCmd)
-	completionCmd.SetArgs([]string{""})
+func (cc *CompletionCommand) Init() {
+	cc.command = &cobra.Command{
+		Use:     "completion",
+		Short:   "Generates bash/zsh completion scripts",
+		Long:    `Output shell completion code for the specified shell (bash or zsh).`,
+		Example: completionExample(),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cc.runCompletion(cmd, args)
+		},
+	}
+}
+
+func (cc *CompletionCommand) runCompletion(command *cobra.Command, args []string) error {
+	if len(args) == 1 {
+		complet := args[0]
+		if complet == "bash" {
+			cc.command.GenBashCompletion(os.Stdout)
+		} else if complet == "zsh" {
+			zsh.Wrap(cc.command).GenZshCompletion(os.Stdout)
+		} else {
+			Warning.Println("Parameter error! Please input bash or zsh")
+		}
+	} else {
+		Warning.Println("Please input bash or zsh.")
+	}
+	return nil
 }
 
 func completionExample() string {
