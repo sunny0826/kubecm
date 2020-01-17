@@ -19,21 +19,14 @@ Usage:
   kubecm [flags]
   kubecm [command]
 
-Examples:
-# List all the contexts in your kubeconfig file
-kubecm
-
-
 Available Commands:
   add         Merge configuration file with $HOME/.kube/config
   completion  Generates bash/zsh completion scripts
   delete      Delete the specified context from the kubeconfig
-  get         Displays one or many contexts from the kubeconfig file(Will be removed in new version, move to kubecm)
   help        Help about any command
   merge       Merge the kubeconfig files in the specified directory
   rename      Rename the contexts of kubeconfig
   switch      Switch Kube Context interactively.
-  use         Sets the current-context in a kubeconfig file(Will be removed in new version, please use kubecm swtich)
   version     Prints the kubecm version
 
 Flags:
@@ -143,35 +136,6 @@ kubecm rename -o dev -n test
 kubecm rename -n dev -c
 ```
  
-### Displays contexts(*Will be removed in new version*)
-
-```bash
-# List all the contexts in your kubeconfig file
-kubecm get
-
-# Describe one context in your kubeconfig file.
-kubecm get my-context
-
-# example output
-$ kubecm get
-+------------+-----------------------+-----------------------+--------------------+--------------+
-|   CURRENT  |          NAME         |        CLUSTER        |        USER        |   Namespace  |
-+============+=======================+=======================+====================+==============+
-|      *     |         test          |   cluster-28989kd95m  |   user-28989kd95m  |              |
-+------------+-----------------------+-----------------------+--------------------+--------------+
-|            |        test-1         |   cluster-7thmtkbk6m  |   user-7thmtkbk6m  |              |
-+------------+-----------------------+-----------------------+--------------------+--------------+
-|            |        test-2         |   cluster-4h9m74h8d6  |   user-4h9m74h8d6  |              |
-+------------+-----------------------+-----------------------+--------------------+--------------+
-```
-
-### Switch context(*Will be removed in new version*)
-
-```bash
-# Use the context for the test cluster
-kubecm use test
-```
-
 ## Contribute
 
 Feel free to open issues and pull requests. Any feedback is highly appreciated!
