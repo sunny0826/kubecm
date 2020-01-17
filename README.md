@@ -40,13 +40,15 @@ Use "kubecm [command] --help" for more information about a command.
 
 ### Install
 
-Homebrew:
+#### Homebrew
 
 ```bash
 brew install sunny0826/tap/kubecm
 ```
 
-Download the binary:
+#### Download the binary
+
+[![GitHub release](https://img.shields.io/github/release/sunny0826/kubecm)](https://github.com/sunny0826/kubecm/releases)
 
 ```bash
 # linux x86_64
