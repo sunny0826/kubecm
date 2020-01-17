@@ -30,6 +30,7 @@ Available Commands:
   version     Prints the kubecm version
 
 Flags:
+      --config string   path of kubeconfig (default "$HOME/.kube/config")
   -h, --help   help for kubecm
 
 Use "kubecm [command] --help" for more information about a command.

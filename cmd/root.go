@@ -65,7 +65,7 @@ Find more information at: https://github.com/sunny0826/kubecm
 func (cli *Cli) setFlags() {
 	kubeconfig := flag.String("kubeconfig", filepath.Join(homeDir(), ".kube", "config"), "(optional) absolute path to the kubeconfig file")
 	flags := cli.rootCmd.PersistentFlags()
-	flags.StringVar(&cfgFile, "config", *kubeconfig, "config.yaml file (default is $HOME/.kubecm.yaml)")
+	flags.StringVar(&cfgFile, "config", *kubeconfig, "path of kubeconfig")
 }
 
 //Run command

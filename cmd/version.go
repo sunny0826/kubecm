@@ -49,9 +49,10 @@ type version struct {
 
 func (vc *VersionCommand) Init() {
 	vc.command = &cobra.Command{
-		Use:     "version",
-		Short:   "Prints the kubecm version",
-		Example: "kubecm version",
+		Use:   "version",
+		Short: "Print version info",
+		Long:  "Print version info",
+		Aliases: []string{"v"},
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Printf("Version: %s\n", getVersion().kubecmVersion)
 			cmd.Printf("GitCommit: %s\n", getVersion().GitCommit)
