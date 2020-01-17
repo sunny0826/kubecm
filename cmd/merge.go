@@ -22,7 +22,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
-	"log"
 	"os"
 	"sigs.k8s.io/yaml"
 	"strings"
@@ -47,7 +46,7 @@ kubecm merge -f test -c
 	Run: func(cmd *cobra.Command, args []string) {
 		cover, _ = cmd.Flags().GetBool("cover")
 		files := listFile(folder)
-		log.Printf("Loading kubeconfig file: %v \n", files)
+		cmd.Printf("Loading kubeconfig file: %v \n", files)
 		var loop []string
 		var defaultName string
 		for _, yaml := range files {
@@ -87,7 +86,7 @@ kubecm merge -f test -c
 			}
 			_ = clientcmd.WriteToFile(configType, commandLineFile.Name())
 			loop = append(loop, commandLineFile.Name())
-			log.Printf("Context Add: %s \n", name)
+			cmd.Printf("Context Add: %s \n", name)
 			defaultName = name
 		}
 		loadingRules := &clientcmd.ClientConfigLoadingRules{

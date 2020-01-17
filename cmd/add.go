@@ -51,8 +51,7 @@ kubecm add -f example.yaml -c
 		if fileExists(file) {
 			err := configCheck(file)
 			if err != nil {
-				Error.Println(err)
-				os.Exit(1)
+				log.Fatal(err)
 			}
 			cover, _ = cmd.Flags().GetBool("cover")
 			config, err := getAddConfig(file)
@@ -65,19 +64,17 @@ kubecm add -f example.yaml -c
 				Error.Println(err.Error())
 			} else {
 				if cover {
-					log.Printf("「%s」 add successful!", file)
+					cmd.Printf("「%s」 add successful!", file)
 					err = Formatable(nil)
 				}else {
-					log.Println("generate ./config.yaml")
+					cmd.Println("generate ./config.yaml")
 				}
 				if err != nil {
-					log.Println(err)
-					os.Exit(1)
+					log.Fatal(err)
 				}
 			}
 		} else {
-			Error.Printf("%s file does not exist", file)
-			os.Exit(1)
+			log.Fatalf("%s file does not exist", file)
 		}
 	},
 }
@@ -98,9 +95,7 @@ func getAddConfig(kubeconfig string) (*clientcmdapi.Config, error) {
 	}
 
 	if len(config.AuthInfos) != 1 {
-		//fmt.Println("Only support add 1 context.")
-		Error.Println("Only support add 1 context.")
-		os.Exit(-1)
+		log.Fatal("Only support add 1 context.")
 	}
 
 	name := getName()

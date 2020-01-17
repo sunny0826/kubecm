@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"log"
@@ -55,8 +54,7 @@ kubecm rename -n dev -c
 			rename := InputStr(kubeName)
 			if rename != kubeName {
 				if _, ok := config.Contexts[rename]; ok {
-					log.Printf("Name: %s already exists", rename)
-					os.Exit(-1)
+					log.Fatal("Name: %s already exists", rename)
 				} else {
 					if obj, ok := config.Contexts[kubeName]; ok {
 						config.Contexts[rename] = obj
@@ -67,27 +65,22 @@ kubecm rename -n dev -c
 					}
 					err = ModifyKubeConfig(config)
 					if err != nil {
-						Error.Println(err)
-						os.Exit(1)
+						log.Fatal(err)
 					}
 				}
 			} else {
-				log.Printf("No name: %s changes", rename)
-				os.Exit(-1)
+				log.Fatalf("No name: %s changes", rename)
 			}
 		} else {
 			cover, _ = cmd.Flags().GetBool("cover")
 			if cover && oldName != "" {
-				log.Println("parameter `-c` and `-n` cannot be set at the same time")
-				os.Exit(1)
+				log.Fatalln("parameter `-c` and `-n` cannot be set at the same time")
 			} else {
 				if err != nil {
-					Error.Println(err)
-					os.Exit(-1)
+					log.Fatal(err)
 				}
 				if _, ok := config.Contexts[newName]; ok {
-					Error.Printf("the name:%s is exit.", newName)
-					os.Exit(-1)
+					log.Fatalf("the name:%s is exit.", newName)
 				}
 				if cover {
 					for key, obj := range config.Contexts {
@@ -95,7 +88,7 @@ kubecm rename -n dev -c
 							config.Contexts[newName] = obj
 							delete(config.Contexts, key)
 							config.CurrentContext = newName
-							log.Printf("Rename %s to %s", key, newName)
+							cmd.Printf("Rename %s to %s", key, newName)
 							break
 						}
 					}
@@ -107,26 +100,23 @@ kubecm rename -n dev -c
 							config.CurrentContext = newName
 						}
 					} else {
-						log.Printf("Can not find context: %s", oldName)
+						cmd.Printf("Can not find context: %s", oldName)
 						err := Formatable(nil)
 						if err != nil {
-							Error.Println(err)
-							os.Exit(1)
+							log.Fatal(err)
 						}
 						os.Exit(-1)
 					}
 				}
 				err = ModifyKubeConfig(config)
 				if err != nil {
-					Error.Println(err)
-					os.Exit(1)
+					log.Fatal(err)
 				}
 			}
 		}
 		err = Formatable(nil)
 		if err != nil {
-			Error.Println(err)
-			os.Exit(1)
+			log.Fatal(err)
 		}
 	},
 }
@@ -153,8 +143,7 @@ func InputStr(name string) string {
 	result, err := prompt.Run()
 
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		os.Exit(-1)
+		log.Fatalf("Prompt failed %v\n", err)
 	}
 	return result
 }

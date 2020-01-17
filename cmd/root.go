@@ -54,19 +54,17 @@ kubecm
 		if len(args) == 0 {
 			err := Formatable(nil)
 			if err != nil {
-				Error.Println(err)
-				os.Exit(1)
+				log.Fatal(err)
 			}
 		} else {
 			err := Formatable(args)
 			if err != nil {
-				Error.Println(err)
-				os.Exit(1)
+				log.Fatal(err)
 			}
 		}
 		err := ClusterStatus()
 		if err != nil {
-			log.Printf("Cluster check failure!\n%v", err)
+			log.Fatalf("Cluster check failure!\n%v", err)
 		}
 	},
 }

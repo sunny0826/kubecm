@@ -21,7 +21,6 @@ import (
 	"github.com/spf13/cobra"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"log"
-	"os"
 )
 
 // deleteCmd represents the delete command
@@ -39,13 +38,11 @@ kubecm delete my-context
 		config, err := LoadClientConfig(cfgFile)
 		if len(args) != 0 {
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(-1)
+				log.Fatal(err)
 			}
 			err = deleteContext(args, config)
 			if err != nil {
-				Error.Println(err)
-				os.Exit(-1)
+				log.Fatal(err)
 			}
 		} else if len(args) == 0 {
 			var kubeItems []needle
@@ -62,14 +59,13 @@ kubecm delete my-context
 			if confirm == "True" {
 				err = deleteContext([]string{kubeName}, config)
 				if err != nil {
-					Error.Println(err)
-					os.Exit(-1)
+					log.Fatal(err)
 				}
 			} else {
-				log.Println("Nothing deleted！")
+				cmd.Println("Nothing deleted！")
 			}
 		} else {
-			fmt.Println("Please enter the context you want to delete.")
+			cmd.Println("Please enter the context you want to delete.")
 		}
 	},
 }
@@ -90,8 +86,7 @@ func deleteContext(ctxs []string, config *clientcmdapi.Config) error {
 	}
 	err := ModifyKubeConfig(config)
 	if err != nil {
-		Error.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 	return nil
 }
@@ -111,8 +106,7 @@ func BoolUI(label string) string {
 	}
 	_, obj, err := prompt.Run()
 	if err != nil {
-		Error.Printf("Prompt failed %v\n", err)
-		os.Exit(-1)
+		log.Fatalf("Prompt failed %v\n", err)
 	}
 	return obj
 }

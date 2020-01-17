@@ -50,8 +50,7 @@ Switch Kube Context interactively.
 	Run: func(cmd *cobra.Command, args []string) {
 		config, err := LoadClientConfig(cfgFile)
 		if err != nil {
-			Error.Println(err)
-			os.Exit(-1)
+			log.Fatal(err)
 		}
 		var kubeItems []needle
 		current := config.CurrentContext
@@ -67,14 +66,12 @@ Switch Kube Context interactively.
 		config.CurrentContext = kubeName
 		err = ModifyKubeConfig(config)
 		if err != nil {
-			Error.Println(err)
-			os.Exit(1)
+			log.Fatal(err)
 		}
-		log.Printf("Switched to context 「%s」\n", config.CurrentContext)
+		cmd.Printf("Switched to context 「%s」\n", config.CurrentContext)
 		err = Formatable(nil)
 		if err != nil {
-			Error.Println(err)
-			os.Exit(1)
+			log.Fatal(err)
 		}
 	},
 }
@@ -151,8 +148,7 @@ func SelectUI(kubeItems []needle, label string) int {
 	}
 	i, _, err := prompt.Run()
 	if err != nil {
-		Error.Printf("Prompt failed %v\n", err)
-		os.Exit(-1)
+		log.Fatalf("Prompt failed %v\n", err)
 	}
 	return i
 }
