@@ -26,8 +26,8 @@ Available Commands:
   help        Help about any command
   merge       Merge the kubeconfig files in the specified directory
   rename      Rename the contexts of kubeconfig
-  switch      Switch Kube Context interactively.
-  version     Prints the kubecm version
+  switch      Switch Kube Context interactively
+  version     Print version info
 
 Flags:
       --config string   path of kubeconfig (default "$HOME/.kube/config")

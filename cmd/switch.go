@@ -38,9 +38,9 @@ type needle struct {
 func (sc *SwitchCommand) Init() {
 	sc.command = &cobra.Command{
 		Use:   "switch",
-		Short: "Switch Kube Context interactively.",
+		Short: "Switch Kube Context interactively",
 		Long: `
-Switch Kube Context interactively.
+Switch Kube Context interactively
 `,
 		Example: switchExample(),
 		RunE: func(cmd *cobra.Command, args []string) error {
