@@ -47,6 +47,11 @@ type version struct {
 	GoArch string `json:"goArch"`
 }
 
+func init() {
+	stdOut := os.Stdout
+	rootCmd.AddCommand(Version(stdOut))
+}
+
 // getVersion returns version.
 func getVersion() version {
 	return version{
@@ -75,7 +80,3 @@ func Version(w io.Writer) *cobra.Command {
 	}
 }
 
-func init() {
-	stdOut := os.Stdout
-	rootCmd.AddCommand(Version(stdOut))
-}

@@ -17,8 +17,6 @@ package cmd
 
 import (
 	"flag"
-	"fmt"
-	"github.com/bndr/gotabulate"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
@@ -71,8 +69,7 @@ kubecm
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }
 
@@ -95,50 +92,3 @@ func homeDir() string {
 	return os.Getenv("USERPROFILE") // windows
 }
 
-func Formatable(args []string) error {
-	config, err := LoadClientConfig(cfgFile)
-	if err != nil {
-		return err
-	}
-	var table [][]string
-	if args == nil {
-		for key, obj := range config.Contexts {
-			var tmp []string
-			if config.CurrentContext == key {
-				tmp = append(tmp, "*")
-			} else {
-				tmp = append(tmp, "")
-			}
-			tmp = append(tmp, key)
-			tmp = append(tmp, obj.Cluster)
-			tmp = append(tmp, obj.AuthInfo)
-			tmp = append(tmp, obj.Namespace)
-			table = append(table, tmp)
-		}
-	} else {
-		for key, obj := range config.Contexts {
-			var tmp []string
-			if config.CurrentContext == key {
-				tmp = append(tmp, "*")
-				tmp = append(tmp, key)
-				tmp = append(tmp, obj.Cluster)
-				tmp = append(tmp, obj.AuthInfo)
-				tmp = append(tmp, obj.Namespace)
-				table = append(table, tmp)
-			}
-		}
-	}
-
-	if table != nil {
-		tabulate := gotabulate.Create(table)
-		tabulate.SetHeaders([]string{"CURRENT", "NAME", "CLUSTER", "USER", "Namespace"})
-		// Turn On String Wrapping
-		tabulate.SetWrapStrings(true)
-		// Render the table
-		tabulate.SetAlign("center")
-		fmt.Println(tabulate.Render("grid", "left"))
-	} else {
-		return fmt.Errorf("context %v not found", args)
-	}
-	return nil
-}

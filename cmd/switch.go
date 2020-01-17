@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -26,7 +25,6 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"log"
 	"os"
-	"strings"
 )
 
 type needle struct {
@@ -121,34 +119,3 @@ func ClusterStatus() error {
 	return nil
 }
 
-func SelectUI(kubeItems []needle, label string) int {
-	templates := &promptui.SelectTemplates{
-		Label:    "{{ . }}",
-		Active:   "\U0001F63C {{ .Name | red }}{{ .Center | red}}",
-		Inactive: "  {{ .Name | cyan }}{{ .Center | red}}",
-		Selected: "\U0001F638 Select:{{ .Name | green }}",
-		Details: `
---------- Info ----------
-{{ "Name:" | faint }}	{{ .Name }}
-{{ "Cluster:" | faint }}	{{ .Cluster }}
-{{ "User:" | faint }}	{{ .User }}`,
-	}
-	searcher := func(input string, index int) bool {
-		pepper := kubeItems[index]
-		name := strings.Replace(strings.ToLower(pepper.Name), " ", "", -1)
-		input = strings.Replace(strings.ToLower(input), " ", "", -1)
-		return strings.Contains(name, input)
-	}
-	prompt := promptui.Select{
-		Label:     label,
-		Items:     kubeItems,
-		Templates: templates,
-		Size:      4,
-		Searcher:  searcher,
-	}
-	i, _, err := prompt.Run()
-	if err != nil {
-		log.Fatalf("Prompt failed %v\n", err)
-	}
-	return i
-}

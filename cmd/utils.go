@@ -18,21 +18,14 @@ package cmd
 import (
 	"crypto/sha256"
 	"fmt"
+	"github.com/bndr/gotabulate"
+	"github.com/manifoldco/promptui"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
+	"log"
+	"strings"
 )
-
-// SortArrayAndComputeHash sorts a string array and
-// returns a hash for it
-//func SortArrayAndComputeHash(s []string) (string, error) {
-//	sort.Strings(s)
-//	data, err := json.Marshal(s)
-//	if err != nil {
-//		return "", err
-//	}
-//	return hEncode(Hash(string(data)))
-//}
 
 // Copied from https://github.com/kubernetes/kubernetes
 // /blob/master/pkg/kubectl/util/hash/hash.go
@@ -72,4 +65,86 @@ func HashSuf(config *clientcmdapi.Config) string {
 	}
 	sum, _ := hEncode(Hash(string(re_json)))
 	return sum
+}
+
+// Formatable generate table
+func Formatable(args []string) error {
+	config, err := LoadClientConfig(cfgFile)
+	if err != nil {
+		return err
+	}
+	var table [][]string
+	if args == nil {
+		for key, obj := range config.Contexts {
+			var tmp []string
+			if config.CurrentContext == key {
+				tmp = append(tmp, "*")
+			} else {
+				tmp = append(tmp, "")
+			}
+			tmp = append(tmp, key)
+			tmp = append(tmp, obj.Cluster)
+			tmp = append(tmp, obj.AuthInfo)
+			tmp = append(tmp, obj.Namespace)
+			table = append(table, tmp)
+		}
+	} else {
+		for key, obj := range config.Contexts {
+			var tmp []string
+			if config.CurrentContext == key {
+				tmp = append(tmp, "*")
+				tmp = append(tmp, key)
+				tmp = append(tmp, obj.Cluster)
+				tmp = append(tmp, obj.AuthInfo)
+				tmp = append(tmp, obj.Namespace)
+				table = append(table, tmp)
+			}
+		}
+	}
+
+	if table != nil {
+		tabulate := gotabulate.Create(table)
+		tabulate.SetHeaders([]string{"CURRENT", "NAME", "CLUSTER", "USER", "Namespace"})
+		// Turn On String Wrapping
+		tabulate.SetWrapStrings(true)
+		// Render the table
+		tabulate.SetAlign("center")
+		fmt.Println(tabulate.Render("grid", "left"))
+	} else {
+		return fmt.Errorf("context %v not found", args)
+	}
+	return nil
+}
+
+// SelectUI output select ui
+func SelectUI(kubeItems []needle, label string) int {
+	templates := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "\U0001F63C {{ .Name | red }}{{ .Center | red}}",
+		Inactive: "  {{ .Name | cyan }}{{ .Center | red}}",
+		Selected: "\U0001F638 Select:{{ .Name | green }}",
+		Details: `
+--------- Info ----------
+{{ "Name:" | faint }}	{{ .Name }}
+{{ "Cluster:" | faint }}	{{ .Cluster }}
+{{ "User:" | faint }}	{{ .User }}`,
+	}
+	searcher := func(input string, index int) bool {
+		pepper := kubeItems[index]
+		name := strings.Replace(strings.ToLower(pepper.Name), " ", "", -1)
+		input = strings.Replace(strings.ToLower(input), " ", "", -1)
+		return strings.Contains(name, input)
+	}
+	prompt := promptui.Select{
+		Label:     label,
+		Items:     kubeItems,
+		Templates: templates,
+		Size:      4,
+		Searcher:  searcher,
+	}
+	i, _, err := prompt.Run()
+	if err != nil {
+		log.Fatalf("Prompt failed %v\n", err)
+	}
+	return i
 }
