@@ -103,11 +103,11 @@ kubecm add -f example.yaml -c
 ### Merge the kubeconfig
 
 ```bash
-# Merge kubeconfig in the test directory
-kubecm merge -f test 
+# Merge kubeconfig in the directory
+kubecm merge -f dir
 
-# Merge kubeconfig in the test directory and overwrite the original kubeconfig file
-kubecm merge -f test -c
+# Merge kubeconfig in the directory and overwrite the original kubeconfig file
+kubecm merge -f dir -c
 ```
 
 ### Switch Kube Context interactively
