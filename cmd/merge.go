@@ -36,13 +36,7 @@ var mergeCmd = &cobra.Command{
 	Use:   "merge",
 	Short: "Merge the kubeconfig files in the specified directory",
 	Long:  `Merge the kubeconfig files in the specified directory`,
-	Example: `
-# Merge kubeconfig in the test directory
-kubecm merge -f test 
-
-# Merge kubeconfig in the test directory and overwrite the original kubeconfig file
-kubecm merge -f test -c
-`,
+	Example: mergeExample(),
 	Run: func(cmd *cobra.Command, args []string) {
 		cover, _ = cmd.Flags().GetBool("cover")
 		files := listFile(folder)
@@ -140,4 +134,14 @@ func nameHandle(path string) string {
 	n := strings.Split(path, "/")
 	result := strings.Split(n[len(n)-1], ".")
 	return result[0]
+}
+
+func mergeExample() string {
+	return `
+# Merge kubeconfig in the test directory
+kubecm merge -f test 
+
+# Merge kubeconfig in the test directory and overwrite the original kubeconfig file
+kubecm merge -f test -c
+`
 }

@@ -28,12 +28,7 @@ var deleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete the specified context from the kubeconfig",
 	Long:  `Delete the specified context from the kubeconfig`,
-	Example: `
-# Delete the context interactively
-kubecm delete
-# Delete the context
-kubecm delete my-context
-`,
+	Example: deleteExample(),
 	Run: func(cmd *cobra.Command, args []string) {
 		config, err := LoadClientConfig(cfgFile)
 		if len(args) != 0 {
@@ -109,4 +104,13 @@ func BoolUI(label string) string {
 		log.Fatalf("Prompt failed %v\n", err)
 	}
 	return obj
+}
+
+func deleteExample() string {
+	return `
+# Delete the context interactively
+kubecm delete
+# Delete the context
+kubecm delete my-context
+`
 }

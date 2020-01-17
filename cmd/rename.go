@@ -30,14 +30,7 @@ var newName string
 var renameCmd = &cobra.Command{
 	Use:   "rename",
 	Short: "Rename the contexts of kubeconfig",
-	Long: `
-# Renamed the context interactively
-kubecm rename
-# Renamed dev to test
-kubecm rename -o dev -n test
-# Renamed current-context name to dev
-kubecm rename -n dev -c
-`,
+	Long: renameExample(),
 	Run: func(cmd *cobra.Command, args []string) {
 		config, err := LoadClientConfig(cfgFile)
 		if newName == "" && oldName == "" {
@@ -146,4 +139,15 @@ func InputStr(name string) string {
 		log.Fatalf("Prompt failed %v\n", err)
 	}
 	return result
+}
+
+func renameExample() string {
+	return `
+# Renamed the context interactively
+kubecm rename
+# Renamed dev to test
+kubecm rename -o dev -n test
+# Renamed current-context name to dev
+kubecm rename -n dev -c
+`
 }

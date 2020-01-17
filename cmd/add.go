@@ -37,16 +37,7 @@ var cover bool
 var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Merge configuration file with $HOME/.kube/config",
-	Example: `
-# Merge example.yaml with $HOME/.kube/config
-kubecm add -f example.yaml 
-
-# Merge example.yaml and name contexts test with $HOME/.kube/config
-kubecm add -f example.yaml -n test
-
-# Overwrite the original kubeconfig file
-kubecm add -f example.yaml -c
-`,
+	Example: addExample(),
 	Run: func(cmd *cobra.Command, args []string) {
 		if fileExists(file) {
 			err := configCheck(file)
@@ -223,4 +214,17 @@ func WriteConfig(config []byte) error {
 		}
 	}
 	return nil
+}
+
+func addExample() string {
+	return `
+# Merge example.yaml with $HOME/.kube/config
+kubecm add -f example.yaml 
+
+# Merge example.yaml and name contexts test with $HOME/.kube/config
+kubecm add -f example.yaml -n test
+
+# Overwrite the original kubeconfig file
+kubecm add -f example.yaml -c
+`
 }

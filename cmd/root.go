@@ -44,10 +44,7 @@ KubeConfig Manager
 
 Find more information at: https://github.com/sunny0826/kubecm
 `,
-	Example: `
-# List all the contexts in your kubeconfig file
-kubecm
-`,
+	Example: cliExample(),
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			err := Formatable(nil)
@@ -92,3 +89,9 @@ func homeDir() string {
 	return os.Getenv("USERPROFILE") // windows
 }
 
+func cliExample() string {
+	return `
+# List all the contexts in your kubeconfig file
+kubecm
+`
+}

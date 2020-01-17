@@ -23,10 +23,34 @@ import (
 
 // completionCmd represents the completion command
 var completionCmd = &cobra.Command{
-	Use:   "completion",
-	Short: "Generates bash/zsh completion scripts",
-	Long:  `Output shell completion code for the specified shell (bash or zsh).`,
-	Example: `
+	Use:     "completion",
+	Short:   "Generates bash/zsh completion scripts",
+	Long:    `Output shell completion code for the specified shell (bash or zsh).`,
+	Example: completionExample(),
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 1 {
+			complet := args[0]
+			if complet == "bash" {
+				rootCmd.GenBashCompletion(os.Stdout)
+			} else if complet == "zsh" {
+				zsh.Wrap(rootCmd).GenZshCompletion(os.Stdout)
+			} else {
+				Warning.Println("Parameter error! Please input bash or zsh")
+			}
+		} else {
+			Warning.Println("Please input bash or zsh.")
+		}
+
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(completionCmd)
+	completionCmd.SetArgs([]string{""})
+}
+
+func completionExample() string {
+	return `
 # bash
 kubecm completion bash > ~/.kube/kubecm.bash.inc
 printf "
@@ -39,25 +63,5 @@ source $HOME/.bash_profile
 source <(kubecm completion zsh)
 # or
 kubecm completion zsh > "${fpath[1]}/_kubecm"
-`,
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 1{
-			complet := args[0]
-			if complet == "bash" {
-				rootCmd.GenBashCompletion(os.Stdout)
-			} else if complet == "zsh" {
-				zsh.Wrap(rootCmd).GenZshCompletion(os.Stdout)
-			}else {
-				Warning.Println("Parameter error! Please input bash or zsh")
-			}
-		}else {
-			Warning.Println("Please input bash or zsh.")
-		}
-
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(completionCmd)
-	completionCmd.SetArgs([]string{""})
+`
 }

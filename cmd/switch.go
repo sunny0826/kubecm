@@ -38,13 +38,10 @@ type needle struct {
 var switchCmd = &cobra.Command{
 	Use:   "switch",
 	Short: "Switch Kube Context interactively.",
-	Example: `
-# Switch Kube Context interactively
-kubecm switch
-`,
 	Long: `
 Switch Kube Context interactively.
 `,
+	Example: switchExample(),
 	Run: func(cmd *cobra.Command, args []string) {
 		config, err := LoadClientConfig(cfgFile)
 		if err != nil {
@@ -119,3 +116,9 @@ func ClusterStatus() error {
 	return nil
 }
 
+func switchExample() string {
+	return `
+# Switch Kube Context interactively
+kubecm switch
+`
+}
