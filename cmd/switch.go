@@ -42,10 +42,11 @@ func (sc *SwitchCommand) Init() {
 		Long: `
 Switch Kube Context interactively
 `,
-		Example: switchExample(),
+		Aliases: []string{"s"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return sc.runSwitch(cmd, args)
 		},
+		Example: switchExample(),
 	}
 }
 

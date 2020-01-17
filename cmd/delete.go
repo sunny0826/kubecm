@@ -32,10 +32,11 @@ func (dc *DeleteCommand) Init() {
 		Use:     "delete",
 		Short:   "Delete the specified context from the kubeconfig",
 		Long:    `Delete the specified context from the kubeconfig`,
-		Example: deleteExample(),
+		Aliases: []string{"d"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return dc.runDelete(cmd, args)
 		},
+		Example: deleteExample(),
 	}
 
 }

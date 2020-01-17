@@ -34,10 +34,11 @@ func (rc *RenameCommand) Init() {
 	rc.command = &cobra.Command{
 		Use:   "rename",
 		Short: "Rename the contexts of kubeconfig",
-		Long:  renameExample(),
+		Aliases: []string{"r"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return rc.runRename(cmd, args)
 		},
+		Long:  renameExample(),
 	}
 	rc.command.Flags().StringVarP(&oldName, "old", "o", "", "Old context name")
 	rc.command.Flags().StringVarP(&newName, "new", "n", "", "New context name")

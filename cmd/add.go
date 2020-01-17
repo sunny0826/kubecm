@@ -41,10 +41,10 @@ func (ac *AddCommand) Init() {
 	ac.command = &cobra.Command{
 		Use:     "add",
 		Short:   "Merge configuration file with $HOME/.kube/config",
-		Example: addExample(),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return ac.runAdd(cmd, args)
 		},
+		Example: addExample(),
 	}
 	ac.command.Flags().StringVarP(&file, "file", "f", "", "Path to merge kubeconfig files")
 	ac.command.Flags().StringVarP(&name, "name", "n", "", "The name of contexts. if this field is null,it will be named with file name.")

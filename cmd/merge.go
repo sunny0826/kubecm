@@ -40,10 +40,11 @@ func (mc *MergeCommand) Init() {
 		Use:     "merge",
 		Short:   "Merge the kubeconfig files in the specified directory",
 		Long:    `Merge the kubeconfig files in the specified directory`,
-		Example: mergeExample(),
+		Aliases: []string{"m"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return mc.runMerge(cmd, args)
 		},
+		Example: mergeExample(),
 	}
 	mc.command.Flags().StringVarP(&folder, "folder", "f", "", "Kubeconfig folder")
 	mc.command.Flags().BoolP("cover", "c", false, "Overwrite the original kubeconfig file")
