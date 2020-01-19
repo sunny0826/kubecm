@@ -96,11 +96,10 @@ func getAddConfig(kubeconfig string) (*clientcmdapi.Config, error) {
 		log.Fatal("Only support add 1 context.")
 	}
 
-	name := getName()
+	name := getName(kubeconfig)
 	err = nameCheck(name)
 	if err != nil {
-		Error.Println(err)
-		os.Exit(-1)
+		log.Fatal(err)
 	}
 	suffix := HashSuf(config)
 	username := fmt.Sprintf("user-%v", suffix)
@@ -151,7 +150,10 @@ func fileExists(path string) bool {
 	return true
 }
 
-func getName() string {
+func getName(kubeconfig string) string {
+	if file == ""{
+		return kubeconfig
+	}
 	if name == "" {
 		n := strings.Split(file, "/")
 		result := strings.Split(n[len(n)-1], ".")

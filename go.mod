@@ -1,6 +1,6 @@
 module github.com/sunny0826/kubecm
 
-go 1.12
+go 1.13
 
 require (
 	github.com/bndr/gotabulate v1.1.2

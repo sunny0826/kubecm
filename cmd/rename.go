@@ -60,7 +60,7 @@ func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error 
 		rename := PromptUI("Rename", kubeName)
 		if rename != kubeName {
 			if _, ok := config.Contexts[rename]; ok {
-				log.Fatal("Name: %s already exists", rename)
+				log.Fatalf("Name: %s already exists", rename)
 			} else {
 				if obj, ok := config.Contexts[kubeName]; ok {
 					config.Contexts[rename] = obj

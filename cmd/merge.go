@@ -22,6 +22,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
+	"log"
 	"os"
 	"sigs.k8s.io/yaml"
 	"strings"
@@ -60,8 +61,7 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 	for _, yaml := range files {
 		config, err := LoadClientConfig(yaml)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(-1)
+			log.Fatal(err)
 		}
 		name := nameHandle(yaml)
 		commandLineFile, _ := ioutil.TempFile("", "")

@@ -46,7 +46,7 @@ func ModifyKubeConfig(config *clientcmdapi.Config) error {
 	pathOptions := clientcmd.NewDefaultPathOptions()
 
 	if err := clientcmd.ModifyConfig(pathOptions, *config, true); err != nil {
-		log.Println("Unexpected error: %v", err)
+		log.Printf("Unexpected error: %v", err)
 		return err
 	}
 	return nil
