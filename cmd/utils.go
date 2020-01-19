@@ -17,9 +17,11 @@ package cmd
 
 import (
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"github.com/bndr/gotabulate"
 	"github.com/manifoldco/promptui"
+	"io/ioutil"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
@@ -27,8 +29,28 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
 	"log"
+	"os"
 	"strings"
 )
+
+// ModifyKubeConfig modify kubeconfig
+func ModifyKubeConfig(config *clientcmdapi.Config) error {
+	commandLineFile, _ := ioutil.TempFile("", "")
+	defer os.Remove(commandLineFile.Name())
+	configType := clientcmdapi.Config{
+		AuthInfos: config.AuthInfos,
+		Clusters:  config.Clusters,
+		Contexts:  config.Contexts,
+	}
+	_ = clientcmd.WriteToFile(configType, commandLineFile.Name())
+	pathOptions := clientcmd.NewDefaultPathOptions()
+
+	if err := clientcmd.ModifyConfig(pathOptions, *config, true); err != nil {
+		log.Println("Unexpected error: %v", err)
+		return err
+	}
+	return nil
+}
 
 // Copied from https://github.com/kubernetes/kubernetes
 // /blob/master/pkg/kubectl/util/hash/hash.go
@@ -152,6 +174,48 @@ func SelectUI(kubeItems []needle, label string) int {
 	return i
 }
 
+// PromptUI output prompt ui
+func PromptUI(label string, name string) string {
+	validate := func(input string) error {
+		if len(input) < 3 {
+			return errors.New("Context name must have more than 3 characters")
+		}
+		return nil
+	}
+	prompt := promptui.Prompt{
+		Label:    label,
+		Validate: validate,
+		Default:  name,
+	}
+	result, err := prompt.Run()
+
+	if err != nil {
+		log.Fatalf("Prompt failed %v\n", err)
+	}
+	return result
+}
+
+// BoolUI output bool ui
+func BoolUI(label string) string {
+	templates := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "\U0001F37A {{ . | red }}",
+		Inactive: "  {{ . | cyan }}",
+		Selected: "\U0001F47B {{ . | green }}",
+	}
+	prompt := promptui.Select{
+		Label:     label,
+		Items:     []string{"True", "False"},
+		Templates: templates,
+		Size:      2,
+	}
+	_, obj, err := prompt.Run()
+	if err != nil {
+		log.Fatalf("Prompt failed %v\n", err)
+	}
+	return obj
+}
+
 // ClusterStatus output cluster status
 func ClusterStatus() error {
 	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
@@ -173,5 +237,21 @@ func ClusterStatus() error {
 		names = append(names, k.Name)
 	}
 	log.Printf("Cluster check succeeded!\nContains components: %v \n", names)
+	return nil
+}
+
+// WriteConfig write kubeconfig
+func WriteConfig(config []byte) error {
+	if cover {
+		err := ioutil.WriteFile(cfgFile, config, 0777)
+		if err != nil {
+			return err
+		}
+	} else {
+		err := ioutil.WriteFile("./config.yaml", config, 0777)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }

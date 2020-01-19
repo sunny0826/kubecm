@@ -16,8 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"errors"
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
@@ -32,13 +30,14 @@ var newName string
 
 func (rc *RenameCommand) Init() {
 	rc.command = &cobra.Command{
-		Use:   "rename",
-		Short: "Rename the contexts of kubeconfig",
+		Use:     "rename",
+		Short:   "Rename the contexts of kubeconfig",
+		Long:    "Rename the contexts of kubeconfig",
 		Aliases: []string{"r"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return rc.runRename(cmd, args)
 		},
-		Long:  renameExample(),
+		Example: renameExample(),
 	}
 	rc.command.Flags().StringVarP(&oldName, "old", "o", "", "Old context name")
 	rc.command.Flags().StringVarP(&newName, "new", "n", "", "New context name")
@@ -58,7 +57,7 @@ func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error 
 		}
 		num := SelectUI(kubeItems, "Select The Rename Kube Context")
 		kubeName := kubeItems[num].Name
-		rename := InputStr(kubeName)
+		rename := PromptUI("Rename", kubeName)
 		if rename != kubeName {
 			if _, ok := config.Contexts[rename]; ok {
 				log.Fatal("Name: %s already exists", rename)
@@ -126,26 +125,6 @@ func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error 
 		log.Fatal(err)
 	}
 	return nil
-}
-
-func InputStr(name string) string {
-	validate := func(input string) error {
-		if len(input) < 3 {
-			return errors.New("Context name must have more than 3 characters")
-		}
-		return nil
-	}
-	prompt := promptui.Prompt{
-		Label:    "Rename",
-		Validate: validate,
-		Default:  name,
-	}
-	result, err := prompt.Run()
-
-	if err != nil {
-		log.Fatalf("Prompt failed %v\n", err)
-	}
-	return result
 }
 
 func renameExample() string {

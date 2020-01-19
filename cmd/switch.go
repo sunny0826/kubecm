@@ -17,11 +17,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"io/ioutil"
-	"k8s.io/client-go/tools/clientcmd"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"log"
-	"os"
 )
 
 type SwitchCommand struct {
@@ -75,24 +71,6 @@ func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error 
 	err = Formatable(nil)
 	if err != nil {
 		log.Fatal(err)
-	}
-	return nil
-}
-
-func ModifyKubeConfig(config *clientcmdapi.Config) error {
-	commandLineFile, _ := ioutil.TempFile("", "")
-	defer os.Remove(commandLineFile.Name())
-	configType := clientcmdapi.Config{
-		AuthInfos: config.AuthInfos,
-		Clusters:  config.Clusters,
-		Contexts:  config.Contexts,
-	}
-	_ = clientcmd.WriteToFile(configType, commandLineFile.Name())
-	pathOptions := clientcmd.NewDefaultPathOptions()
-
-	if err := clientcmd.ModifyConfig(pathOptions, *config, true); err != nil {
-		log.Println("Unexpected error: %v", err)
-		return err
 	}
 	return nil
 }

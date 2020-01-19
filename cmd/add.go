@@ -39,8 +39,9 @@ type AddCommand struct {
 
 func (ac *AddCommand) Init() {
 	ac.command = &cobra.Command{
-		Use:     "add",
-		Short:   "Merge configuration file with $HOME/.kube/config",
+		Use:   "add",
+		Short: "Merge configuration file with $HOME/.kube/config",
+		Long:  "Merge configuration file with $HOME/.kube/config",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return ac.runAdd(cmd, args)
 		},
@@ -205,21 +206,6 @@ func merge2Master(config *clientcmdapi.Config) []byte {
 	}
 
 	return output
-}
-
-func WriteConfig(config []byte) error {
-	if cover {
-		err := ioutil.WriteFile(cfgFile, config, 0777)
-		if err != nil {
-			return err
-		}
-	} else {
-		err := ioutil.WriteFile("./config.yaml", config, 0777)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func addExample() string {

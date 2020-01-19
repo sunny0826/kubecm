@@ -30,7 +30,7 @@ func (cc *CompletionCommand) Init() {
 		Use:     "completion",
 		Short:   "Generates bash/zsh completion scripts",
 		Long:    `Output shell completion code for the specified shell (bash or zsh).`,
-		Args:    cobra.MinimumNArgs(1),
+		Args:    cobra.ExactArgs(1),
 		Aliases: []string{"c"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cc.runCompletion(cmd, args)
@@ -40,17 +40,13 @@ func (cc *CompletionCommand) Init() {
 }
 
 func (cc *CompletionCommand) runCompletion(command *cobra.Command, args []string) error {
-	if len(args) == 1 {
-		complet := args[0]
-		if complet == "bash" {
-			cc.command.GenBashCompletion(os.Stdout)
-		} else if complet == "zsh" {
-			zsh.Wrap(cc.command).GenZshCompletion(os.Stdout)
-		} else {
-			Warning.Println("Parameter error! Please input bash or zsh")
-		}
+	complet := args[0]
+	if complet == "bash" {
+		cc.command.GenBashCompletion(os.Stdout)
+	} else if complet == "zsh" {
+		zsh.Wrap(cc.command).GenZshCompletion(os.Stdout)
 	} else {
-		Warning.Println("Please input bash or zsh.")
+		cc.command.PrintErrln("Parameter error! Please input bash or zsh")
 	}
 	return nil
 }

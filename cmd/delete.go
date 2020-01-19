@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"log"
@@ -91,26 +90,6 @@ func (dc *DeleteCommand)deleteContext(ctxs []string, config *clientcmdapi.Config
 		log.Fatal(err)
 	}
 	return nil
-}
-
-func BoolUI(label string) string {
-	templates := &promptui.SelectTemplates{
-		Label:    "{{ . }}",
-		Active:   "\U0001F37A {{ . | red }}",
-		Inactive: "  {{ . | cyan }}",
-		Selected: "\U0001F47B {{ . | green }}",
-	}
-	prompt := promptui.Select{
-		Label:     label,
-		Items:     []string{"True", "False"},
-		Templates: templates,
-		Size:      2,
-	}
-	_, obj, err := prompt.Run()
-	if err != nil {
-		log.Fatalf("Prompt failed %v\n", err)
-	}
-	return obj
 }
 
 func deleteExample() string {
