@@ -30,6 +30,7 @@ func (cc *CompletionCommand) Init() {
 		Use:     "completion",
 		Short:   "Generates bash/zsh completion scripts",
 		Long:    `Output shell completion code for the specified shell (bash or zsh).`,
+		Args:    cobra.MinimumNArgs(1),
 		Aliases: []string{"c"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cc.runCompletion(cmd, args)
