@@ -30,8 +30,16 @@ import (
 	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
 	"log"
 	"os"
+	"os/user"
 	"strings"
 )
+
+type needle struct {
+	Name    string
+	Cluster string
+	User    string
+	Center  string
+}
 
 // ModifyKubeConfig modify kubeconfig
 func ModifyKubeConfig(config *clientcmdapi.Config) error {
@@ -158,6 +166,9 @@ func SelectUI(kubeItems []needle, label string) int {
 		pepper := kubeItems[index]
 		name := strings.Replace(strings.ToLower(pepper.Name), " ", "", -1)
 		input = strings.Replace(strings.ToLower(input), " ", "", -1)
+		if input == "q" && name == "<exit>" {
+			return true
+		}
 		return strings.Contains(name, input)
 	}
 	prompt := promptui.Select{
@@ -170,6 +181,10 @@ func SelectUI(kubeItems []needle, label string) int {
 	i, _, err := prompt.Run()
 	if err != nil {
 		log.Fatalf("Prompt failed %v\n", err)
+	}
+	if kubeItems[i].Name == "<exit>" {
+		fmt.Println("Exiting.")
+		os.Exit(1)
 	}
 	return i
 }
@@ -254,4 +269,14 @@ func WriteConfig(config []byte) error {
 		}
 	}
 	return nil
+}
+
+// ExitOption exit option of SelectUI
+func ExitOption(kubeItems []needle) ([]needle, error) {
+	u, err := user.Current()
+	if err != nil {
+		return nil, err
+	}
+	kubeItems = append(kubeItems, needle{Name: "<exit>", Cluster: "exit the kubecm", User: u.Username})
+	return kubeItems, nil
 }

@@ -24,13 +24,6 @@ type SwitchCommand struct {
 	baseCommand
 }
 
-type needle struct {
-	Name    string
-	Cluster string
-	User    string
-	Center  string
-}
-
 func (sc *SwitchCommand) Init() {
 	sc.command = &cobra.Command{
 		Use:   "switch",
@@ -59,6 +52,11 @@ func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error 
 		} else {
 			kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
 		}
+	}
+	// exit option
+	kubeItems, err = ExitOption(kubeItems)
+	if err != nil {
+		return err
 	}
 	num := SelectUI(kubeItems, "Select Kube Context")
 	kubeName := kubeItems[num].Name

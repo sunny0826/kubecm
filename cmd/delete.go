@@ -59,6 +59,11 @@ func (dc *DeleteCommand) runDelete(command *cobra.Command, args []string) error 
 				kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
 			}
 		}
+		// exit option
+		kubeItems, err := ExitOption(kubeItems)
+		if err != nil {
+			return err
+		}
 		num := SelectUI(kubeItems, "Select The Delete Kube Context")
 		kubeName := kubeItems[num].Name
 		confirm := BoolUI(fmt.Sprintf("Are you sure you want to delete「%s」?", kubeName))
@@ -76,7 +81,7 @@ func (dc *DeleteCommand) runDelete(command *cobra.Command, args []string) error 
 	return nil
 }
 
-func (dc *DeleteCommand)deleteContext(ctxs []string, config *clientcmdapi.Config) error {
+func (dc *DeleteCommand) deleteContext(ctxs []string, config *clientcmdapi.Config) error {
 	for _, ctx := range ctxs {
 		if _, ok := config.Contexts[ctx]; ok {
 			delete(config.Contexts, ctx)

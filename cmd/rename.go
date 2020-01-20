@@ -55,6 +55,11 @@ func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error 
 				kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
 			}
 		}
+		// exit option
+		kubeItems, err := ExitOption(kubeItems)
+		if err != nil {
+			return err
+		}
 		num := SelectUI(kubeItems, "Select The Rename Kube Context")
 		kubeName := kubeItems[num].Name
 		rename := PromptUI("Rename", kubeName)
