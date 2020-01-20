@@ -5,7 +5,7 @@
 ![GitHub](https://img.shields.io/github/license/sunny0826/kubecm.svg)
 [![GitHub release](https://img.shields.io/github/release/sunny0826/kubecm)](https://github.com/sunny0826/kubecm/releases)
 
-```bash
+```text
 KubeConfig Manager
  _          _
 | | ___   _| |__   ___  ___ _ __ ___
@@ -70,6 +70,8 @@ sudo mv kubecm /usr/local/bin/
 
 ### Auto-Completion
 
+#### bash
+
 ```bash
 # bash
 kubecm completion bash > ~/.kube/kubecm.bash.inc
@@ -78,7 +80,11 @@ printf "
 source '$HOME/.kube/kubecm.bash.inc'
 " >> $HOME/.bash_profile
 source $HOME/.bash_profile
+```
 
+#### zsh
+
+```bash
 # add to $HOME/.zshrc 
 source <(kubecm completion zsh)
 # or
