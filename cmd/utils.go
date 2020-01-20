@@ -183,7 +183,7 @@ func SelectUI(kubeItems []needle, label string) int {
 		log.Fatalf("Prompt failed %v\n", err)
 	}
 	if kubeItems[i].Name == "<exit>" {
-		fmt.Println("Exiting.")
+		fmt.Println("Exited.")
 		os.Exit(1)
 	}
 	return i
