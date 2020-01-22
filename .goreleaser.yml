@@ -18,7 +18,7 @@ archives:
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ .Tag }}-rc"
+  name_template: "{{ .Tag }}-SNAPSHOT-{{.ShortCommit}}"
 changelog:
   sort: asc
 release:
