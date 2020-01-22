@@ -41,6 +41,11 @@ type needle struct {
 	Center  string
 }
 
+type namespaces struct {
+	Name    string
+	Default bool
+}
+
 // ModifyKubeConfig modify kubeconfig
 func ModifyKubeConfig(config *clientcmdapi.Config) error {
 	commandLineFile, _ := ioutil.TempFile("", "")
@@ -182,7 +187,7 @@ func SelectUI(kubeItems []needle, label string) int {
 	if err != nil {
 		log.Fatalf("Prompt failed %v\n", err)
 	}
-	if kubeItems[i].Name == "<exit>" {
+	if kubeItems[i].Name == "<Exit>" {
 		fmt.Println("Exited.")
 		os.Exit(1)
 	}
@@ -277,6 +282,40 @@ func ExitOption(kubeItems []needle) ([]needle, error) {
 	if err != nil {
 		return nil, err
 	}
-	kubeItems = append(kubeItems, needle{Name: "<exit>", Cluster: "exit the kubecm", User: u.Username})
+	kubeItems = append(kubeItems, needle{Name: "<Exit>", Cluster: "exit the kubecm", User: u.Username})
 	return kubeItems, nil
+}
+
+// GetNamespaceList return namespace list
+func GetNamespaceList(cont string) ([]namespaces, error) {
+	var nss []namespaces
+	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
+	if err != nil {
+		return nil, fmt.Errorf(err.Error())
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, fmt.Errorf(err.Error())
+	}
+	namespaceList, err := clientset.CoreV1().Namespaces().List(metav1.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf(err.Error())
+	}
+	for _, specItem := range namespaceList.Items {
+		switch cont {
+		case "":
+			if specItem.Name == "default" {
+				nss = append(nss, namespaces{Name: specItem.Name, Default: true})
+			}else {
+				nss = append(nss, namespaces{Name: specItem.Name, Default: false})
+			}
+		default:
+			if specItem.Name == cont {
+				nss = append(nss, namespaces{Name: specItem.Name, Default: true})
+			}else {
+				nss = append(nss, namespaces{Name: specItem.Name, Default: false})
+			}
+		}
+	}
+	return nss, nil
 }

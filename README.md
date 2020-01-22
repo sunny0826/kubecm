@@ -145,6 +145,19 @@ kubecm rename -o dev -n test
 kubecm rename -n dev -c
 ```
  
+### Switch namespace
+
+You can switch namespace or switch namespace interactively
+
+```bash
+# Switch Namespace interactively
+kubecm namespace
+# or
+kubecm ns
+# change to namespace of kube-system
+kubecm ns kube-system
+``` 
+
 ## Contribute
 
 Feel free to open issues and pull requests. Any feedback is highly appreciated!

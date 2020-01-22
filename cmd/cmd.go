@@ -25,6 +25,9 @@ func CmdInit() *baseCommand {
 	// add switch command
 	switchCommand := &SwitchCommand{}
 	baseCmd.AddCommand(switchCommand)
+	// add namespace command
+	namespaceCommand := &NamespaceCommand{}
+	baseCmd.AddCommand(namespaceCommand)
 
 	return baseCmd
 }
