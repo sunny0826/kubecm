@@ -25,6 +25,7 @@ Available Commands:
   delete      Delete the specified context from the kubeconfig
   help        Help about any command
   merge       Merge the kubeconfig files in the specified directory
+  namespace   Switch or change namespace interactively
   rename      Rename the contexts of kubeconfig
   switch      Switch Kube Context interactively
   version     Print version info

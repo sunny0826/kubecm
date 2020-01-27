@@ -20,6 +20,7 @@ checksum:
 snapshot:
   name_template: "{{ .Tag }}-SNAPSHOT-{{.ShortCommit}}"
 changelog:
+  skip: false
   sort: asc
 release:
   github:

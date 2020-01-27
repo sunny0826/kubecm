@@ -7,6 +7,7 @@ GITVERSION:=$(shell git --version | grep ^git | sed 's/^.* //g')
 GITCOMMIT:=$(shell git rev-parse HEAD)
 
 UNAME := $(shell uname)
+GORELEASER_DIST=dist
 BUILD_TARGET=target
 BUILD_TARGET_DIR_NAME=kubecm-$(KUBECM_VERSION)
 BUILD_TARGET_PKG_DIR=$(BUILD_TARGET)/kubecm-$(KUBECM_VERSION)
@@ -41,3 +42,4 @@ endif
 clean:
 	$(GO) clean ./...
 	rm -rf $(BUILD_TARGET)
+	rm -rf $(GORELEASER_DIST)
