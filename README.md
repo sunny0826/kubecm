@@ -158,6 +158,7 @@ kubecm ns
 # change to namespace of kube-system
 kubecm ns kube-system
 ``` 
+![ns](dosc/ns.gif)
 
 ## Contribute
 
