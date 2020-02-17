@@ -160,6 +160,10 @@ kubecm ns kube-system
 ``` 
 ![ns](dosc/ns.gif)
 
+## Video
+
+<iframe src="//player.bilibili.com/player.html?aid=88259938&cid=150776221&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+
 ## Contribute
 
 Feel free to open issues and pull requests. Any feedback is highly appreciated!
