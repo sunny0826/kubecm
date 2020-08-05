@@ -2,6 +2,7 @@
 
 # get tag of kubecm
 KUBECM_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)
+TAG=$(KUBECM_VERSION)
 
 GITVERSION:=$(shell git --version | grep ^git | sed 's/^.* //g')
 GITCOMMIT:=$(shell git rev-parse HEAD)
@@ -43,3 +44,9 @@ clean:
 	$(GO) clean ./...
 	rm -rf $(BUILD_TARGET)
 	rm -rf $(GORELEASER_DIST)
+
+tag:
+	git tag -a $(TAG) -m "$(TAG) relsase"
+
+push_tag:
+	git push origin $(KUBECM_VERSION)
