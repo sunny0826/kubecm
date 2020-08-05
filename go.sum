@@ -63,8 +63,6 @@ github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3Rllmb
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/prashantv/gostub v1.0.0 h1:wTzvgO04xSS3gHuz6Vhuo0/kvWelyJxwNS0IRBPAwGY=
-github.com/prashantv/gostub v1.0.0/go.mod h1:dP1v6T1QzyGJJKFocwAU0lSZKpfjstjH8TlhkEU0on0=
 github.com/rsteube/cobra-zsh-gen v1.1.0 h1:o39gedEr6ziTpwUKNuwzG+Xk7kIbRpnxm48swTFGPVo=
 github.com/rsteube/cobra-zsh-gen v1.1.0/go.mod h1:jbwt1uhI1Pd7fxUg+A3N1KQxUAJD8j0E0oLa3zdjhQY=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=

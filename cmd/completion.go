@@ -18,6 +18,7 @@ package cmd
 import (
 	zsh "github.com/rsteube/cobra-zsh-gen"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
 )
 
@@ -42,9 +43,15 @@ func (cc *CompletionCommand) Init() {
 func (cc *CompletionCommand) runCompletion(command *cobra.Command, args []string) error {
 	complet := args[0]
 	if complet == "bash" {
-		cc.command.GenBashCompletion(os.Stdout)
+		err := command.Root().GenBashCompletion(os.Stdout)
+		if err != nil {
+			log.Fatal(err)
+		}
 	} else if complet == "zsh" {
-		zsh.Wrap(cc.command).GenZshCompletion(os.Stdout)
+		err := zsh.Wrap(cc.command).GenZshCompletion(os.Stdout)
+		if err != nil {
+			log.Fatal(err)
+		}
 	} else {
 		cc.command.PrintErrln("Parameter error! Please input bash or zsh")
 	}
