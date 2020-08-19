@@ -350,5 +350,4 @@ func printComponents(out io.Writer, name string, list []string) {
 	fmt.Printf("%v \n", list)
 	ct.ResetColor()
 	fmt.Fprintln(out, "")
-
 }
