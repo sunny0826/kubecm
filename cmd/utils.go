@@ -20,7 +20,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bndr/gotabulate"
+	ct "github.com/daviddengcn/go-colortext"
 	"github.com/manifoldco/promptui"
+	"io"
 	"io/ioutil"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -256,7 +258,9 @@ func ClusterStatus() error {
 	for _, k := range cus.Items {
 		names = append(names, k.Name)
 	}
-	log.Printf("Cluster check succeeded!\nContains components: %v \n", names)
+	printString(os.Stdout, "Cluster check succeeded!\n")
+	printService(os.Stdout, "Kubernetes master", config.Host)
+	printComponents(os.Stdout, "Contains components", names)
 	return nil
 }
 
@@ -306,16 +310,45 @@ func GetNamespaceList(cont string) ([]namespaces, error) {
 		case "":
 			if specItem.Name == "default" {
 				nss = append(nss, namespaces{Name: specItem.Name, Default: true})
-			}else {
+			} else {
 				nss = append(nss, namespaces{Name: specItem.Name, Default: false})
 			}
 		default:
 			if specItem.Name == cont {
 				nss = append(nss, namespaces{Name: specItem.Name, Default: true})
-			}else {
+			} else {
 				nss = append(nss, namespaces{Name: specItem.Name, Default: false})
 			}
 		}
 	}
 	return nss, nil
+}
+
+func printService(out io.Writer, name, link string) {
+	ct.ChangeColor(ct.Green, false, ct.None, false)
+	fmt.Fprint(out, name)
+	ct.ResetColor()
+	fmt.Fprint(out, " is running at ")
+	ct.ChangeColor(ct.Yellow, false, ct.None, false)
+	fmt.Fprint(out, link)
+	ct.ResetColor()
+	fmt.Fprintln(out, "")
+}
+
+func printString(out io.Writer, name string) {
+	ct.ChangeColor(ct.Green, false, ct.None, false)
+	fmt.Fprint(out, name)
+	ct.ResetColor()
+}
+
+func printComponents(out io.Writer, name string, list []string) {
+	ct.ChangeColor(ct.Green, false, ct.None, false)
+	fmt.Fprint(out, name)
+	ct.ResetColor()
+	fmt.Fprint(out, ": ")
+	ct.ChangeColor(ct.Yellow, false, ct.None, false)
+	fmt.Printf("%v \n", list)
+	ct.ResetColor()
+	fmt.Fprintln(out, "")
+
 }

@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/bndr/gotabulate v1.1.2
+	github.com/daviddengcn/go-colortext v1.0.0
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/googleapis/gnostic v0.3.0 // indirect
 	github.com/imdario/mergo v0.3.7 // indirect
