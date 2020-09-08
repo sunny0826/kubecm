@@ -173,8 +173,6 @@ kubecm ns kube-system
 
 [![](https://tva3.sinaimg.cn/large/ad5fbf65gy1gij1pl0pn5j218o0p81kx.jpg)](https://www.bilibili.com/video/av88259938/)
 
-<video src="//player.bilibili.com/player.html?aid=88259938&bvid=BV19741157NT&cid=150776221&page=1" controls="controls" width="500" height="300">您的浏览器不支持播放该视频！</video>
-
 ## Contribute
 
 Feel free to open issues and pull requests. Any feedback is highly appreciated!
