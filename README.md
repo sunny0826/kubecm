@@ -173,6 +173,7 @@ kubecm ns kube-system
 
 [![](https://tva3.sinaimg.cn/large/ad5fbf65gy1gij1pl0pn5j218o0p81kx.jpg)](https://www.bilibili.com/video/av88259938/)
 
+<iframe src="//player.bilibili.com/player.html?aid=88259938&bvid=BV19741157NT&cid=150776221&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
 
 ## Contribute
 
