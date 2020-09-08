@@ -96,9 +96,18 @@ kubecm completion zsh > "${fpath[1]}/_kubecm"
 
 ![Interactive](dosc/Interaction.gif)
 
+### List Kube Context
+
+```shell script
+# List all the contexts in your kubeconfig file
+kubecm ls
+# Aliases
+kubecm l
+```
+
 ### Add configuration to `$HOME/.kube/config`
 
-```bash
+```shell script
 # Merge example.yaml with $HOME/.kube/config.yaml
 kubecm add -f example.yaml 
 
@@ -111,7 +120,7 @@ kubecm add -f example.yaml -c
 
 ### Merge the kubeconfig
 
-```bash
+```shell script
 # Merge kubeconfig in the directory
 kubecm merge -f dir
 
@@ -121,7 +130,7 @@ kubecm merge -f dir -c
 
 ### Switch Kube Context interactively
 
-```bash
+```shell script
 # Switch Kube Context interactively
 kubecm switch
 ```
@@ -129,7 +138,7 @@ kubecm switch
 
 ### Delete context
 
-```bash
+```shell script
 # Delete the context interactively
 kubecm delete
 # Delete the context
@@ -137,7 +146,7 @@ kubecm delete my-context
 ```
 ### Rename context
 
-```bash
+```shell script
 # Renamed the context interactively
 kubecm rename
 # Renamed dev to test
@@ -150,7 +159,7 @@ kubecm rename -n dev -c
 
 You can switch namespace or switch namespace interactively
 
-```bash
+```shell script
 # Switch Namespace interactively
 kubecm namespace
 # or
@@ -162,7 +171,7 @@ kubecm ns kube-system
 
 ## Video
 
-[[Video introduction](https://www.bilibili.com/video/av88259938/)]: https://www.bilibili.com/video/av88259938/
+[![](https://tva3.sinaimg.cn/large/ad5fbf65gy1gij1pl0pn5j218o0p81kx.jpg)](https://www.bilibili.com/video/av88259938/)
 
 
 ## Contribute
