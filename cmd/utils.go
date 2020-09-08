@@ -117,6 +117,7 @@ func Formatable(args []string) error {
 	if args == nil {
 		for key, obj := range config.Contexts {
 			var tmp []string
+			namespace := "default"
 			if config.CurrentContext == key {
 				tmp = append(tmp, "*")
 			} else {
@@ -125,18 +126,27 @@ func Formatable(args []string) error {
 			tmp = append(tmp, key)
 			tmp = append(tmp, obj.Cluster)
 			tmp = append(tmp, obj.AuthInfo)
-			tmp = append(tmp, obj.Namespace)
+			tmp = append(tmp, config.Clusters[obj.Cluster].Server)
+			if obj.Namespace != "" {
+				namespace = obj.Namespace
+			}
+			tmp = append(tmp, namespace)
 			table = append(table, tmp)
 		}
 	} else {
 		for key, obj := range config.Contexts {
 			var tmp []string
+			namespace := "default"
 			if config.CurrentContext == key {
 				tmp = append(tmp, "*")
 				tmp = append(tmp, key)
 				tmp = append(tmp, obj.Cluster)
 				tmp = append(tmp, obj.AuthInfo)
-				tmp = append(tmp, obj.Namespace)
+				tmp = append(tmp, config.Clusters[obj.Cluster].Server)
+				if obj.Namespace != "" {
+					namespace = obj.Namespace
+				}
+				tmp = append(tmp, namespace)
 				table = append(table, tmp)
 			}
 		}
@@ -144,7 +154,7 @@ func Formatable(args []string) error {
 
 	if table != nil {
 		tabulate := gotabulate.Create(table)
-		tabulate.SetHeaders([]string{"CURRENT", "NAME", "CLUSTER", "USER", "Namespace"})
+		tabulate.SetHeaders([]string{"CURRENT", "NAME", "CLUSTER", "USER", "SERVER", "Namespace"})
 		// Turn On String Wrapping
 		tabulate.SetWrapStrings(true)
 		// Render the table
@@ -250,7 +260,8 @@ func ClusterStatus() error {
 		return fmt.Errorf(err.Error())
 	}
 
-	cus, err := clientset.CoreV1().ComponentStatuses().List(metav1.ListOptions{})
+	timeout := int64(5)
+	cus, err := clientset.CoreV1().ComponentStatuses().List(metav1.ListOptions{TimeoutSeconds: &timeout})
 	if err != nil {
 		return fmt.Errorf(err.Error())
 	}

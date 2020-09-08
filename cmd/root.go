@@ -51,10 +51,6 @@ KubeConfig Manager
 
 Find more information at: https://github.com/sunny0826/kubecm
 `,
-			Example: cliExample(),
-			Run: func(cmd *cobra.Command, args []string) {
-				runCli(cmd, args)
-			},
 		},
 	}
 	cli.rootCmd.SetOutput(os.Stdout)
@@ -73,34 +69,9 @@ func (cli *Cli) Run() error {
 	return cli.rootCmd.Execute()
 }
 
-func runCli(cmd *cobra.Command, args []string) {
-	if len(args) == 0 {
-		err := Formatable(nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		err := Formatable(args)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-	err := ClusterStatus()
-	if err != nil {
-		log.Fatalf("Cluster check failure!\n%v", err)
-	}
-}
-
 func homeDir() string {
 	if h := os.Getenv("HOME"); h != "" {
 		return h
 	}
 	return os.Getenv("USERPROFILE") // windows
-}
-
-func cliExample() string {
-	return `
-# List all the contexts in your kubeconfig file
-kubecm
-`
 }

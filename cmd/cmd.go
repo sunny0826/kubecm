@@ -28,6 +28,9 @@ func CmdInit() *baseCommand {
 	// add namespace command
 	namespaceCommand := &NamespaceCommand{}
 	baseCmd.AddCommand(namespaceCommand)
+	// add list command
+	listCommand := &ListCommand{}
+	baseCmd.AddCommand(listCommand)
 
 	return baseCmd
 }
