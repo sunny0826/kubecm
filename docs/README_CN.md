@@ -1,4 +1,4 @@
-English | [简体中文](docs/README_CN.md)
+[English](../README.md) | 简体中文
 
 # KubeCM
 
@@ -39,9 +39,9 @@ Flags:
 Use "kubecm [command] --help" for more information about a command.
 ```
 
-## Quick Start
+## 快速开始
 
-### Install
+### 安装
 
 #### Homebrew
 
@@ -49,7 +49,7 @@ Use "kubecm [command] --help" for more information about a command.
 brew install sunny0826/tap/kubecm
 ```
 
-#### Download the binary
+#### 下载可执行文件
 
 [![GitHub release](https://img.shields.io/github/release/sunny0826/kubecm)](https://github.com/sunny0826/kubecm/releases)
 
@@ -71,7 +71,7 @@ sudo mv kubecm /usr/local/bin/
 # Add the binary in to your $PATH
 ```
 
-### Auto-Completion
+### 自动补全
 
 #### bash
 
@@ -94,11 +94,11 @@ source <(kubecm completion zsh)
 kubecm completion zsh > "${fpath[1]}/_kubecm"
 ```
 
-### Interactive operation
+### 交互式操作
 
-![Interactive](docs/Interaction.gif)
+![Interactive](Interaction.gif)
 
-### List Kube Context
+### 列举所有 Context
 
 ```shell script
 # List all the contexts in your kubeconfig file
@@ -107,7 +107,7 @@ kubecm ls
 kubecm l
 ```
 
-### Add configuration to `$HOME/.kube/config`
+### 将 kubeconfig 加入到 `$HOME/.kube/config`
 
 ```shell script
 # Merge example.yaml with $HOME/.kube/config.yaml
@@ -120,7 +120,7 @@ kubecm add -f example.yaml -n test
 kubecm add -f example.yaml -c
 ```
 
-### Merge the kubeconfig
+### 合并 kubeconfig
 
 ```shell script
 # Merge kubeconfig in the directory
@@ -130,15 +130,15 @@ kubecm merge -f dir
 kubecm merge -f dir -c
 ```
 
-### Switch Kube Context interactively
+###  交互式切换 Kube Context
 
 ```shell script
 # Switch Kube Context interactively
 kubecm switch
 ```
-![switch](docs/switch.gif)
+![switch](switch.gif)
 
-### Delete context
+### 删除 context
 
 ```shell script
 # Delete the context interactively
@@ -146,7 +146,7 @@ kubecm delete
 # Delete the context
 kubecm delete my-context
 ```
-### Rename context
+### 重命名 context
 
 ```shell script
 # Renamed the context interactively
@@ -157,7 +157,7 @@ kubecm rename -o dev -n test
 kubecm rename -n dev -c
 ```
  
-### Switch namespace
+### 切换当前集群 namespace
 
 You can switch namespace or switch namespace interactively
 
@@ -169,22 +169,22 @@ kubecm ns
 # change to namespace of kube-system
 kubecm ns kube-system
 ``` 
-![ns](docs/ns.gif)
+![ns](ns.gif)
 
-## Video
+## 视频
 
 [![](https://tva3.sinaimg.cn/large/ad5fbf65gy1gij1pl0pn5j218o0p81kx.jpg)](https://www.bilibili.com/video/av88259938/)
 
-## Contribute
+## 贡献
 
-Feel free to open issues and pull requests. Any feedback is highly appreciated!
+欢迎在 issue 中与作者交流或提交 pull requests，您的反馈对本项目的健康发展是十分重要的。
 
-## Thanks
+## 鸣谢
 
 - [JetBrains IDEs](https://www.jetbrains.com/?from=kubecm)
 
 <p align="center">
   <a href="https://www.jetbrains.com/?from=kubecm" title="前往官网了解JetBrains出品的IDEs">
-    <img src="docs/jetbrains.svg" width="128" alt="JetBrains logo">
+    <img src="dosc/jetbrains.svg" width="128" alt="JetBrains logo">
   </a>
 </p>
