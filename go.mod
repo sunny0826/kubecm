@@ -7,7 +7,7 @@ require (
 	github.com/daviddengcn/go-colortext v1.0.0
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/googleapis/gnostic v0.3.0 // indirect
-	github.com/imdario/mergo v0.3.7 // indirect
+	github.com/imdario/mergo v0.3.7
 	github.com/json-iterator/go v1.1.7 // indirect
 	github.com/manifoldco/promptui v0.3.2
 	github.com/modern-go/reflect2 v1.0.1 // indirect

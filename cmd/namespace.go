@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"k8s.io/client-go/tools/clientcmd"
 	"log"
 	"os"
 	"strings"
@@ -30,7 +31,7 @@ Switch or change namespace interactively
 }
 
 func (nc *NamespaceCommand) runNamespace(command *cobra.Command, args []string) error {
-	config, err := LoadClientConfig(cfgFile)
+	config, err := clientcmd.LoadFromFile(cfgFile)
 	if err != nil {
 		return nil
 	}
@@ -60,9 +61,9 @@ func (nc *NamespaceCommand) runNamespace(command *cobra.Command, args []string) 
 			os.Exit(1)
 		}
 	}
-	err = ModifyKubeConfig(config)
+	err = nc.WriteConfig(true,cfgFile,config)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	return nil
 }

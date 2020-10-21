@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"log"
 )
@@ -41,7 +42,7 @@ func (dc *DeleteCommand) Init() {
 }
 
 func (dc *DeleteCommand) runDelete(command *cobra.Command, args []string) error {
-	config, err := LoadClientConfig(cfgFile)
+	config, err := clientcmd.LoadFromFile(cfgFile)
 	if len(args) != 0 {
 		if err != nil {
 			log.Fatal(err)
@@ -90,9 +91,9 @@ func (dc *DeleteCommand) deleteContext(ctxs []string, config *clientcmdapi.Confi
 			Error.Printf("「%s」do not exit.", ctx)
 		}
 	}
-	err := ModifyKubeConfig(config)
+	err := dc.WriteConfig(true,cfgFile,config)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	return nil
 }

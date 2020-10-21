@@ -21,9 +21,9 @@ import (
 	"fmt"
 	"github.com/bndr/gotabulate"
 	ct "github.com/daviddengcn/go-colortext"
+	"github.com/imdario/mergo"
 	"github.com/manifoldco/promptui"
 	"io"
-	"io/ioutil"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
@@ -46,25 +46,6 @@ type needle struct {
 type namespaces struct {
 	Name    string
 	Default bool
-}
-
-// ModifyKubeConfig modify kubeconfig
-func ModifyKubeConfig(config *clientcmdapi.Config) error {
-	commandLineFile, _ := ioutil.TempFile("", "")
-	defer os.Remove(commandLineFile.Name())
-	configType := clientcmdapi.Config{
-		AuthInfos: config.AuthInfos,
-		Clusters:  config.Clusters,
-		Contexts:  config.Contexts,
-	}
-	_ = clientcmd.WriteToFile(configType, commandLineFile.Name())
-	pathOptions := clientcmd.NewDefaultPathOptions()
-
-	if err := clientcmd.ModifyConfig(pathOptions, *config, true); err != nil {
-		log.Printf("Unexpected error: %v", err)
-		return err
-	}
-	return nil
 }
 
 // Copied from https://github.com/kubernetes/kubernetes
@@ -108,48 +89,24 @@ func HashSuf(config *clientcmdapi.Config) string {
 }
 
 // Formatable generate table
-func Formatable(args []string) error {
-	config, err := LoadClientConfig(cfgFile)
+func Formatable() error {
+	config, err := clientcmd.LoadFromFile(cfgFile)
 	if err != nil {
 		return err
 	}
 	var table [][]string
-	if args == nil {
-		for key, obj := range config.Contexts {
-			var tmp []string
-			namespace := "default"
-			if config.CurrentContext == key {
-				tmp = append(tmp, "*")
-			} else {
-				tmp = append(tmp, "")
-			}
-			tmp = append(tmp, key)
-			tmp = append(tmp, obj.Cluster)
-			tmp = append(tmp, obj.AuthInfo)
-			tmp = append(tmp, config.Clusters[obj.Cluster].Server)
-			if obj.Namespace != "" {
-				namespace = obj.Namespace
-			}
-			tmp = append(tmp, namespace)
-			table = append(table, tmp)
+	for key, obj := range config.Contexts {
+		tmp := make([]string, 6)
+		namespace := "default"
+		head := ""
+		if config.CurrentContext == key {
+			head = "*"
 		}
-	} else {
-		for key, obj := range config.Contexts {
-			var tmp []string
-			namespace := "default"
-			if config.CurrentContext == key {
-				tmp = append(tmp, "*")
-				tmp = append(tmp, key)
-				tmp = append(tmp, obj.Cluster)
-				tmp = append(tmp, obj.AuthInfo)
-				tmp = append(tmp, config.Clusters[obj.Cluster].Server)
-				if obj.Namespace != "" {
-					namespace = obj.Namespace
-				}
-				tmp = append(tmp, namespace)
-				table = append(table, tmp)
-			}
+		if obj.Namespace != "" {
+			namespace = obj.Namespace
 		}
+		tmp = []string{head, key, obj.Cluster, obj.AuthInfo, config.Clusters[obj.Cluster].Server, namespace}
+		table = append(table, tmp)
 	}
 
 	if table != nil {
@@ -161,7 +118,7 @@ func Formatable(args []string) error {
 		tabulate.SetAlign("center")
 		fmt.Println(tabulate.Render("grid", "left"))
 	} else {
-		return fmt.Errorf("context %v not found", args)
+		return fmt.Errorf("context not found")
 	}
 	return nil
 }
@@ -276,17 +233,20 @@ func ClusterStatus() error {
 }
 
 // WriteConfig write kubeconfig
-func WriteConfig(config []byte) error {
+func (b *baseCommand) WriteConfig(cover bool, file string, outConfig *clientcmdapi.Config) error {
 	if cover {
-		err := ioutil.WriteFile(cfgFile, config, 0777)
+		err := clientcmd.WriteToFile(*outConfig, cfgFile)
 		if err != nil {
 			return err
 		}
+		b.command.Printf("「%s」 write successful!\n", file)
+		err = Formatable()
 	} else {
-		err := ioutil.WriteFile("./config.yaml", config, 0777)
+		err := clientcmd.WriteToFile(*outConfig, "config.yaml")
 		if err != nil {
 			return err
 		}
+		b.command.Println("generate ./config.yaml")
 	}
 	return nil
 }
@@ -361,4 +321,11 @@ func printComponents(out io.Writer, name string, list []string) {
 	fmt.Printf("%v \n", list)
 	ct.ResetColor()
 	fmt.Fprintln(out, "")
+}
+
+func appendConfig(c1, c2 *clientcmdapi.Config) *clientcmdapi.Config {
+	config := clientcmdapi.NewConfig()
+	mergo.Merge(config, c1)
+	mergo.Merge(config, c2)
+	return config
 }

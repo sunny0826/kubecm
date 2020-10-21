@@ -15,30 +15,25 @@ func (lc *ListCommand) Init() {
 		Short: "List kubeconfig",
 		Long:  "List kubeconfig",
 		Aliases: []string{"l"},
-		Run: func(cmd *cobra.Command, args []string) {
-			lc.runList(cmd, args)
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return lc.runList(cmd, args)
 		},
 		Example: listExample(),
 	}
 	lc.command.DisableFlagsInUseLine = true
 }
 
-func (lc *ListCommand) runList(command *cobra.Command, args []string) {
-	if len(args) == 0 {
-		err := Formatable(nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		err := Formatable(args)
-		if err != nil {
-			log.Fatal(err)
-		}
+func (lc *ListCommand) runList(command *cobra.Command, args []string) error {
+	err := Formatable()
+	if err != nil {
+		return err
 	}
-	err := ClusterStatus()
+	err = ClusterStatus()
 	if err != nil {
 		log.Fatalf("Cluster check failure!\n%v", err)
+		return err
 	}
+	return nil
 }
 
 func listExample() string {

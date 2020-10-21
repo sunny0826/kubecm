@@ -17,7 +17,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"log"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 type SwitchCommand struct {
@@ -40,9 +40,9 @@ Switch Kube Context interactively
 }
 
 func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error {
-	config, err := LoadClientConfig(cfgFile)
+	config, err := clientcmd.LoadFromFile(cfgFile)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	var kubeItems []needle
 	current := config.CurrentContext
@@ -61,14 +61,14 @@ func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error 
 	num := SelectUI(kubeItems, "Select Kube Context")
 	kubeName := kubeItems[num].Name
 	config.CurrentContext = kubeName
-	err = ModifyKubeConfig(config)
+	err = sc.WriteConfig(true,cfgFile,config)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	sc.command.Printf("Switched to context 「%s」\n", config.CurrentContext)
-	err = Formatable(nil)
+	err = Formatable()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	return nil
 }

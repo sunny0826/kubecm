@@ -17,16 +17,13 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"k8s.io/client-go/tools/clientcmd"
 	"log"
-	"os"
 )
 
 type RenameCommand struct {
 	baseCommand
 }
-
-var oldName string
-var newName string
 
 func (rc *RenameCommand) Init() {
 	rc.command = &cobra.Command{
@@ -39,95 +36,44 @@ func (rc *RenameCommand) Init() {
 		},
 		Example: renameExample(),
 	}
-	rc.command.Flags().StringVarP(&oldName, "old", "o", "", "Old context name")
-	rc.command.Flags().StringVarP(&newName, "new", "n", "", "New context name")
-	rc.command.Flags().BoolP("cover", "c", false, "")
 }
 
 func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error {
-	config, err := LoadClientConfig(cfgFile)
-	if newName == "" && oldName == "" {
-		var kubeItems []needle
-		for key, obj := range config.Contexts {
-			if key != config.CurrentContext {
-				kubeItems = append(kubeItems, needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
-			} else {
-				kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
-			}
-		}
-		// exit option
-		kubeItems, err := ExitOption(kubeItems)
-		if err != nil {
-			return err
-		}
-		num := SelectUI(kubeItems, "Select The Rename Kube Context")
-		kubeName := kubeItems[num].Name
-		rename := PromptUI("Rename", kubeName)
-		if rename != kubeName {
-			if _, ok := config.Contexts[rename]; ok {
-				log.Fatalf("Name: %s already exists", rename)
-			} else {
-				if obj, ok := config.Contexts[kubeName]; ok {
-					config.Contexts[rename] = obj
-					delete(config.Contexts, kubeName)
-					if config.CurrentContext == kubeName {
-						config.CurrentContext = rename
-					}
-				}
-				err = ModifyKubeConfig(config)
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
+	config, err := clientcmd.LoadFromFile(cfgFile)
+	var kubeItems []needle
+	for key, obj := range config.Contexts {
+		if key != config.CurrentContext {
+			kubeItems = append(kubeItems, needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
 		} else {
-			log.Fatalf("No name: %s changes", rename)
-		}
-	} else {
-		cover, _ = rc.command.Flags().GetBool("cover")
-		if cover && oldName != "" {
-			log.Fatalln("parameter `-c` and `-n` cannot be set at the same time")
-		} else {
-			if err != nil {
-				log.Fatal(err)
-			}
-			if _, ok := config.Contexts[newName]; ok {
-				log.Fatalf("the name:%s is exit.", newName)
-			}
-			if cover {
-				for key, obj := range config.Contexts {
-					if current := config.CurrentContext; key == current {
-						config.Contexts[newName] = obj
-						delete(config.Contexts, key)
-						config.CurrentContext = newName
-						rc.command.Printf("Rename %s to %s\n", key, newName)
-						break
-					}
-				}
-			} else {
-				if obj, ok := config.Contexts[oldName]; ok {
-					config.Contexts[newName] = obj
-					delete(config.Contexts, oldName)
-					if config.CurrentContext == oldName {
-						config.CurrentContext = newName
-					}
-				} else {
-					rc.command.Printf("Can not find context: %s\n", oldName)
-					err := Formatable(nil)
-					if err != nil {
-						log.Fatal(err)
-					}
-					os.Exit(-1)
-				}
-			}
-			err = ModifyKubeConfig(config)
-			if err != nil {
-				log.Fatal(err)
-			}
+			kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
 		}
 	}
-	err = Formatable(nil)
+	// exit option
+	kubeItems, err = ExitOption(kubeItems)
 	if err != nil {
-		log.Fatal(err)
+		return err
+	}
+	num := SelectUI(kubeItems, "Select The Rename Kube Context")
+	kubeName := kubeItems[num].Name
+	rename := PromptUI("Rename", kubeName)
+	if rename != kubeName {
+		if _, ok := config.Contexts[rename]; ok {
+			log.Fatalf("Name: %s already exists", rename)
+		} else {
+			if obj, ok := config.Contexts[kubeName]; ok {
+				config.Contexts[rename] = obj
+				delete(config.Contexts, kubeName)
+				if config.CurrentContext == kubeName {
+					config.CurrentContext = rename
+				}
+			}
+			err = rc.WriteConfig(true,cfgFile,config)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		rc.command.Printf("No name: %s changes\n", rename)
 	}
 	return nil
 }
@@ -136,9 +82,5 @@ func renameExample() string {
 	return `
 # Renamed the context interactively
 kubecm rename
-# Renamed dev to test
-kubecm rename -o dev -n test
-# Renamed current-context name to dev
-kubecm rename -n dev -c
 `
 }

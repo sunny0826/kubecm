@@ -18,13 +18,8 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
-	"log"
-	"os"
-	"sigs.k8s.io/yaml"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -33,8 +28,6 @@ import (
 type MergeCommand struct {
 	baseCommand
 }
-
-var folder string
 
 func (mc *MergeCommand) Init() {
 	mc.command = &cobra.Command{
@@ -47,79 +40,50 @@ func (mc *MergeCommand) Init() {
 		},
 		Example: mergeExample(),
 	}
-	mc.command.Flags().StringVarP(&folder, "folder", "f", "", "Kubeconfig folder")
+	mc.command.Flags().StringP("folder", "f", "", "Kubeconfig folder")
 	mc.command.Flags().BoolP("cover", "c", false, "Overwrite the original kubeconfig file")
 	mc.command.MarkFlagRequired("folder")
 }
 
 func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
-	cover, _ = mc.command.Flags().GetBool("cover")
+	folder, _ := mc.command.Flags().GetString("folder")
 	files := listFile(folder)
 	mc.command.Printf("Loading kubeconfig file: %v \n", files)
-	var loop []string
-	var defaultName string
+	configs := clientcmdapi.NewConfig()
 	for _, yaml := range files {
-		config, err := LoadClientConfig(yaml)
+		config, err := clientcmd.LoadFromFile(yaml)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		name := nameHandle(yaml)
-		commandLineFile, _ := ioutil.TempFile("", "")
-
 		suffix := HashSuf(config)
-		username := fmt.Sprintf("user-%v", suffix)
-		clustername := fmt.Sprintf("cluster-%v", suffix)
-
+		userName := fmt.Sprintf("user-%v", suffix)
+		clusterName := fmt.Sprintf("cluster-%v", suffix)
 		for key, obj := range config.AuthInfos {
-			config.AuthInfos[username] = obj
+			config.AuthInfos[userName] = obj
 			delete(config.AuthInfos, key)
 			break
 		}
 		for key, obj := range config.Clusters {
-			config.Clusters[clustername] = obj
+			config.Clusters[clusterName] = obj
 			delete(config.Clusters, key)
 			break
 		}
 		for key, obj := range config.Contexts {
-			obj.AuthInfo = username
-			obj.Cluster = clustername
+			obj.AuthInfo = userName
+			obj.Cluster = clusterName
 			config.Contexts[name] = obj
 			delete(config.Contexts, key)
 			break
 		}
-		configType := clientcmdapi.Config{
-			AuthInfos: config.AuthInfos,
-			Clusters:  config.Clusters,
-			Contexts:  config.Contexts,
-		}
-		_ = clientcmd.WriteToFile(configType, commandLineFile.Name())
-		loop = append(loop, commandLineFile.Name())
+		configs.CurrentContext = name
+		configs = appendConfig(configs, config)
 		mc.command.Printf("Context Add: %s \n", name)
-		defaultName = name
 	}
-	loadingRules := &clientcmd.ClientConfigLoadingRules{
-		Precedence: loop,
-	}
-	mergedConfig, err := loadingRules.Load()
-	if mergedConfig != nil {
-		mergedConfig.CurrentContext = defaultName
-	}
-	json, err := runtime.Encode(clientcmdlatest.Codec, mergedConfig)
+	cover, _ := mc.command.Flags().GetBool("cover")
+	err := mc.WriteConfig(cover, folder, configs)
 	if err != nil {
-		Error.Printf("Unexpected error: %v", err)
-	}
-	output, err := yaml.JSONToYAML(json)
-	if err != nil {
-		Error.Printf("Unexpected error: %v", err)
-	}
-
-	for _, name := range loop {
-		defer os.Remove(name)
-	}
-
-	err = WriteConfig(output)
-	if err != nil {
-		Error.Println(err.Error())
+		return err
 	}
 	return nil
 }

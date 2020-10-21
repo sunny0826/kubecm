@@ -22,15 +22,18 @@ Usage:
   kubecm [command]
 
 Available Commands:
-  add         Merge configuration file with $HOME/.kube/config
-  completion  Generates bash/zsh completion scripts
-  delete      Delete the specified context from the kubeconfig
-  help        Help about any command
-  merge       Merge the kubeconfig files in the specified directory
-  namespace   Switch or change namespace interactively
-  rename      Rename the contexts of kubeconfig
-  switch      Switch Kube Context interactively
-  version     Print version info
+    add         Merge configuration file with $HOME/.kube/config
+    alias       Generate alias for all contexts
+    completion  Generates bash/zsh completion scripts
+    delete      Delete the specified context from the kubeconfig
+    help        Help about any command
+    ls          List kubeconfig
+    merge       Merge the kubeconfig files in the specified directory
+    namespace   Switch or change namespace interactively
+    rename      Rename the contexts of kubeconfig
+    switch      Switch Kube Context interactively
+    version     Print version info
+
 
 Flags:
       --config string   path of kubeconfig (default "$HOME/.kube/config")
@@ -107,6 +110,24 @@ kubecm ls
 kubecm l
 ```
 
+### Generate alias
+
+Generate alias for all contexts.
+
+```shell script
+$ kubecm alias
+# dev 
+alias k-dev='kubectl --context dev'
+# test
+alias k-test='kubectl --context test'
+# prod
+alias k-prod='kubectl --context prod'
+$ kubecm alias -o zsh
+# add alias context to ~/.zshrc
+$ kubecm alias -o bash
+# add alias context to ~/.bash_profile
+```
+
 ### Add configuration to `$HOME/.kube/config`
 
 ```shell script
@@ -151,10 +172,6 @@ kubecm delete my-context
 ```shell script
 # Renamed the context interactively
 kubecm rename
-# Renamed dev to test
-kubecm rename -o dev -n test
-# Renamed current-context name to dev
-kubecm rename -n dev -c
 ```
  
 ### Switch namespace

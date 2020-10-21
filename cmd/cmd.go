@@ -31,6 +31,9 @@ func CmdInit() *baseCommand {
 	// add list command
 	listCommand := &ListCommand{}
 	baseCmd.AddCommand(listCommand)
+	// add alias command
+	aliasCommand := &AliasCommand{}
+	baseCmd.AddCommand(aliasCommand)
 
 	return baseCmd
 }
