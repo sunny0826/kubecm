@@ -1,19 +1,22 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"log"
+
+	"github.com/spf13/cobra"
 )
 
+// ListCommand list cmd struct
 type ListCommand struct {
-	baseCommand
+	BaseCommand
 }
 
+// Init ListCommand
 func (lc *ListCommand) Init() {
 	lc.command = &cobra.Command{
-		Use:   "ls",
-		Short: "List kubeconfig",
-		Long:  "List kubeconfig",
+		Use:     "ls",
+		Short:   "List kubeconfig",
+		Long:    "List kubeconfig",
 		Aliases: []string{"l"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return lc.runList(cmd, args)

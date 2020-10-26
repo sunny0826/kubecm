@@ -3,17 +3,19 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"github.com/spf13/cobra"
-	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"path/filepath"
-	"strings"
+
+	"github.com/spf13/cobra"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
+// AliasCommand alias command struct
 type AliasCommand struct {
-	baseCommand
+	BaseCommand
 }
 
+// Init AliasCommand
 func (al *AliasCommand) Init() {
 	al.command = &cobra.Command{
 		Use:     "alias",
@@ -42,7 +44,7 @@ func (al *AliasCommand) runAlias(command *cobra.Command, args []string) error {
 # %s
 alias %s='kubectl --context %s'`
 	var tmp string
-	for key, _ := range config.Contexts {
+	for key := range config.Contexts {
 		tmp += fmt.Sprintf(aliasTemp, key, "k-"+key, key)
 	}
 	output, _ := al.command.Flags().GetString("out")
@@ -53,13 +55,13 @@ alias %s='kubectl --context %s'`
 		if err != nil {
 			return err
 		}
-		al.command.Println("「.bash_profile」 write successful!\n")
+		al.command.Println("「.bash_profile」 write successful!")
 	case "zsh":
 		err = writeAppend(result, filepath.Join(homeDir(), ".zshrc"))
 		if err != nil {
 			return err
 		}
-		al.command.Println("「.zshrc」 write successful!\n")
+		al.command.Println("「.zshrc」 write successful!")
 	default:
 		al.command.Print(result)
 	}
@@ -73,8 +75,8 @@ func writeAppend(context, path string) error {
 	}
 	defer f.Close()
 	write := bufio.NewWriter(f)
-	strings.TrimSpace(context)
-	write.WriteString(context)
+	//strings.TrimSpace(context)
+	_, _ = write.WriteString(context)
 	err = write.Flush()
 	if err != nil {
 		return err

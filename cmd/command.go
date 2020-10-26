@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"log"
-	"os"
 )
 
 // Command is cli command interface
@@ -13,33 +11,30 @@ type Command interface {
 
 	// CobraCmd
 	CobraCmd() *cobra.Command
-
 }
 
-// baseCommand
-type baseCommand struct {
+// BaseCommand struct
+type BaseCommand struct {
 	command *cobra.Command
 }
 
-func (bc *baseCommand) Init() {
+// Init BaseCommand
+func (bc *BaseCommand) Init() {
 }
 
-func (bc *baseCommand) CobraCmd() *cobra.Command {
+// CobraCmd return BaseCommand
+func (bc *BaseCommand) CobraCmd() *cobra.Command {
 	return bc.command
 }
 
-func (bc *baseCommand) Name() string {
+// Name return name of BaseCommand
+func (bc *BaseCommand) Name() string {
 	return bc.command.Name()
 }
 
 //AddCommand is add child command to the parent command
-func (bc *baseCommand) AddCommand(child Command) {
+func (bc *BaseCommand) AddCommand(child Command) {
 	child.Init()
 	childCmd := child.CobraCmd()
-	childCmd.PreRun = func(cmd *cobra.Command, args []string) {
-		Info = log.New(os.Stdout, "Info:", log.Ldate|log.Ltime|log.Lshortfile)
-		Warning = log.New(os.Stdout, "Warning:", log.Ldate|log.Ltime|log.Lshortfile)
-		Error = log.New(os.Stderr, "Error:", log.Ldate|log.Ltime|log.Lshortfile)
-	}
 	bc.CobraCmd().AddCommand(childCmd)
 }

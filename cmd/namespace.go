@@ -1,19 +1,24 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
-	"github.com/manifoldco/promptui"
-	"github.com/spf13/cobra"
-	"k8s.io/client-go/tools/clientcmd"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
+	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
+// NamespaceCommand namespace cmd struct
 type NamespaceCommand struct {
-	baseCommand
+	BaseCommand
 }
 
+// Init NamespaceCommand
 func (nc *NamespaceCommand) Init() {
 	nc.command = &cobra.Command{
 		Use:   "namespace",
@@ -41,34 +46,37 @@ func (nc *NamespaceCommand) runNamespace(command *cobra.Command, args []string) 
 	if err != nil {
 		return err
 	}
+
 	if len(args) == 0 {
 		// exit option
-		namespaceList = append(namespaceList, namespaces{Name: "<Exit>", Default: false})
+		namespaceList = append(namespaceList, Namespaces{Name: "<Exit>", Default: false})
 		num := selectNamespace(namespaceList)
 		config.Contexts[currentContext].Namespace = namespaceList[num].Name
 	} else {
-		var flag bool
-		for _, ns := range namespaceList {
-			if ns.Name == args[0] {
-				config.Contexts[currentContext].Namespace = args[0]
-				nc.command.Printf("Namespace: 「%s」 is selected.\n", args[0])
-				flag = true
-				break
-			}
-		}
-		if !flag {
-			nc.command.Printf("Can not find namespace: 「%s」\n", args[0])
-			os.Exit(1)
+		err := changeNamespace(args, namespaceList, currentContext, config)
+		if err != nil {
+			return err
 		}
 	}
-	err = nc.WriteConfig(true,cfgFile,config)
+	err = WriteConfig(true, cfgFile, config)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func selectNamespace(namespaces []namespaces) int {
+func changeNamespace(args []string, namespaceList []Namespaces, currentContext string, config *clientcmdapi.Config) error {
+	for _, ns := range namespaceList {
+		if ns.Name == args[0] {
+			config.Contexts[currentContext].Namespace = args[0]
+			fmt.Printf("Namespace: 「%s」 is selected.\n", args[0])
+			return nil
+		}
+	}
+	return errors.New("Can not find namespace: " + args[0])
+}
+
+func selectNamespace(namespaces []Namespaces) int {
 	templates := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
 		Active:   "\U0001F6A9 {{if .Default}} {{ .Name | red }} * {{else}} {{ .Name | red }} {{end}}",

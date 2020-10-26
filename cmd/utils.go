@@ -1,49 +1,38 @@
-/*
-Copyright © 2019 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package cmd
 
 import (
+	"context"
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"io"
+	"log"
+	"os"
+	"os/user"
+	"strings"
+
 	"github.com/bndr/gotabulate"
 	ct "github.com/daviddengcn/go-colortext"
 	"github.com/imdario/mergo"
 	"github.com/manifoldco/promptui"
-	"io"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
-	"log"
-	"os"
-	"os/user"
-	"strings"
 )
 
-type needle struct {
+// Needle use for switch
+type Needle struct {
 	Name    string
 	Cluster string
 	User    string
 	Center  string
 }
 
-type namespaces struct {
+// Namespaces namespaces struct
+type Namespaces struct {
 	Name    string
 	Default bool
 }
@@ -78,13 +67,13 @@ func Hash(data string) string {
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(data)))
 }
 
-// HashSuffix return the string of kubeconfig.
+// HashSuf return the string of kubeconfig.
 func HashSuf(config *clientcmdapi.Config) string {
-	re_json, err := runtime.Encode(clientcmdlatest.Codec, config)
+	reJSON, err := runtime.Encode(clientcmdlatest.Codec, config)
 	if err != nil {
 		fmt.Printf("Unexpected error: %v", err)
 	}
-	sum, _ := hEncode(Hash(string(re_json)))
+	sum, _ := hEncode(Hash(string(reJSON)))
 	return sum
 }
 
@@ -96,7 +85,6 @@ func Formatable() error {
 	}
 	var table [][]string
 	for key, obj := range config.Contexts {
-		tmp := make([]string, 6)
 		namespace := "default"
 		head := ""
 		if config.CurrentContext == key {
@@ -105,8 +93,8 @@ func Formatable() error {
 		if obj.Namespace != "" {
 			namespace = obj.Namespace
 		}
-		tmp = []string{head, key, obj.Cluster, obj.AuthInfo, config.Clusters[obj.Cluster].Server, namespace}
-		table = append(table, tmp)
+		conTmp := []string{head, key, obj.Cluster, obj.AuthInfo, config.Clusters[obj.Cluster].Server, namespace}
+		table = append(table, conTmp)
 	}
 
 	if table != nil {
@@ -124,7 +112,7 @@ func Formatable() error {
 }
 
 // SelectUI output select ui
-func SelectUI(kubeItems []needle, label string) int {
+func SelectUI(kubeItems []Needle, label string) int {
 	templates := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
 		Active:   "\U0001F63C {{ .Name | red }}{{ .Center | red}}",
@@ -218,7 +206,8 @@ func ClusterStatus() error {
 	}
 
 	timeout := int64(5)
-	cus, err := clientset.CoreV1().ComponentStatuses().List(metav1.ListOptions{TimeoutSeconds: &timeout})
+	ctx := context.TODO()
+	cus, err := clientset.CoreV1().ComponentStatuses().List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
 	if err != nil {
 		return fmt.Errorf(err.Error())
 	}
@@ -233,37 +222,40 @@ func ClusterStatus() error {
 }
 
 // WriteConfig write kubeconfig
-func (b *baseCommand) WriteConfig(cover bool, file string, outConfig *clientcmdapi.Config) error {
+func WriteConfig(cover bool, file string, outConfig *clientcmdapi.Config) error {
 	if cover {
 		err := clientcmd.WriteToFile(*outConfig, cfgFile)
 		if err != nil {
 			return err
 		}
-		b.command.Printf("「%s」 write successful!\n", file)
+		fmt.Printf("「%s」 write successful!\n", file)
 		err = Formatable()
+		if err != nil {
+			return err
+		}
 	} else {
 		err := clientcmd.WriteToFile(*outConfig, "config.yaml")
 		if err != nil {
 			return err
 		}
-		b.command.Println("generate ./config.yaml")
+		fmt.Println("generate ./config.yaml")
 	}
 	return nil
 }
 
 // ExitOption exit option of SelectUI
-func ExitOption(kubeItems []needle) ([]needle, error) {
+func ExitOption(kubeItems []Needle) ([]Needle, error) {
 	u, err := user.Current()
 	if err != nil {
 		return nil, err
 	}
-	kubeItems = append(kubeItems, needle{Name: "<Exit>", Cluster: "exit the kubecm", User: u.Username})
+	kubeItems = append(kubeItems, Needle{Name: "<Exit>", Cluster: "exit the kubecm", User: u.Username})
 	return kubeItems, nil
 }
 
 // GetNamespaceList return namespace list
-func GetNamespaceList(cont string) ([]namespaces, error) {
-	var nss []namespaces
+func GetNamespaceList(cont string) ([]Namespaces, error) {
+	var nss []Namespaces
 	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
 	if err != nil {
 		return nil, fmt.Errorf(err.Error())
@@ -272,7 +264,8 @@ func GetNamespaceList(cont string) ([]namespaces, error) {
 	if err != nil {
 		return nil, fmt.Errorf(err.Error())
 	}
-	namespaceList, err := clientset.CoreV1().Namespaces().List(metav1.ListOptions{})
+	ctx := context.TODO()
+	namespaceList, err := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, fmt.Errorf(err.Error())
 	}
@@ -280,15 +273,15 @@ func GetNamespaceList(cont string) ([]namespaces, error) {
 		switch cont {
 		case "":
 			if specItem.Name == "default" {
-				nss = append(nss, namespaces{Name: specItem.Name, Default: true})
+				nss = append(nss, Namespaces{Name: specItem.Name, Default: true})
 			} else {
-				nss = append(nss, namespaces{Name: specItem.Name, Default: false})
+				nss = append(nss, Namespaces{Name: specItem.Name, Default: false})
 			}
 		default:
 			if specItem.Name == cont {
-				nss = append(nss, namespaces{Name: specItem.Name, Default: true})
+				nss = append(nss, Namespaces{Name: specItem.Name, Default: true})
 			} else {
-				nss = append(nss, namespaces{Name: specItem.Name, Default: false})
+				nss = append(nss, Namespaces{Name: specItem.Name, Default: false})
 			}
 		}
 	}
@@ -325,7 +318,7 @@ func printComponents(out io.Writer, name string, list []string) {
 
 func appendConfig(c1, c2 *clientcmdapi.Config) *clientcmdapi.Config {
 	config := clientcmdapi.NewConfig()
-	mergo.Merge(config, c1)
-	mergo.Merge(config, c2)
+	_ = mergo.Merge(config, c1)
+	_ = mergo.Merge(config, c2)
 	return config
 }

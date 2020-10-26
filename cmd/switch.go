@@ -1,18 +1,3 @@
-/*
-Copyright © 2019 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package cmd
 
 import (
@@ -20,10 +5,12 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+// SwitchCommand switch cmd struct
 type SwitchCommand struct {
-	baseCommand
+	BaseCommand
 }
 
+// Init SwitchCommand
 func (sc *SwitchCommand) Init() {
 	sc.command = &cobra.Command{
 		Use:   "switch",
@@ -44,13 +31,13 @@ func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error 
 	if err != nil {
 		return err
 	}
-	var kubeItems []needle
+	var kubeItems []Needle
 	current := config.CurrentContext
 	for key, obj := range config.Contexts {
 		if key != current {
-			kubeItems = append(kubeItems, needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
+			kubeItems = append(kubeItems, Needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
 		} else {
-			kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
+			kubeItems = append([]Needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
 		}
 	}
 	// exit option
@@ -61,7 +48,7 @@ func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error 
 	num := SelectUI(kubeItems, "Select Kube Context")
 	kubeName := kubeItems[num].Name
 	config.CurrentContext = kubeName
-	err = sc.WriteConfig(true,cfgFile,config)
+	err = WriteConfig(true, cfgFile, config)
 	if err != nil {
 		return err
 	}

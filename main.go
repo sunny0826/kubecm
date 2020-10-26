@@ -1,5 +1,5 @@
 /*
-Copyright © 2019 Guo Xudong
+Copyright © 2020 Guo Xudong
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import (
 )
 
 func main() {
-	baseCommand := cmd.CmdInit()
+	baseCommand := cmd.NewBaseCommand()
 	if err := baseCommand.CobraCmd().Execute(); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		os.Exit(1)

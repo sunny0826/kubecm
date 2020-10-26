@@ -1,30 +1,19 @@
-/*
-Copyright © 2019 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package cmd
 
 import (
+	"errors"
+
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
-	"log"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
+// RenameCommand rename cmd struce
 type RenameCommand struct {
-	baseCommand
+	BaseCommand
 }
 
+// Init RenameCommand
 func (rc *RenameCommand) Init() {
 	rc.command = &cobra.Command{
 		Use:     "rename",
@@ -40,12 +29,15 @@ func (rc *RenameCommand) Init() {
 
 func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error {
 	config, err := clientcmd.LoadFromFile(cfgFile)
-	var kubeItems []needle
+	if err != nil {
+		return err
+	}
+	var kubeItems []Needle
 	for key, obj := range config.Contexts {
 		if key != config.CurrentContext {
-			kubeItems = append(kubeItems, needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
+			kubeItems = append(kubeItems, Needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
 		} else {
-			kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
+			kubeItems = append([]Needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
 		}
 	}
 	// exit option
@@ -56,26 +48,29 @@ func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error 
 	num := SelectUI(kubeItems, "Select The Rename Kube Context")
 	kubeName := kubeItems[num].Name
 	rename := PromptUI("Rename", kubeName)
-	if rename != kubeName {
-		if _, ok := config.Contexts[rename]; ok {
-			log.Fatalf("Name: %s already exists", rename)
-		} else {
-			if obj, ok := config.Contexts[kubeName]; ok {
-				config.Contexts[rename] = obj
-				delete(config.Contexts, kubeName)
-				if config.CurrentContext == kubeName {
-					config.CurrentContext = rename
-				}
-			}
-			err = rc.WriteConfig(true,cfgFile,config)
-			if err != nil {
-				return err
-			}
-		}
-	} else {
-		rc.command.Printf("No name: %s changes\n", rename)
+	config, err = renameComplet(rename, kubeName, config)
+	if err != nil {
+		return err
+	}
+	err = WriteConfig(true, cfgFile, config)
+	if err != nil {
+		return err
 	}
 	return nil
+}
+
+func renameComplet(rename, kubeName string, config *clientcmdapi.Config) (*clientcmdapi.Config, error) {
+	if _, ok := config.Contexts[rename]; ok || rename == kubeName {
+		return nil, errors.New("Name: " + rename + " already exists")
+	}
+	if obj, ok := config.Contexts[kubeName]; ok {
+		config.Contexts[rename] = obj
+		delete(config.Contexts, kubeName)
+		if config.CurrentContext == kubeName {
+			config.CurrentContext = rename
+		}
+	}
+	return config, nil
 }
 
 func renameExample() string {

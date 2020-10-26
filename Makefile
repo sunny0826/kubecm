@@ -21,6 +21,13 @@ VERSION_PKG=github.com/sunny0826/kubecm/cmd
 GO_FLAGS=-ldflags="-X ${VERSION_PKG}.kubecmVersion=$(KUBECM_VERSION) -X ${VERSION_PKG}.gitCommit=$(GITCOMMIT) -X '${VERSION_PKG}.buildDate=`date`'"
 GO=env $(GO_ENV) $(GO_MODULE) go
 
+# Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
+ifeq (,$(shell go env GOBIN))
+GOBIN=$(shell go env GOPATH)/bin
+else
+GOBIN=$(shell go env GOBIN)
+endif
+
 ifeq ($(GOOS), linux)
 	GO_FLAGS=-ldflags="-linkmode external -extldflags -static -X ${VERSION_PKG}.kubecmVersion=$(KUBECM_VERSION) -X ${VERSION_PKG}.gitCommit=$(GITCOMMIT) -X '${VERSION_PKG}.buildDate=`date`'"
 endif
@@ -50,3 +57,38 @@ tag:
 
 push_tag:
 	git push origin $(KUBECM_VERSION)
+
+# Run go fmt against code
+fmt:
+	go fmt ./...
+
+# Run go vet against code
+vet:
+	go vet ./...
+
+lint: golangci
+	$(GOLANGCILINT) run --disable=typecheck --timeout 10m -E golint,goimports  ./...
+
+test: fmt vet lint
+		go test -race -coverprofile=coverage.txt -covermode=atomic ./cmd/...
+
+
+GOLANGCILINT_VERSION ?= v1.29.0
+HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
+HOSTARCH := $(shell uname -m)
+ifeq ($(HOSTARCH),x86_64)
+HOSTARCH := amd64
+endif
+
+golangci:
+ifeq (, $(shell which golangci-lint))
+	@{ \
+	set -e ;\
+	echo 'installing golangci-lint-$(GOLANGCILINT_VERSION)' ;\
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOBIN) $(GOLANGCILINT_VERSION) ;\
+	echo 'Install succeed' ;\
+	}
+GOLANGCILINT=$(GOBIN)/golangci-lint
+else
+GOLANGCILINT=$(shell which golangci-lint)
+endif

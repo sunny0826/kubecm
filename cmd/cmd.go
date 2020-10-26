@@ -1,8 +1,9 @@
 package cmd
 
-func CmdInit() *baseCommand {
+// NewBaseCommand cmd struct
+func NewBaseCommand() *BaseCommand {
 	cli := NewCli()
-	baseCmd := &baseCommand{
+	baseCmd := &BaseCommand{
 		command: cli.rootCmd,
 	}
 	// add version command

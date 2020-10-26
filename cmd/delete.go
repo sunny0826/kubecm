@@ -1,32 +1,20 @@
-/*
-Copyright © 2019 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package cmd
 
 import (
+	"errors"
 	"fmt"
+
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	"log"
 )
 
+// DeleteCommand delete cmd struct
 type DeleteCommand struct {
-	baseCommand
+	BaseCommand
 }
 
+// Init DeleteCommand
 func (dc *DeleteCommand) Init() {
 	dc.command = &cobra.Command{
 		Use:     "delete",
@@ -43,59 +31,73 @@ func (dc *DeleteCommand) Init() {
 
 func (dc *DeleteCommand) runDelete(command *cobra.Command, args []string) error {
 	config, err := clientcmd.LoadFromFile(cfgFile)
-	if len(args) != 0 {
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = dc.deleteContext(args, config)
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else if len(args) == 0 {
-		var kubeItems []needle
-		for key, obj := range config.Contexts {
-			if key != config.CurrentContext {
-				kubeItems = append(kubeItems, needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
-			} else {
-				kubeItems = append([]needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
-			}
-		}
-		// exit option
-		kubeItems, err := ExitOption(kubeItems)
+	if err != nil {
+		return err
+	}
+	if len(args) == 0 {
+		confirm, kubeName, err := selectDeleteContext(config)
 		if err != nil {
 			return err
 		}
-		num := SelectUI(kubeItems, "Select The Delete Kube Context")
-		kubeName := kubeItems[num].Name
-		confirm := BoolUI(fmt.Sprintf("Are you sure you want to delete「%s」?", kubeName))
 		if confirm == "True" {
-			err = dc.deleteContext([]string{kubeName}, config)
+			err = deleteContext([]string{kubeName}, config)
 			if err != nil {
-				log.Fatal(err)
+				return err
 			}
 		} else {
-			dc.command.Println("Nothing deleted！")
+			return errors.New("nothing deleted！")
 		}
 	} else {
-		dc.command.Println("Please enter the context you want to delete.")
-	}
-	return nil
-}
-
-func (dc *DeleteCommand) deleteContext(ctxs []string, config *clientcmdapi.Config) error {
-	for _, ctx := range ctxs {
-		if _, ok := config.Contexts[ctx]; ok {
-			delete(config.Contexts, ctx)
-			dc.command.Printf("Context Delete:「%s」\n", ctx)
-		} else {
-			Error.Printf("「%s」do not exit.", ctx)
+		err = deleteContext(args, config)
+		if err != nil {
+			return err
 		}
 	}
-	err := dc.WriteConfig(true,cfgFile,config)
+	err = WriteConfig(true, cfgFile, config)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func deleteContext(ctxs []string, config *clientcmdapi.Config) error {
+	var notFinds []string
+	for _, ctx := range ctxs {
+		if _, ok := config.Contexts[ctx]; ok {
+			delContext := config.Contexts[ctx]
+			delete(config.AuthInfos, delContext.AuthInfo)
+			delete(config.Clusters, delContext.Cluster)
+			delete(config.Contexts, ctx)
+			fmt.Printf("Context Delete:「%s」\n", ctx)
+		} else {
+			notFinds = append(notFinds, ctx)
+			fmt.Printf("「%s」do not exit.\n", ctx)
+		}
+	}
+	if len(notFinds) == len(ctxs) {
+		return errors.New("nothing deleted！")
+	}
+	return nil
+}
+
+func selectDeleteContext(config *clientcmdapi.Config) (string, string, error) {
+	var kubeItems []Needle
+	for key, obj := range config.Contexts {
+		if key != config.CurrentContext {
+			kubeItems = append(kubeItems, Needle{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo})
+		} else {
+			kubeItems = append([]Needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
+		}
+	}
+	// exit option
+	kubeItems, err := ExitOption(kubeItems)
+	if err != nil {
+		return "", "", err
+	}
+	num := SelectUI(kubeItems, "Select The Delete Kube Context")
+	kubeName := kubeItems[num].Name
+	confirm := BoolUI(fmt.Sprintf("Are you sure you want to delete「%s」?", kubeName))
+	return confirm, kubeName, nil
 }
 
 func deleteExample() string {
@@ -104,5 +106,7 @@ func deleteExample() string {
 kubecm delete
 # Delete the context
 kubecm delete my-context
+# Deleting multiple contexts
+kubecm delete my-context1 my-context2
 `
 }

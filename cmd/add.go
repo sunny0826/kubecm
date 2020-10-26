@@ -1,34 +1,22 @@
-/*
-Copyright © 2019 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package cmd
 
 import (
 	"errors"
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	"os"
-	"strings"
 )
 
+// AddCommand add command struct
 type AddCommand struct {
-	baseCommand
+	BaseCommand
 }
 
+// Init AddCommand
 func (ac *AddCommand) Init() {
 	ac.command = &cobra.Command{
 		Use:   "add",
@@ -42,7 +30,7 @@ func (ac *AddCommand) Init() {
 	ac.command.Flags().StringP("file", "f", "", "Path to merge kubeconfig files")
 	ac.command.Flags().StringP("name", "n", "", "The name of contexts. if this field is null,it will be named with file name.")
 	ac.command.Flags().BoolP("cover", "c", false, "Overwrite the original kubeconfig file")
-	ac.command.MarkFlagRequired("file")
+	_ = ac.command.MarkFlagRequired("file")
 }
 
 func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
@@ -50,7 +38,8 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 	if fileNotExists(file) {
 		return errors.New(file + " file does not exist")
 	}
-	newConfig, err := ac.formatNewConfig(file)
+	name := ac.command.Flag("name").Value.String()
+	newConfig, err := formatNewConfig(file, name)
 	if err != nil {
 		return err
 	}
@@ -60,22 +49,22 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 	}
 	outConfig := appendConfig(oldConfig, newConfig)
 	cover, _ := ac.command.Flags().GetBool("cover")
-	err = ac.WriteConfig(cover, file, outConfig)
+	err = WriteConfig(cover, file, outConfig)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (ac *AddCommand) formatNewConfig(file string) (*clientcmdapi.Config, error) {
+func formatNewConfig(file, nameFlag string) (*clientcmdapi.Config, error) {
 	config, err := clientcmd.LoadFromFile(file)
 	if err != nil {
 		return nil, err
 	}
 	if len(config.AuthInfos) != 1 {
-		return nil, errors.New("Only support add 1 context. You can use `merge` cmd.\n")
+		return nil, errors.New("Only support add 1 context. You can use `merge` cmd")
 	}
-	name, err := ac.fotmatAndCheckName(file)
+	name, err := formatAndCheckName(file, nameFlag)
 	if err != nil {
 		return nil, err
 	}
@@ -99,11 +88,11 @@ func (ac *AddCommand) formatNewConfig(file string) (*clientcmdapi.Config, error)
 		delete(config.Contexts, key)
 		break
 	}
+	fmt.Printf("Context Add: %s \n", name)
 	return config, nil
 }
 
-func (ac *AddCommand) fotmatAndCheckName(file string) (string, error) {
-	name, _ := ac.command.Flags().GetString("name")
+func formatAndCheckName(file, name string) (string, error) {
 	if name == "" {
 		n := strings.Split(file, "/")
 		result := strings.Split(n[len(n)-1], ".")
@@ -113,9 +102,9 @@ func (ac *AddCommand) fotmatAndCheckName(file string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	for key, _ := range config.Contexts {
+	for key := range config.Contexts {
 		if key == name {
-			return "", errors.New("The name: " + name + " already exists, please replace it.\n")
+			return key, errors.New("The name: " + name + " already exists, please replace it")
 		}
 	}
 	return name, nil
@@ -124,10 +113,7 @@ func (ac *AddCommand) fotmatAndCheckName(file string) (string, error) {
 func fileNotExists(path string) bool {
 	_, err := os.Stat(path) //os.Stat获取文件信息
 	if err != nil {
-		if os.IsExist(err) {
-			return false
-		}
-		return true
+		return !os.IsExist(err)
 	}
 	return false
 }

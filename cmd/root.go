@@ -1,5 +1,7 @@
+package cmd
+
 /*
-Copyright © 2019 Guo Xudong
+Copyright © 2020 Guo Xudong
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,24 +15,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package cmd
 
 import (
 	"flag"
-	"github.com/spf13/cobra"
-	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/spf13/cobra"
 )
 
 var cfgFile string
 
-var (
-	Info    *log.Logger
-	Warning *log.Logger
-	Error   *log.Logger
-)
-
+// Cli cmd struct
 type Cli struct {
 	rootCmd *cobra.Command
 }
