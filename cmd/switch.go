@@ -53,10 +53,10 @@ func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error 
 		return err
 	}
 	sc.command.Printf("Switched to context 「%s」\n", config.CurrentContext)
-	err = Formatable()
-	if err != nil {
-		return err
-	}
+	//err = Formatable()
+	//if err != nil {
+	//	return err
+	//}
 	return nil
 }
 
