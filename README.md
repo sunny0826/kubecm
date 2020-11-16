@@ -2,7 +2,7 @@ English | [简体中文](docs/README_CN.md)
 
 # KubeCM
 
-[![Build Status](https://travis-ci.org/sunny0826/kubecm.svg?branch=master)](https://travis-ci.org/sunny0826/kubecm)
+![Go](https://github.com/sunny0826/kubecm/workflows/Go/badge.svg?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sunny0826/kubecm)](https://goreportcard.com/report/github.com/sunny0826/kubecm)
 ![GitHub](https://img.shields.io/github/license/sunny0826/kubecm.svg)
 [![GitHub release](https://img.shields.io/github/release/sunny0826/kubecm)](https://github.com/sunny0826/kubecm/releases)
