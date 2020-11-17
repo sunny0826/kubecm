@@ -46,7 +46,6 @@ brews:
     # Packages your package depends on.
     dependencies:
       - name: git
-      - name: go
 
     # So you can `brew test` your formula.
     # Default is empty.
@@ -57,3 +56,11 @@ brews:
     # Default is 'bin.install "program"'.
     install: |
       bin.install "kubecm"
+
+      # Install bash completion
+      output = Utils.safe_popen_read("#{bin}/kubecm", "completion", "bash")
+      (bash_completion/"kubecm").write output
+
+      # Install zsh completion
+      output = Utils.safe_popen_read("#{bin}/kubecm", "completion", "zsh")
+      (zsh_completion/"_kubecm").write output
