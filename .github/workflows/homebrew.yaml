@@ -11,10 +11,14 @@ jobs:
     name: Bump Homebrew formula
     runs-on: ubuntu-latest
     steps:
-      - name: Update Homebrew Formula
-        uses: izumin5210/action-homebrew-tap@releases/v0
+      - uses: mislav/bump-homebrew-formula-action@v1
         with:
-          tap: sunny0826/homebrew-tap
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tap-token: ${{ secrets.HOMEBREW_TOKEN }}
+          formula-name: kubecm
+          homebrew-tap: sunny0826/homebrew-tap
+          base-branch: master
+          download-url: https://github.com/sunny0826/kubecm/releases/download/v${{version}}/kubecm_${{version}}_Darwin_x86_64.tar.gz
+          commit-message: ${{version}}
+        env:
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
