@@ -34,7 +34,7 @@ brews:
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TOKEN }}"
 
-    url_template: "https://github.com/sunny0826/kubecm/releases/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/sunny0826/kubecm/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     # Git author used to commit to the repository.
     # Defaults are shown.
     commit_author:
