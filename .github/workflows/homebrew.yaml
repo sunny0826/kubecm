@@ -1,0 +1,20 @@
+name: Homebrew
+
+on:
+  workflow_run:
+    workflows: [ "Release" ]
+    types:
+      - completed
+
+jobs:
+  homebrew:
+    name: Bump Homebrew formula
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update Homebrew Formula
+        uses: izumin5210/action-homebrew-tap@releases/v0
+        with:
+          tap: sunny0826/homebrew-tap
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tap-token: ${{ secrets.HOMEBREW_TOKEN }}
+
