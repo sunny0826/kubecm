@@ -72,6 +72,9 @@ lint: golangci
 test: fmt vet lint
 		go test -race -coverprofile=coverage.txt -covermode=atomic ./cmd/...
 
+doc-gen:
+	rm -r docs/en/cli/*
+	go run hack/docgen/gen.go
 
 GOLANGCILINT_VERSION ?= v1.29.0
 HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]')

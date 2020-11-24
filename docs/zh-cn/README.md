@@ -41,24 +41,16 @@ Flags:
 Use "kubecm [command] --help" for more information about a command.
 ```
 
-## Documentation
-
-For full documentation, please visit the KubeVela website: [https://kubecm.cloud](https://kubecm.cloud)
-
-## Video
+# 视频
 
 [![](https://tva3.sinaimg.cn/large/ad5fbf65gy1gij1pl0pn5j218o0p81kx.jpg)](https://www.bilibili.com/video/av88259938/)
 
-## Contribute
-
-Feel free to open issues and pull requests. Any feedback is highly appreciated!
-
-## Thanks
+# 鸣谢
 
 - [JetBrains IDEs](https://www.jetbrains.com/?from=kubecm)
 
 <p align="center">
   <a href="https://www.jetbrains.com/?from=kubecm" title="前往官网了解JetBrains出品的IDEs">
-    <img src="docs/static/jetbrains.svg" width="128" alt="JetBrains logo">
+    <img src="../static/jetbrains.svg" width="128" alt="JetBrains logo">
   </a>
 </p>
