@@ -6,35 +6,18 @@ func NewBaseCommand() *BaseCommand {
 	baseCmd := &BaseCommand{
 		command: cli.rootCmd,
 	}
-	// add version command
-	baseCmd.AddCommand(&VersionCommand{})
-	// add add command
-	addCommand := &AddCommand{}
-	baseCmd.AddCommand(addCommand)
-	// add completion command
-	completionCommand := &CompletionCommand{}
-	baseCmd.AddCommand(completionCommand)
-	// add delete command
-	deleteCommand := &DeleteCommand{}
-	baseCmd.AddCommand(deleteCommand)
-	// add merge command
-	mergeCommand := &MergeCommand{}
-	baseCmd.AddCommand(mergeCommand)
-	// add rename command
-	renameCommand := &RenameCommand{}
-	baseCmd.AddCommand(renameCommand)
-	// add switch command
-	switchCommand := &SwitchCommand{}
-	baseCmd.AddCommand(switchCommand)
-	// add namespace command
-	namespaceCommand := &NamespaceCommand{}
-	baseCmd.AddCommand(namespaceCommand)
-	// add list command
-	listCommand := &ListCommand{}
-	baseCmd.AddCommand(listCommand)
-	// add alias command
-	aliasCommand := &AliasCommand{}
-	baseCmd.AddCommand(aliasCommand)
+	baseCmd.AddCommands(
+		&VersionCommand{},    // version command
+		&AddCommand{},        // add command
+		&CompletionCommand{}, // completion command
+		&DeleteCommand{},     // delete command
+		&MergeCommand{},      // merge command
+		&RenameCommand{},     // rename command
+		&SwitchCommand{},     // switch command
+		&NamespaceCommand{},  // namespace command
+		&ListCommand{},       // list command
+		&AliasCommand{},      // alias command
+	)
 
 	return baseCmd
 }
