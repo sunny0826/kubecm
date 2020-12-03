@@ -1,17 +1,18 @@
-name: Bump Homebrew formula
+name: Bump Homebrew kubecm formula
 
 on:
-  workflow_run:
-    workflows: ["Release"]
-    types:
-      - completed
+  push:
+    tags: '*'
 
 jobs:
   homebrew:
-    name: Bump Homebrew formula
     runs-on: ubuntu-latest
+
     steps:
-      - uses: dawidd6/action-homebrew-bump-formula@v3
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Bump formulae
+        uses: dawidd6/action-homebrew-bump-formula@v3.1.1
         with:
-          token: ${{secrets.HOMEBREW_TOKEN}}
+          token: ${{ secrets.HOMEBREW_TOKEN }}
           formula: kubecm
