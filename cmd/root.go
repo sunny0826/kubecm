@@ -38,7 +38,7 @@ func NewCli() *Cli {
 			Use:   "kubecm",
 			Short: "KubeConfig Manager.",
 			Long: `
-KubeConfig Manager
+Manage your kubeconfig more easily.
  _          _
 | | ___   _| |__   ___  ___ _ __ ___
 | |/ / | | | '_ \ / _ \/ __| '_ \ _ \

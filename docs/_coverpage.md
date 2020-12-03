@@ -1,6 +1,6 @@
 # Kubecm
 
-> Make shipping applications more enjoyable.
+> Manage your kubeconfig more easily.
 
 
 [GitHub](https://github.com/sunny0826/kubecm)

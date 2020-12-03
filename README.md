@@ -7,7 +7,7 @@
 [![codecov](https://codecov.io/gh/sunny0826/kubecm/branch/master/graph/badge.svg?token=KGTLBQ8HYZ)](undefined)
 
 ```text
-KubeConfig Manager
+Manage your kubeconfig more easily.
  _          _
 | | ___   _| |__   ___  ___ _ __ ___
 | |/ / | | | '_ \ / _ \/ __| '_ \ _ \
