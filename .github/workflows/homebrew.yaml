@@ -1,8 +1,10 @@
 name: Bump Homebrew formula
 
 on:
-  push:
-    tags: '*'
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
 
 jobs:
   homebrew:
