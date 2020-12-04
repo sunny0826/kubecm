@@ -3,8 +3,10 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
@@ -29,7 +31,10 @@ func (al *AliasCommand) Init() {
 	}
 	al.command.DisableFlagsInUseLine = true
 	al.command.Flags().StringP("out", "o", "", "output to ~/.zshrc or ~/.bash_profile")
+	_ = al.command.MarkFlagRequired("out")
 }
+
+const SourceCmd = "[[ ! -f ~/.kubecm ]] || source ~/.kubecm"
 
 func (al *AliasCommand) runAlias(command *cobra.Command, args []string) error {
 	config, err := clientcmd.LoadFromFile(cfgFile)
@@ -49,21 +54,34 @@ alias %s='kubectl --context %s'`
 	}
 	output, _ := al.command.Flags().GetString("out")
 	result := fmt.Sprintf(allTemp, tmp)
+	err = updateFile(result, filepath.Join(homeDir(), ".kubecm"))
+	if err != nil {
+		return err
+	}
 	switch output {
 	case "bash":
-		err = writeAppend(result, filepath.Join(homeDir(), ".bash_profile"))
+		err = writeAppend(SourceCmd, filepath.Join(homeDir(), ".bash_profile"))
 		if err != nil {
 			return err
 		}
-		al.command.Println("「.bash_profile」 write successful!")
+		al.command.Println("「.bash_profile」 write successful!\nPlease enter command `source .bash_profile`")
 	case "zsh":
-		err = writeAppend(result, filepath.Join(homeDir(), ".zshrc"))
+		err = writeAppend(SourceCmd, filepath.Join(homeDir(), ".zshrc"))
 		if err != nil {
 			return err
 		}
-		al.command.Println("「.zshrc」 write successful!")
+		al.command.Println("「.zshrc」 write successful!\nPlease enter command `source .zshrc`")
 	default:
-		al.command.Print(result)
+		al.command.PrintErrln("Parameter error! Please input bash or zsh")
+	}
+
+	return nil
+}
+
+func updateFile(cxt, path string) error {
+	err := ioutil.WriteFile(path, []byte(cxt), 0644)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -74,24 +92,28 @@ func writeAppend(context, path string) error {
 		return err
 	}
 	defer f.Close()
-	write := bufio.NewWriter(f)
-	//strings.TrimSpace(context)
-	_, _ = write.WriteString(context)
-	err = write.Flush()
-	if err != nil {
-		return err
+	var exist bool
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if ok := strings.EqualFold(SourceCmd, line); ok {
+			exist = true
+			break
+		}
+	}
+	if !exist {
+		write := bufio.NewWriter(f)
+		_, _ = write.WriteString(context+"\n")
+		err = write.Flush()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 func aliasExample() string {
 	return `
-# dev 
-alias k-dev='kubectl --context dev'
-# test
-alias k-test='kubectl --context test'
-# prod
-alias k-prod='kubectl --context prod'
 $ kubecm alias -o zsh
 # add context to ~/.zshrc
 $ kubecm alias -o bash

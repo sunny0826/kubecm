@@ -14,12 +14,6 @@ kubecm alias
 
 ```
 
-# dev 
-alias k-dev='kubectl --context dev'
-# test
-alias k-test='kubectl --context test'
-# prod
-alias k-prod='kubectl --context prod'
 $ kubecm alias -o zsh
 # add context to ~/.zshrc
 $ kubecm alias -o bash
@@ -37,5 +31,5 @@ $ kubecm alias -o bash
 ### Options inherited from parent commands
 
 ```
-      --config string   path of kubeconfig (default "/Users/guoxudong/.kube/config")
+      --config string   path of kubeconfig (default "/Users/saybot/.kube/config")
 ```

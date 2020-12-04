@@ -9,7 +9,7 @@ import (
 
 func main() {
 	kubecm := cmd.NewBaseCommand().CobraCmd()
-	err := doc.GenMarkdownTree(kubecm, "./docs/tmp/cli/")
+	err := doc.GenMarkdownTree(kubecm, "./tmp/cli/")
 	if err != nil {
 		log.Fatal(err)
 	}

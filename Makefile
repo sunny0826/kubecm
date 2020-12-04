@@ -73,7 +73,9 @@ test: fmt vet lint
 		go test -race -coverprofile=coverage.txt -covermode=atomic ./cmd/...
 
 doc-gen:
-	rm -r docs/tmp/cli/*
+ifneq ($(wildcard "tmp/cli"),)
+	rm -r tmp/cli/*
+endif
 	go run hack/docgen/gen.go
 
 GOLANGCILINT_VERSION ?= v1.29.0
