@@ -31,7 +31,7 @@ func (al *AliasCommand) Init() {
 	}
 	al.command.DisableFlagsInUseLine = true
 	al.command.Flags().StringP("out", "o", "", "output to ~/.zshrc or ~/.bash_profile")
-	al.command.MarkFlagRequired("out")
+	_ = al.command.MarkFlagRequired("out")
 }
 
 const SourceCmd = "[[ ! -f ~/.kubecm ]] || source ~/.kubecm"
