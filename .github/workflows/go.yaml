@@ -1,6 +1,12 @@
 name: Go
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - "*"
+  pull_request:
+    branches:
+      - master
 
 jobs:
   test:
