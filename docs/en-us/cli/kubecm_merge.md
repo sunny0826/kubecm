@@ -17,15 +17,11 @@ kubecm merge [flags]
 # Merge kubeconfig in the dir directory
 kubecm merge -f dir
 
-# Merge kubeconfig in the directory and overwrite the original kubeconfig file
-kubecm merge -f dir -c
-
 ```
 
 ### Options
 
 ```
-  -c, --cover           Overwrite the original kubeconfig file
   -f, --folder string   Kubeconfig folder
   -h, --help            help for merge
 ```
@@ -33,5 +29,5 @@ kubecm merge -f dir -c
 ### Options inherited from parent commands
 
 ```
-      --config string   path of kubeconfig (default "/Users/guoxudong/.kube/config")
+      --config string   path of kubeconfig (default "/Users/saybot/.kube/config")
 ```

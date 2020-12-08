@@ -14,7 +14,7 @@ Manage your kubeconfig more easily.
 |   <| |_| | |_) |  __/ (__| | | | | |
 |_|\_\\__,_|_.__/ \___|\___|_| |_| |_|
 
-Find more information at: https://github.com/sunny0826/kubecm
+Find more information at: https://kubecm.cloud
 
 Usage:
   kubecm [flags]
