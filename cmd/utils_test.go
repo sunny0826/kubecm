@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"k8s.io/apimachinery/pkg/util/diff"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 var (
@@ -58,7 +58,7 @@ func Test_appendConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := appendConfig(tt.args.c1, tt.args.c2)
-			checkResult(tt.want, got,"", t)
+			checkResult(tt.want, got, "", t)
 		})
 	}
 }
