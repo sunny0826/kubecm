@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
+	"k8s.io/client-go/tools/clientcmd"
+	"strconv"
 
 	"github.com/spf13/cobra"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -26,7 +28,6 @@ func (mc *MergeCommand) Init() {
 		Example: mergeExample(),
 	}
 	mc.command.Flags().StringP("folder", "f", "", "Kubeconfig folder")
-	mc.command.Flags().BoolP("cover", "c", false, "Overwrite the original kubeconfig file")
 	_ = mc.command.MarkFlagRequired("folder")
 }
 
@@ -36,14 +37,18 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 	mc.command.Printf("Loading kubeconfig file: %v \n", files)
 	configs := clientcmdapi.NewConfig()
 	for _, yaml := range files {
-		config, err := formatNewConfig(yaml, "")
+		config, err := clientcmd.LoadFromFile(yaml)
 		if err != nil {
 			return err
 		}
 		configs = appendConfig(configs, config)
 	}
-	cover, _ := mc.command.Flags().GetBool("cover")
-	err := WriteConfig(cover, folder, configs)
+	cover := BoolUI(fmt.Sprintf("Are you sure you want to overwrite the「%s」file?", cfgFile))
+	confirm, err := strconv.ParseBool(cover)
+	if err != nil {
+		return err
+	}
+	err = WriteConfig(confirm, folder, configs)
 	if err != nil {
 		return err
 	}
@@ -67,8 +72,5 @@ func mergeExample() string {
 	return `
 # Merge kubeconfig in the dir directory
 kubecm merge -f dir
-
-# Merge kubeconfig in the directory and overwrite the original kubeconfig file
-kubecm merge -f dir -c
 `
 }

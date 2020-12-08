@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"path/filepath"
 	"strings"
 
 	"github.com/bndr/gotabulate"
@@ -182,7 +183,7 @@ func BoolUI(label string) string {
 	}
 	prompt := promptui.Select{
 		Label:     label,
-		Items:     []string{"True", "False"},
+		Items:     []string{"False", "True"},
 		Templates: templates,
 		Size:      2,
 	}
@@ -321,4 +322,16 @@ func appendConfig(c1, c2 *clientcmdapi.Config) *clientcmdapi.Config {
 	_ = mergo.Merge(config, c1)
 	_ = mergo.Merge(config, c2)
 	return config
+}
+
+// CheckAndTransformFilePath return converted path
+func CheckAndTransformFilePath(path string) (string, error) {
+	if strings.HasPrefix(path, "~/") {
+		path = filepath.Join(homeDir(), path[2:])
+	}
+	_, err := os.Stat(path) //os.Stat获取文件信息
+	if err != nil {
+		return "", err
+	}
+	return path, nil
 }
