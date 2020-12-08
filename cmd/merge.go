@@ -3,8 +3,9 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
-	"k8s.io/client-go/tools/clientcmd"
 	"strconv"
+
+	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/spf13/cobra"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"

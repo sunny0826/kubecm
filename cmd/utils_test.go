@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	apiequality "k8s.io/apimachinery/pkg/api/equality"
 	"reflect"
 	"testing"
+
+	apiequality "k8s.io/apimachinery/pkg/api/equality"
 
 	"k8s.io/apimachinery/pkg/util/diff"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
