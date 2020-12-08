@@ -103,7 +103,7 @@ func writeAppend(context, path string) error {
 	}
 	if !exist {
 		write := bufio.NewWriter(f)
-		_, _ = write.WriteString(context+"\n")
+		_, _ = write.WriteString(context + "\n")
 		err = write.Flush()
 		if err != nil {
 			return err
