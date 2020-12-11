@@ -18,17 +18,19 @@ kubecm ls
 kubecm ls
 # Aliases
 kubecm l
+# Filter out keywords(Multi-keyword support)
+kubecm ls kind k3s
 
 ```
 
 ### Options
 
 ```
-  -h, --help   help for ls
+  -h, --help            help for ls
 ```
 
 ### Options inherited from parent commands
 
 ```
-      --config string   path of kubeconfig (default "/Users/guoxudong/.kube/config")
+      --config string   path of kubeconfig (default "/Users/saybot/.kube/config")
 ```

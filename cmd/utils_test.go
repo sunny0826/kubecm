@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"os/user"
 	"reflect"
 	"testing"
 
@@ -31,6 +32,31 @@ var (
 		AuthInfos: map[string]*clientcmdapi.AuthInfo{
 			"black-user": {Token: "black-token"},
 			"red-user":   {Token: "red-token"},
+		},
+		Clusters: map[string]*clientcmdapi.Cluster{
+			"pig-cluster": {Server: "http://pig.org:8080"},
+			"cow-cluster": {Server: "http://cow.org:8080"},
+		},
+		Contexts: map[string]*clientcmdapi.Context{
+			"root-context":    {AuthInfo: "black-user", Cluster: "pig-cluster", Namespace: "saw-ns"},
+			"federal-context": {AuthInfo: "red-user", Cluster: "cow-cluster", Namespace: "hammer-ns"},
+		},
+	}
+	wrongRootConfig = clientcmdapi.Config{
+		AuthInfos: map[string]*clientcmdapi.AuthInfo{
+			"red-user": {Token: "red-token"},
+		},
+		Clusters: map[string]*clientcmdapi.Cluster{
+			"cow-cluster": {Server: "http://cow.org:8080"},
+		},
+		Contexts: map[string]*clientcmdapi.Context{
+			"root-context":    {AuthInfo: "black-user", Cluster: "pig-cluster", Namespace: "saw-ns"},
+			"federal-context": {AuthInfo: "red-user", Cluster: "cow-cluster", Namespace: "hammer-ns"},
+		},
+	}
+	wrongFederalConfig = clientcmdapi.Config{
+		AuthInfos: map[string]*clientcmdapi.AuthInfo{
+			"black-user": {Token: "black-token"},
 		},
 		Clusters: map[string]*clientcmdapi.Cluster{
 			"pig-cluster": {Server: "http://pig.org:8080"},
@@ -117,4 +143,91 @@ func testSetNilMapsToEmpties(curr reflect.Value) {
 
 	}
 
+}
+
+func TestExitOption(t *testing.T) {
+	gotNeedles := []Needle{
+		{"test1", "test2", "any", "*"},
+		{"test", "test2", "any", ""},
+	}
+	u, _ := user.Current()
+	wantNeedles := []Needle{
+		{"test1", "test2", "any", "*"},
+		{"test", "test2", "any", ""},
+		{"<Exit>", "exit the kubecm", u.Username, ""},
+	}
+	type args struct {
+		kubeItems []Needle
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []Needle
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{"test", args{gotNeedles}, wantNeedles, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ExitOption(tt.args.kubeItems)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ExitOption() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ExitOption() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCheckAndTransformFilePath(t *testing.T) {
+	wantPath := homeDir() + "/.kube/config"
+	type args struct {
+		path string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{"test-~", args{path: "~/.kube/config"}, wantPath, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := CheckAndTransformFilePath(tt.args.path)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CheckAndTransformFilePath() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("CheckAndTransformFilePath() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCheckValidContext(t *testing.T) {
+	type args struct {
+		config *clientcmdapi.Config
+	}
+	tests := []struct {
+		name string
+		args args
+		want *clientcmdapi.Config
+	}{
+		// TODO: Add test cases.
+		{"clear-root", args{config: &wrongRootConfig}, &appendConfigAlfa},
+		{"clear-federal", args{config: &wrongFederalConfig}, &appendRootConfigConflictAlfa},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := CheckValidContext(tt.args.config); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("CheckValidContext() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

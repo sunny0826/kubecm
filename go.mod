@@ -6,6 +6,7 @@ require (
 	github.com/bndr/gotabulate v1.1.2
 	github.com/daviddengcn/go-colortext v1.0.0
 	github.com/imdario/mergo v0.3.7
+	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/manifoldco/promptui v0.3.2
 	github.com/rsteube/cobra-zsh-gen v1.1.0
 	github.com/spf13/cobra v1.0.0

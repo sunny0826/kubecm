@@ -78,12 +78,8 @@ func HashSuf(config *clientcmdapi.Config) string {
 	return sum
 }
 
-// Formatable generate table
-func Formatable() error {
-	config, err := clientcmd.LoadFromFile(cfgFile)
-	if err != nil {
-		return err
-	}
+// PrintTable generate table
+func PrintTable(config *clientcmdapi.Config) error {
 	var table [][]string
 	for key, obj := range config.Contexts {
 		namespace := "default"
@@ -94,7 +90,8 @@ func Formatable() error {
 		if obj.Namespace != "" {
 			namespace = obj.Namespace
 		}
-		conTmp := []string{head, key, obj.Cluster, obj.AuthInfo, config.Clusters[obj.Cluster].Server, namespace}
+		server := config.Clusters[obj.Cluster].Server
+		conTmp := []string{head, key, obj.Cluster, obj.AuthInfo, server, namespace}
 		table = append(table, conTmp)
 	}
 
@@ -230,7 +227,7 @@ func WriteConfig(cover bool, file string, outConfig *clientcmdapi.Config) error 
 			return err
 		}
 		fmt.Printf("「%s」 write successful!\n", file)
-		err = Formatable()
+		err = PrintTable(outConfig)
 		if err != nil {
 			return err
 		}
@@ -241,6 +238,19 @@ func WriteConfig(cover bool, file string, outConfig *clientcmdapi.Config) error 
 		}
 		fmt.Println("generate ./config.yaml")
 	}
+	return nil
+}
+
+func UpdateConfigFile(file string, updateConfig *clientcmdapi.Config) error {
+	file, err := CheckAndTransformFilePath(file)
+	if err != nil {
+		return err
+	}
+	err = clientcmd.WriteToFile(*updateConfig, file)
+	if err != nil {
+		return err
+	}
+	printString(os.Stdout, "Update Config: "+file+"\n")
 	return nil
 }
 
@@ -334,4 +344,23 @@ func CheckAndTransformFilePath(path string) (string, error) {
 		return "", err
 	}
 	return path, nil
+}
+
+// CheckValidContext check and clean mismatched AuthInfo and Cluster
+func CheckValidContext(config *clientcmdapi.Config) *clientcmdapi.Config {
+	for key, obj := range config.Contexts {
+		if _, ok := config.AuthInfos[obj.AuthInfo]; !ok {
+			printString(os.Stdout, "Check Config: ")
+			fmt.Printf("AuthInfo 「%s」 has no matching context 「%s」, skip\n", obj.AuthInfo, key)
+			delete(config.Contexts, key)
+			delete(config.Clusters,obj.Cluster)
+		}
+		if _, ok := config.Clusters[obj.Cluster]; !ok {
+			printString(os.Stdout, "Check Config: ")
+			fmt.Printf("Cluster 「%s」 has no matching context 「%s」, skip\n", obj.Cluster, key)
+			delete(config.Contexts, key)
+			delete(config.AuthInfos,obj.AuthInfo)
+		}
+	}
+	return config
 }

@@ -7,6 +7,7 @@
 
 交互式切换 Kube Context
 
+**可以通过键入 `\` 来进行搜索**
 
 ```
 kubecm switch [flags]

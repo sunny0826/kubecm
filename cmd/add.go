@@ -67,6 +67,7 @@ func formatNewConfig(file string) (*clientcmdapi.Config, string, error) {
 		return nil, "", errors.New("Only support add 1 context. You can use `merge` cmd")
 	}
 	name, err := formatAndCheckName(file)
+	config = CheckValidContext(config)
 	if err != nil {
 		return nil, "", err
 	}

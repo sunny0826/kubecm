@@ -17,9 +17,15 @@ limitations under the License.
 */
 
 import (
+	"bytes"
 	"flag"
+	"fmt"
 	"os"
+	"os/exec"
+	"os/user"
 	"path/filepath"
+	"runtime"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -73,10 +79,49 @@ func (cli *Cli) Run() error {
 	}
 	return cli.rootCmd.Execute()
 }
-
 func homeDir() string {
-	if h := os.Getenv("HOME"); h != "" {
-		return h
+	u, err := user.Current()
+	if nil == err {
+		return u.HomeDir
 	}
-	return os.Getenv("USERPROFILE") // windows
+	// cross compile support
+	if "windows" == runtime.GOOS {
+		return homeWindows()
+	}
+	// Unix-like system, so just assume Unix
+	return homeUnix()
+}
+
+func homeUnix() string {
+	if home := os.Getenv("HOME"); home != "" {
+		return home
+	}
+	var stdout bytes.Buffer
+	cmd := exec.Command("sh", "-c", "eval echo ~$USER")
+	cmd.Stdout = &stdout
+	if err := cmd.Run(); err != nil {
+		return ""
+	}
+	result := strings.TrimSpace(stdout.String())
+	if result == "" {
+		fmt.Println("blank output when reading home directory")
+		os.Exit(0)
+	}
+
+	return result
+}
+
+func homeWindows() string {
+	drive := os.Getenv("HOMEDRIVE")
+	path := os.Getenv("HOMEPATH")
+	home := drive + path
+	if drive == "" || path == "" {
+		home = os.Getenv("USERPROFILE")
+	}
+	if home == "" {
+		fmt.Println("HOMEDRIVE, HOMEPATH, and USERPROFILE are blank")
+		os.Exit(0)
+	}
+
+	return home
 }
