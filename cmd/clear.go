@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"reflect"
+
+	"github.com/spf13/cobra"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 // ClearCommand clean command struct
@@ -54,7 +55,7 @@ func clearContext(file string) (bool, error) {
 	}
 	outConfig := config.DeepCopy()
 	outConfig = CheckValidContext(outConfig)
-	if reflect.DeepEqual(config,outConfig) {
+	if reflect.DeepEqual(config, outConfig) {
 		return true, nil
 	}
 	err = UpdateConfigFile(file, outConfig)

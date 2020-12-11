@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"strings"
+
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
@@ -46,7 +46,7 @@ func (lc *ListCommand) runList(command *cobra.Command, args []string) error {
 	}
 	err = ClusterStatus()
 	if err != nil {
-		return errors.New(fmt.Sprintf("Cluster check failure!\n%v", err))
+		return fmt.Errorf("Cluster check failure!\n%v", err)
 	}
 	return nil
 }
@@ -69,7 +69,7 @@ func filterArgs(args []string, config *clientcmdapi.Config) (*clientcmdapi.Confi
 		}
 	}
 	if len(config.Contexts) == 0 {
-		return nil, errors.New(fmt.Sprintf("There is no matching context for %v\n", args))
+		return nil, fmt.Errorf("There is no matching context for %v\n", args)
 	}
 	return config, nil
 }
