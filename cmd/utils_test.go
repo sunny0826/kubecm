@@ -183,7 +183,7 @@ func TestExitOption(t *testing.T) {
 }
 
 func TestCheckAndTransformFilePath(t *testing.T) {
-	wantPath := homeDir() + "/.kube/config"
+	wantPath := homeDir()
 	type args struct {
 		path string
 	}
@@ -194,7 +194,7 @@ func TestCheckAndTransformFilePath(t *testing.T) {
 		wantErr bool
 	}{
 		// TODO: Add test cases.
-		{"test-~", args{path: "~/.kube/config"}, wantPath, false},
+		{"test-~", args{path: "~/"}, wantPath, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
