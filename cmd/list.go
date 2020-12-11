@@ -69,7 +69,7 @@ func filterArgs(args []string, config *clientcmdapi.Config) (*clientcmdapi.Confi
 		}
 	}
 	if len(config.Contexts) == 0 {
-		return nil, fmt.Errorf("There is no matching context for %v\n", args)
+		return nil, fmt.Errorf("there is no matching context for %v", args)
 	}
 	return config, nil
 }

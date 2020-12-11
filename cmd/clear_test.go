@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"io/ioutil"
-	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"testing"
+
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 func Test_clearContext(t *testing.T) {

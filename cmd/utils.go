@@ -353,13 +353,13 @@ func CheckValidContext(config *clientcmdapi.Config) *clientcmdapi.Config {
 			printString(os.Stdout, "Check Config: ")
 			fmt.Printf("AuthInfo 「%s」 has no matching context 「%s」, skip\n", obj.AuthInfo, key)
 			delete(config.Contexts, key)
-			delete(config.Clusters,obj.Cluster)
+			delete(config.Clusters, obj.Cluster)
 		}
 		if _, ok := config.Clusters[obj.Cluster]; !ok {
 			printString(os.Stdout, "Check Config: ")
 			fmt.Printf("Cluster 「%s」 has no matching context 「%s」, skip\n", obj.Cluster, key)
 			delete(config.Contexts, key)
-			delete(config.AuthInfos,obj.AuthInfo)
+			delete(config.AuthInfos, obj.AuthInfo)
 		}
 	}
 	return config

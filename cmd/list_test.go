@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"reflect"
 	"testing"
+
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 var (
