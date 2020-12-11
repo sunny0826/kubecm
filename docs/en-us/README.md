@@ -23,6 +23,7 @@ Usage:
 Available Commands:
     add         Merge configuration file with $HOME/.kube/config
     alias       Generate alias for all contexts
+    clear       Clear lapsed context, cluster and user
     completion  Generates bash/zsh completion scripts
     delete      Delete the specified context from the kubeconfig
     help        Help about any command

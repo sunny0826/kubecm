@@ -1,10 +1,10 @@
 ## kubecm ls
 
-列举所有 Context
+列举 Context
 
 ### 简介
 
-列举所有 Context
+列举 Context，可以通过后跟关键字，筛选出包含该关键字的 context，支持多关键字筛选，关键字之间是 `或` 的关系。
 
 ```
 kubecm ls
@@ -18,6 +18,8 @@ kubecm ls
 kubecm ls
 # Aliases
 kubecm l
+# Filter out keywords(Multi-keyword support)
+kubecm ls kind k3s
 
 ```
 

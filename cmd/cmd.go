@@ -17,6 +17,7 @@ func NewBaseCommand() *BaseCommand {
 		&NamespaceCommand{},  // namespace command
 		&ListCommand{},       // list command
 		&AliasCommand{},      // alias command
+		&ClearCommand{},      // clear command
 	)
 
 	return baseCmd

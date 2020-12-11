@@ -1,9 +1,13 @@
 package cmd
 
 import (
-	"log"
+	"fmt"
+	"strings"
+
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
 	"github.com/spf13/cobra"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 // ListCommand list cmd struct
@@ -27,16 +31,47 @@ func (lc *ListCommand) Init() {
 }
 
 func (lc *ListCommand) runList(command *cobra.Command, args []string) error {
-	err := Formatable()
+	config, err := clientcmd.LoadFromFile(cfgFile)
+	if err != nil {
+		return err
+	}
+	config = CheckValidContext(config)
+	outConfig, err := filterArgs(args, config)
+	if err != nil {
+		return err
+	}
+	err = PrintTable(outConfig)
 	if err != nil {
 		return err
 	}
 	err = ClusterStatus()
 	if err != nil {
-		log.Fatalf("Cluster check failure!\n%v", err)
-		return err
+		return fmt.Errorf("Cluster check failure!\n%v", err)
 	}
 	return nil
+}
+
+func filterArgs(args []string, config *clientcmdapi.Config) (*clientcmdapi.Config, error) {
+	if len(args) == 0 {
+		return config, nil
+	}
+	contextList := make(map[string]string)
+	for key := range config.Contexts {
+		for _, search := range args {
+			if strings.Contains(key, search) {
+				contextList[key] = search
+			}
+		}
+	}
+	for key := range config.Contexts {
+		if _, ok := contextList[key]; !ok {
+			delete(config.Contexts, key)
+		}
+	}
+	if len(config.Contexts) == 0 {
+		return nil, fmt.Errorf("there is no matching context for %v", args)
+	}
+	return config, nil
 }
 
 func listExample() string {
@@ -45,5 +80,7 @@ func listExample() string {
 kubecm ls
 # Aliases
 kubecm l
+# Filter out keywords(Multi-keyword support)
+kubecm ls kind k3s
 `
 }

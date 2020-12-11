@@ -10,5 +10,6 @@
     * [kubecm namespace](/en-us/cli/kubecm_namespace.md)
     * [kubecm rename](/en-us/cli/kubecm_rename.md)
     * [kubecm switch](/en-us/cli/kubecm_switch.md)
+    * [kubecm clear](/en-us/cli/kubecm_clear.md)
     * [kubecm version](/en-us/cli/kubecm_version.md)
 * [Contribute](/en-us/contribute.md)
