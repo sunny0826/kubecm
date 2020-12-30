@@ -37,6 +37,7 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 	files := listFile(folder)
 	mc.command.Printf("Loading kubeconfig file: %v \n", files)
 	configs := clientcmdapi.NewConfig()
+	// TODO 还原合并逻辑，使其与 add 相同
 	for _, yaml := range files {
 		config, err := clientcmd.LoadFromFile(yaml)
 		if err != nil {
