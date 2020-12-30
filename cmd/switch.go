@@ -1,6 +1,11 @@
 package cmd
 
 import (
+	"errors"
+	"fmt"
+
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
 )
@@ -19,6 +24,12 @@ func (sc *SwitchCommand) Init() {
 Switch Kube Context interactively
 `,
 		Aliases: []string{"s"},
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) > 1 {
+				return errors.New("no support for more than 1 parameter")
+			}
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return sc.runSwitch(cmd, args)
 		},
@@ -31,6 +42,35 @@ func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error 
 	if err != nil {
 		return err
 	}
+	switch len(args) {
+	case 0:
+		config, err = handleOperation(config)
+		if err != nil {
+			return err
+		}
+	case 1:
+		config, err = handleQuickSwitch(config, args[0])
+		if err != nil {
+			return err
+		}
+	}
+	err = WriteConfig(true, cfgFile, config)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Switched to context 「%s」\n", config.CurrentContext)
+	return nil
+}
+
+func handleQuickSwitch(config *clientcmdapi.Config, name string) (*clientcmdapi.Config, error) {
+	if _, ok := config.Contexts[name]; !ok {
+		return config, errors.New("cannot find context named 「" + name + "」")
+	}
+	config.CurrentContext = name
+	return config, nil
+}
+
+func handleOperation(config *clientcmdapi.Config) (*clientcmdapi.Config, error) {
 	var kubeItems []Needle
 	current := config.CurrentContext
 	for key, obj := range config.Contexts {
@@ -41,24 +81,23 @@ func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error 
 		}
 	}
 	// exit option
-	kubeItems, err = ExitOption(kubeItems)
+	kubeItems, err := ExitOption(kubeItems)
 	if err != nil {
-		return err
+		return config, err
 	}
 	num := SelectUI(kubeItems, "Select Kube Context")
 	kubeName := kubeItems[num].Name
 	config.CurrentContext = kubeName
-	err = WriteConfig(true, cfgFile, config)
-	if err != nil {
-		return err
-	}
-	sc.command.Printf("Switched to context 「%s」\n", config.CurrentContext)
-	return nil
+	return config, nil
 }
+
+//TODO need update docs
 
 func switchExample() string {
 	return `
 # Switch Kube Context interactively
 kubecm switch
+# Quick switch Kube Context
+kubecm switch dev
 `
 }
