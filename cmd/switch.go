@@ -64,7 +64,7 @@ func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error 
 
 func handleQuickSwitch(config *clientcmdapi.Config, name string) (*clientcmdapi.Config, error) {
 	if _, ok := config.Contexts[name]; !ok {
-		return nil, errors.New("cannot find context named 「" + name + "」")
+		return config, errors.New("cannot find context named 「" + name + "」")
 	}
 	config.CurrentContext = name
 	return config, nil
@@ -83,7 +83,7 @@ func handleOperation(config *clientcmdapi.Config) (*clientcmdapi.Config, error) 
 	// exit option
 	kubeItems, err := ExitOption(kubeItems)
 	if err != nil {
-		return nil, err
+		return config, err
 	}
 	num := SelectUI(kubeItems, "Select Kube Context")
 	kubeName := kubeItems[num].Name
@@ -91,7 +91,6 @@ func handleOperation(config *clientcmdapi.Config) (*clientcmdapi.Config, error) 
 	return config, nil
 }
 
-//TODO need add test
 //TODO need update docs
 
 func switchExample() string {
