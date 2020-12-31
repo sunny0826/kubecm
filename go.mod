@@ -3,11 +3,11 @@ module github.com/sunny0826/kubecm
 go 1.13
 
 require (
-	github.com/bndr/gotabulate v1.1.2
+	github.com/bndr/gotabulate v1.1.3-0.20170315142410-bc555436bfd5
 	github.com/daviddengcn/go-colortext v1.0.0
 	github.com/imdario/mergo v0.3.7
-	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/manifoldco/promptui v0.3.2
+	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/rsteube/cobra-zsh-gen v1.1.0
 	github.com/spf13/cobra v1.0.0
 	k8s.io/apimachinery v0.19.3
