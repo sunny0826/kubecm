@@ -104,7 +104,7 @@ func PrintTable(config *clientcmdapi.Config) error {
 		tabulate.SetAlign("center")
 		fmt.Println(tabulate.Render("grid", "left"))
 	} else {
-		return fmt.Errorf("context not found")
+		return errors.New("context not found")
 	}
 	return nil
 }
@@ -195,19 +195,19 @@ func BoolUI(label string) string {
 func ClusterStatus() error {
 	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
 	if err != nil {
-		return fmt.Errorf(err.Error())
+		return err
 	}
 
-	clientset, err := kubernetes.NewForConfig(config)
+	clientSet, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		return fmt.Errorf(err.Error())
+		return err
 	}
 
 	timeout := int64(5)
 	ctx := context.TODO()
-	cus, err := clientset.CoreV1().ComponentStatuses().List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
+	cus, err := clientSet.CoreV1().ComponentStatuses().List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
 	if err != nil {
-		return fmt.Errorf(err.Error())
+		return err
 	}
 	var names []string
 	for _, k := range cus.Items {
@@ -312,6 +312,12 @@ func printService(out io.Writer, name, link string) {
 
 func printString(out io.Writer, name string) {
 	ct.ChangeColor(ct.Green, false, ct.None, false)
+	fmt.Fprint(out, name)
+	ct.ResetColor()
+}
+
+func printWarning(out io.Writer, name string) {
+	ct.ChangeColor(ct.Red, false, ct.None, false)
 	fmt.Fprint(out, name)
 	ct.ResetColor()
 }
