@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -19,8 +20,8 @@ type ListCommand struct {
 func (lc *ListCommand) Init() {
 	lc.command = &cobra.Command{
 		Use:     "ls",
-		Short:   "List kubeconfig",
-		Long:    "List kubeconfig",
+		Short:   "List KubeConfig",
+		Long:    "List KubeConfig",
 		Aliases: []string{"l"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return lc.runList(cmd, args)
@@ -46,7 +47,8 @@ func (lc *ListCommand) runList(command *cobra.Command, args []string) error {
 	}
 	err = ClusterStatus()
 	if err != nil {
-		return fmt.Errorf("Cluster check failure!\n%v", err)
+		printWarning(os.Stdout, "Cluster check failure!\n")
+		return err
 	}
 	return nil
 }
@@ -76,7 +78,7 @@ func filterArgs(args []string, config *clientcmdapi.Config) (*clientcmdapi.Confi
 
 func listExample() string {
 	return `
-# List all the contexts in your kubeconfig file
+# List all the contexts in your KubeConfig file
 kubecm ls
 # Aliases
 kubecm l
