@@ -90,8 +90,14 @@ func PrintTable(config *clientcmdapi.Config) error {
 		if obj.Namespace != "" {
 			namespace = obj.Namespace
 		}
-		server := config.Clusters[obj.Cluster].Server
-		conTmp := []string{head, key, obj.Cluster, obj.AuthInfo, server, namespace}
+		if config.Clusters == nil {
+			continue
+		}
+		cluster, ok := config.Clusters[obj.Cluster]
+		if !ok {
+			continue
+		}
+		conTmp := []string{head, key, obj.Cluster, obj.AuthInfo, cluster.Server, namespace}
 		table = append(table, conTmp)
 	}
 
