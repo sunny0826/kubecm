@@ -46,6 +46,11 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	outConfig := appendConfig(oldConfig, newConfig)
+	if len(outConfig.Contexts) == 1 {
+		for k := range outConfig.Contexts {
+			outConfig.CurrentContext = k
+		}
+	}
 	cover := BoolUI(fmt.Sprintf("Are you sure you want to add 「%s」 to the 「%s」context?", newName, cfgFile))
 	confirm, err := strconv.ParseBool(cover)
 	if err != nil {
