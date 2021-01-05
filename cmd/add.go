@@ -68,36 +68,58 @@ func formatNewConfig(file string) (*clientcmdapi.Config, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	if len(config.AuthInfos) != 1 {
-		return nil, "", errors.New("Only support add 1 context. You can use `merge` cmd")
-	}
+	//if len(config.AuthInfos) != 1 {
+	//	return nil, "", errors.New("Only support add 1 context. You can use `merge` cmd")
+	//}
 	name, err := formatAndCheckName(file)
 	config = CheckValidContext(config)
 	if err != nil {
 		return nil, "", err
 	}
-	suffix := HashSuf(config)
+	newConfig := clientcmdapi.NewConfig()
+	for key, ctx := range config.Contexts {
+		c := handleContext(key, ctx, config)
+		appendConfig(newConfig,c)
+		fmt.Printf("Context Add: %s \n", key)
+	}
+	//suffix := HashSuf(config)
+	//userName := fmt.Sprintf("user-%v", suffix)
+	//clusterName := fmt.Sprintf("cluster-%v", suffix)
+	//for key, obj := range config.AuthInfos {
+	//	config.AuthInfos[userName] = obj
+	//	delete(config.AuthInfos, key)
+	//	break
+	//}
+	//for key, obj := range config.Clusters {
+	//	config.Clusters[clusterName] = obj
+	//	delete(config.Clusters, key)
+	//	break
+	//}
+	//for key, obj := range config.Contexts {
+	//	obj.AuthInfo = userName
+	//	obj.Cluster = clusterName
+	//	config.Contexts[name] = obj
+	//	delete(config.Contexts, key)
+	//	break
+	//}
+	//fmt.Printf("Context Add: %s \n", name)
+	return newConfig, name, nil
+}
+
+//TODO 支持多 context，将格式化逻辑拆出
+
+func handleContext(key string, ctx *clientcmdapi.Context, config *clientcmdapi.Config) *clientcmdapi.Config {
+	newConfig := clientcmdapi.NewConfig()
+	suffix := HashSufString(key)
 	userName := fmt.Sprintf("user-%v", suffix)
 	clusterName := fmt.Sprintf("cluster-%v", suffix)
-	for key, obj := range config.AuthInfos {
-		config.AuthInfos[userName] = obj
-		delete(config.AuthInfos, key)
-		break
-	}
-	for key, obj := range config.Clusters {
-		config.Clusters[clusterName] = obj
-		delete(config.Clusters, key)
-		break
-	}
-	for key, obj := range config.Contexts {
-		obj.AuthInfo = userName
-		obj.Cluster = clusterName
-		config.Contexts[name] = obj
-		delete(config.Contexts, key)
-		break
-	}
-	fmt.Printf("Context Add: %s \n", name)
-	return config, name, nil
+	newCtx := ctx.DeepCopy()
+	newConfig.AuthInfos[userName] = config.AuthInfos[newCtx.AuthInfo]
+	newConfig.Clusters[clusterName] = config.Clusters[newCtx.Cluster]
+	newConfig.Contexts[key] = newCtx
+	newConfig.Contexts[key].AuthInfo = userName
+	newConfig.Contexts[key].Cluster = clusterName
+	return newConfig
 }
 
 func formatAndCheckName(file string) (string, error) {
