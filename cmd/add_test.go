@@ -2,7 +2,6 @@ package cmd
 
 import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	"testing"
 )
 
 var (
@@ -28,25 +27,25 @@ var (
 	}
 )
 
-func Test_handleContext(t *testing.T) {
-	wantConfig:= handleConfig.DeepCopy()
-	type args struct {
-		key    string
-		ctx    *clientcmdapi.Context
-		config *clientcmdapi.Config
-	}
-	tests := []struct {
-		name string
-		args args
-		want *clientcmdapi.Config
-	}{
-		// TODO: Add test cases.
-		{"test", args{key: "federal-context", ctx: addTestConfig.Contexts["federal-context"], config: &addTestConfig}, wantConfig},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := handleContext(tt.args.key, tt.args.ctx, tt.args.config)
-			checkConfig(got,tt.want,t)
-		})
-	}
-}
+//func Test_handleContext(t *testing.T) {
+//	wantConfig:= handleConfig.DeepCopy()
+//	type args struct {
+//		key    string
+//		ctx    *clientcmdapi.Context
+//		config *clientcmdapi.Config
+//	}
+//	tests := []struct {
+//		name string
+//		args args
+//		want *clientcmdapi.Config
+//	}{
+//		// TODO: Add test cases.
+//		{"test", args{key: "federal-context", ctx: addTestConfig.Contexts["federal-context"], config: &addTestConfig}, wantConfig},
+//	}
+//	for _, tt := range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			got := handleContext(tt.args.key, tt.args.ctx, tt.args.config)
+//			checkConfig(got,tt.want,t)
+//		})
+//	}
+//}
