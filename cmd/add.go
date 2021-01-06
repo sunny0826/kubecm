@@ -3,10 +3,11 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"strconv"
+
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	"strconv"
 )
 
 // AddCommand add command struct

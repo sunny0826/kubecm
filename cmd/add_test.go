@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"testing"
+
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 var (
@@ -40,20 +41,20 @@ var (
 	}
 	mergedConfig = clientcmdapi.Config{
 		AuthInfos: map[string]*clientcmdapi.AuthInfo{
-			"black-user": {Token: "black-token"},
-			"red-user":   {Token: "red-token"},
+			"black-user":      {Token: "black-token"},
+			"red-user":        {Token: "red-token"},
 			"user-cbc897d6ch": {Token: "red-token"},
 			"user-d2m9fd8b7d": {Token: "black-token"},
 		},
 		Clusters: map[string]*clientcmdapi.Cluster{
-			"pig-cluster": {Server: "http://pig.org:8080"},
-			"cow-cluster": {Server: "http://cow.org:8080"},
+			"pig-cluster":        {Server: "http://pig.org:8080"},
+			"cow-cluster":        {Server: "http://cow.org:8080"},
 			"cluster-cbc897d6ch": {Server: "http://cow.org:8080"},
 			"cluster-d2m9fd8b7d": {Server: "http://pig.org:8080"},
 		},
 		Contexts: map[string]*clientcmdapi.Context{
-			"root":    {AuthInfo: "black-user", Cluster: "pig-cluster", Namespace: "saw-ns"},
-			"federal": {AuthInfo: "red-user", Cluster: "cow-cluster", Namespace: "hammer-ns"},
+			"root":            {AuthInfo: "black-user", Cluster: "pig-cluster", Namespace: "saw-ns"},
+			"federal":         {AuthInfo: "red-user", Cluster: "cow-cluster", Namespace: "hammer-ns"},
 			"root-context":    {AuthInfo: "user-d2m9fd8b7d", Cluster: "cluster-d2m9fd8b7d", Namespace: "saw-ns"},
 			"federal-context": {AuthInfo: "user-cbc897d6ch", Cluster: "cluster-cbc897d6ch", Namespace: "hammer-ns"},
 		},
