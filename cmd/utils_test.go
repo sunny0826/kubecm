@@ -231,3 +231,10 @@ func TestCheckValidContext(t *testing.T) {
 		})
 	}
 }
+
+func checkConfig(want, got *clientcmdapi.Config, t *testing.T) {
+	if !apiequality.Semantic.DeepEqual(want, got) {
+		t.Errorf("diff: %v", diff.ObjectDiff(want, got))
+		t.Errorf("expected: %#v\n actual:   %#v", want, got)
+	}
+}
