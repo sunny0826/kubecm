@@ -1,10 +1,10 @@
 ## kubecm add
 
-Add kubeconfig to $HOME/.kube/config
+Add KubeConfig to $HOME/.kube/config
 
 ### Synopsis
 
-Add kubeconfig to $HOME/.kube/config
+Add KubeConfig to $HOME/.kube/config
 
 ```
 kubecm add [flags]

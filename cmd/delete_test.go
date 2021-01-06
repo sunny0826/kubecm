@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	apiequality "k8s.io/apimachinery/pkg/api/equality"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	"k8s.io/utils/diff"
 )
 
 var (
@@ -65,12 +63,5 @@ func Test_deleteContext(t *testing.T) {
 				}
 			}
 		})
-	}
-}
-
-func checkConfig(want, got *clientcmdapi.Config, t *testing.T) {
-	if !apiequality.Semantic.DeepEqual(want, got) {
-		t.Errorf("diff: %v", diff.ObjectDiff(want, got))
-		t.Errorf("expected: %#v\n actual:   %#v", want, got)
 	}
 }

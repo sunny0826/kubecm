@@ -1,10 +1,10 @@
 ## kubecm ls
 
-List kubeconfig
+List KubeConfig
 
 ### Synopsis
 
-List kubeconfig
+List KubeConfig
 
 ```
 kubecm ls

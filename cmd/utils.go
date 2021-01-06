@@ -78,6 +78,11 @@ func HashSuf(config *clientcmdapi.Config) string {
 	return sum
 }
 
+func HashSufString(data string) string {
+	sum, _ := hEncode(Hash(data))
+	return sum
+}
+
 // PrintTable generate table
 func PrintTable(config *clientcmdapi.Config) error {
 	var table [][]string

@@ -1,10 +1,10 @@
 ## kubecm add
 
-将 kubeconfig 加入到 `$HOME/.kube/config`
+将 KubeConfig 加入到 `$HOME/.kube/config`
 
 ### 简介
 
-将 kubeconfig 加入到 `$HOME/.kube/config`
+将 KubeConfig 加入到 `$HOME/.kube/config`
 
 ```
 kubecm add [flags]
