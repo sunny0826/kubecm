@@ -1,10 +1,10 @@
 ## kubecm merge
 
-Merge the kubeconfig files in the specified directory
+Merge the KubeConfig files in the specified directory
 
 ### Synopsis
 
-Merge the kubeconfig files in the specified directory
+Merge the KubeConfig files in the specified directory
 
 ```
 kubecm merge [flags]

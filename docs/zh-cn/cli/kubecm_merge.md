@@ -1,10 +1,10 @@
 ## kubecm merge
 
-选定目录，合并其中所有的 kubeconfig
+选定目录，合并其中所有的 KubeConfig
 
 ### 简介
 
-选定目录，合并其中所有的 kubeconfig
+选定目录，合并其中所有的 KubeConfig
 
 ```
 kubecm merge [flags]

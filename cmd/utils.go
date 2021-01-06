@@ -247,7 +247,7 @@ func WriteConfig(cover bool, file string, outConfig *clientcmdapi.Config) error 
 		if err != nil {
 			return err
 		}
-		fmt.Println("generate ./config.yaml")
+		printString(os.Stdout, "generate ./config.yaml\n")
 	}
 	return nil
 }
