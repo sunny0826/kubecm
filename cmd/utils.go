@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/bndr/gotabulate"
@@ -86,23 +87,29 @@ func HashSufString(data string) string {
 // PrintTable generate table
 func PrintTable(config *clientcmdapi.Config) error {
 	var table [][]string
-	for key, obj := range config.Contexts {
+	sortedKeys := make([]string, 0)
+	for k := range config.Contexts {
+		sortedKeys = append(sortedKeys, k)
+	}
+	sort.Strings(sortedKeys)
+	ctx := config.Contexts
+	for _, k := range sortedKeys {
 		namespace := "default"
 		head := ""
-		if config.CurrentContext == key {
+		if config.CurrentContext == k {
 			head = "*"
 		}
-		if obj.Namespace != "" {
-			namespace = obj.Namespace
+		if ctx[k].Namespace != "" {
+			namespace = ctx[k].Namespace
 		}
 		if config.Clusters == nil {
 			continue
 		}
-		cluster, ok := config.Clusters[obj.Cluster]
+		cluster, ok := config.Clusters[ctx[k].Cluster]
 		if !ok {
 			continue
 		}
-		conTmp := []string{head, key, obj.Cluster, obj.AuthInfo, cluster.Server, namespace}
+		conTmp := []string{head, k, ctx[k].Cluster, ctx[k].AuthInfo, cluster.Server, namespace}
 		table = append(table, conTmp)
 	}
 
