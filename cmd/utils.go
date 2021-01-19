@@ -381,3 +381,9 @@ func CheckValidContext(config *clientcmdapi.Config) *clientcmdapi.Config {
 	}
 	return config
 }
+
+func getFileName(path string) string {
+	n := strings.Split(path, "/")
+	result := strings.Split(n[len(n)-1], ".")
+	return result[0]
+}

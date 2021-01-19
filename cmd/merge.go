@@ -47,7 +47,7 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		kubeConfig := &KubeConfig{
+		kubeConfig := &KubeConfigOption{
 			config: loadConfig,
 		}
 		outConfigs, err = kubeConfig.handleContexts(outConfigs)

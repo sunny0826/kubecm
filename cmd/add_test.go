@@ -106,7 +106,7 @@ func TestKubeConfig_handleContext(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			kc := &KubeConfig{
+			kc := &KubeConfigOption{
 				config: tt.fields.config,
 			}
 			got := kc.handleContext(tt.args.key, tt.args.ctx)
@@ -135,7 +135,7 @@ func TestKubeConfig_handleContexts(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			kc := &KubeConfig{
+			kc := &KubeConfigOption{
 				config: tt.fields.config,
 			}
 			got, err := kc.handleContexts(tt.args.oldConfig)

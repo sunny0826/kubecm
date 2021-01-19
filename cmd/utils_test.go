@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"fmt"
+	"io/ioutil"
+	"os"
 	"os/user"
 	"reflect"
 	"testing"
@@ -236,5 +239,31 @@ func checkConfig(want, got *clientcmdapi.Config, t *testing.T) {
 	if !apiequality.Semantic.DeepEqual(want, got) {
 		t.Errorf("diff: %v", diff.ObjectDiff(want, got))
 		t.Errorf("expected: %#v\n actual:   %#v", want, got)
+	}
+}
+
+func Test_getFileName(t *testing.T) {
+	tempDir, _ := ioutil.TempDir("", "kubecm-get-file-")
+	defer os.RemoveAll(tempDir)
+	tempFilePath := fmt.Sprintf("%s/%s", tempDir, "testPath")
+	ioutil.WriteFile(tempFilePath, []byte{}, 0666)
+
+	type args struct {
+		path string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		// TODO: Add test cases.
+		{"TestFileName", args{path: tempFilePath}, "testPath"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getFileName(tt.args.path); got != tt.want {
+				t.Errorf("getFileName() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
