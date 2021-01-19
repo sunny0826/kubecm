@@ -15,8 +15,9 @@ type AddCommand struct {
 	BaseCommand
 }
 
-type KubeConfig struct {
-	config *clientcmdapi.Config
+type KubeConfigOption struct {
+	config   *clientcmdapi.Config
+	fileName string
 }
 
 // Init AddCommand
@@ -49,11 +50,12 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	kubeConfig := &KubeConfig{
-		config: newConfig,
+	kco := &KubeConfigOption{
+		config:   newConfig,
+		fileName: getFileName(file),
 	}
 	// merge context loop
-	outConfig, err := kubeConfig.handleContexts(oldConfig)
+	outConfig, err := kco.handleContexts(oldConfig)
 	if err != nil {
 		return err
 	}
@@ -74,15 +76,20 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func (kc *KubeConfig) handleContexts(oldConfig *clientcmdapi.Config) (*clientcmdapi.Config, error) {
+func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config) (*clientcmdapi.Config, error) {
 	newConfig := clientcmdapi.NewConfig()
 	for name, ctx := range kc.config.Contexts {
-		newName := name
-		if checkContextName(name, oldConfig) {
-			nameConfirm := BoolUI(fmt.Sprintf("「%s」 Name already exists, do you want to rename it. (If you select `False`, this context will not be merged)", name))
+		var newName string
+		if len(kc.config.Contexts) > 1 {
+			newName = fmt.Sprintf("%s-%s", kc.fileName, HashSufString(name))
+		} else {
+			newName = kc.fileName
+		}
+		if checkContextName(newName, oldConfig) {
+			nameConfirm := BoolUI(fmt.Sprintf("「%s」 Name already exists, do you want to rename it. (If you select `False`, this context will not be merged)", newName))
 			if nameConfirm == "True" {
-				newName = PromptUI("Rename", name)
-				if newName == name {
+				newName = PromptUI("Rename", newName)
+				if newName == kc.fileName {
 					return nil, errors.New("need to rename")
 				}
 			} else {
@@ -104,7 +111,7 @@ func checkContextName(name string, oldConfig *clientcmdapi.Config) bool {
 	return false
 }
 
-func (kc *KubeConfig) handleContext(key string, ctx *clientcmdapi.Context) *clientcmdapi.Config {
+func (kc *KubeConfigOption) handleContext(key string, ctx *clientcmdapi.Context) *clientcmdapi.Config {
 	newConfig := clientcmdapi.NewConfig()
 	suffix := HashSufString(key)
 	userName := fmt.Sprintf("user-%v", suffix)

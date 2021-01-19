@@ -47,10 +47,11 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		kubeConfig := &KubeConfig{
-			config: loadConfig,
+		kco := &KubeConfigOption{
+			config:   loadConfig,
+			fileName: getFileName(yaml),
 		}
-		outConfigs, err = kubeConfig.handleContexts(outConfigs)
+		outConfigs, err = kco.handleContexts(outConfigs)
 		if err != nil {
 			return err
 		}
