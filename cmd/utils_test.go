@@ -246,7 +246,7 @@ func Test_getFileName(t *testing.T) {
 	tempDir, _ := ioutil.TempDir("", "kubecm-get-file-")
 	defer os.RemoveAll(tempDir)
 	tempFilePath := fmt.Sprintf("%s/%s", tempDir, "testPath")
-	ioutil.WriteFile(tempFilePath, []byte{}, 0666)
+	_ = ioutil.WriteFile(tempFilePath, []byte{}, 0666)
 
 	type args struct {
 		path string

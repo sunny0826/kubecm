@@ -3,11 +3,11 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/manifoldco/promptui"
+	"strconv"
+
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	"strconv"
 )
 
 // AddCommand add command struct
@@ -35,7 +35,6 @@ func (ac *AddCommand) Init() {
 	_ = ac.command.MarkFlagRequired("file")
 }
 
-//TODO: 以文件名命名如果已经存在，则修改；如果为多个 context 则使用 filename-index 命名
 func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 	file, _ := ac.command.Flags().GetString("file")
 	// check path
@@ -77,35 +76,25 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-type ctxNames struct {
-	Name string
-	Show string
-}
-
 func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config) (*clientcmdapi.Config, error) {
 	newConfig := clientcmdapi.NewConfig()
 	for name, ctx := range kc.config.Contexts {
-		newName := name
-		if checkContextName(name, oldConfig) {
-			nameConfirm := BoolUI(fmt.Sprintf("「%s」 Name already exists, do you want to rename it. (If you select `False`, this context will not be merged)", name))
+		var newName string
+		if len(kc.config.Contexts) > 1 {
+			newName = fmt.Sprintf("%s-%s", kc.fileName, HashSufString(name))
+		} else {
+			newName = kc.fileName
+		}
+		if checkContextName(newName, oldConfig) {
+			nameConfirm := BoolUI(fmt.Sprintf("「%s」 Name already exists, do you want to rename it. (If you select `False`, this context will not be merged)", newName))
 			if nameConfirm == "True" {
-				newName = PromptUI("Rename", name)
-				if newName == name {
+				newName = PromptUI("Rename", newName)
+				if newName == kc.fileName {
 					return nil, errors.New("need to rename")
 				}
 			} else {
 				continue
 			}
-		} else {
-			var cs []ctxNames
-			cs = append(cs, ctxNames{newName, "(key of context)"})
-			cs = append(cs, ctxNames{kc.fileName, "(name of file)"})
-			//ctxNames := []string{newName, kc.fileName}
-			index, err := SelectNameUI(cs, "Select Name of Context")
-			if err != nil {
-				return nil, err
-			}
-			newName = cs[index].Name
 		}
 		itemConfig := kc.handleContext(newName, ctx)
 		newConfig = appendConfig(newConfig, itemConfig)
@@ -134,27 +123,6 @@ func (kc *KubeConfigOption) handleContext(key string, ctx *clientcmdapi.Context)
 	newConfig.Contexts[key].AuthInfo = userName
 	newConfig.Contexts[key].Cluster = clusterName
 	return newConfig
-}
-
-// SelectNameUI output select context name ui
-func SelectNameUI(ctxNames []ctxNames, label string) (int, error) {
-	templates := &promptui.SelectTemplates{
-		Label:    "{{ . }}",
-		Active:   "\U0001F63C {{ .Name | red }}{{ .Show | green}}",
-		Inactive: "  {{ .Name | cyan }}{{ .Show | green}}",
-		Selected: "\U0001F638 Select:{{ .Name | green }}",
-	}
-	prompt := promptui.Select{
-		Label:     label,
-		Items:     ctxNames,
-		Templates: templates,
-		Size:      2,
-	}
-	i, _, err := prompt.Run()
-	if err != nil {
-		return 0, err
-	}
-	return i, nil
 }
 
 func addExample() string {

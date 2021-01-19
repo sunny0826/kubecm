@@ -43,20 +43,20 @@ var (
 		AuthInfos: map[string]*clientcmdapi.AuthInfo{
 			"black-user":      {Token: "black-token"},
 			"red-user":        {Token: "red-token"},
-			"user-cbc897d6ch": {Token: "red-token"},
-			"user-d2m9fd8b7d": {Token: "black-token"},
+			"user-7f65b9cc8f": {Token: "red-token"},
+			"user-gtch2cf96d": {Token: "black-token"},
 		},
 		Clusters: map[string]*clientcmdapi.Cluster{
 			"pig-cluster":        {Server: "http://pig.org:8080"},
 			"cow-cluster":        {Server: "http://cow.org:8080"},
-			"cluster-cbc897d6ch": {Server: "http://cow.org:8080"},
-			"cluster-d2m9fd8b7d": {Server: "http://pig.org:8080"},
+			"cluster-7f65b9cc8f": {Server: "http://cow.org:8080"},
+			"cluster-gtch2cf96d": {Server: "http://pig.org:8080"},
 		},
 		Contexts: map[string]*clientcmdapi.Context{
 			"root":            {AuthInfo: "black-user", Cluster: "pig-cluster", Namespace: "saw-ns"},
 			"federal":         {AuthInfo: "red-user", Cluster: "cow-cluster", Namespace: "hammer-ns"},
-			"root-context":    {AuthInfo: "user-d2m9fd8b7d", Cluster: "cluster-d2m9fd8b7d", Namespace: "saw-ns"},
-			"federal-context": {AuthInfo: "user-cbc897d6ch", Cluster: "cluster-cbc897d6ch", Namespace: "hammer-ns"},
+			"test-d2m9fd8b7d": {AuthInfo: "user-gtch2cf96d", Cluster: "cluster-gtch2cf96d", Namespace: "saw-ns"},
+			"test-cbc897d6ch": {AuthInfo: "user-7f65b9cc8f", Cluster: "cluster-7f65b9cc8f", Namespace: "hammer-ns"},
 		},
 	}
 )
@@ -118,7 +118,8 @@ func TestKubeConfig_handleContext(t *testing.T) {
 func TestKubeConfig_handleContexts(t *testing.T) {
 	newConfig := addTestConfig.DeepCopy()
 	type fields struct {
-		config *clientcmdapi.Config
+		config   *clientcmdapi.Config
+		fileName string
 	}
 	type args struct {
 		oldConfig *clientcmdapi.Config
@@ -131,12 +132,13 @@ func TestKubeConfig_handleContexts(t *testing.T) {
 		wantErr bool
 	}{
 		// TODO: Add test cases.
-		{"test", fields{config: newConfig}, args{&oldTestConfig}, &mergedConfig, false},
+		{"test", fields{config: newConfig, fileName: "test"}, args{&oldTestConfig}, &mergedConfig, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			kc := &KubeConfigOption{
-				config: tt.fields.config,
+				config:   tt.fields.config,
+				fileName: tt.fields.fileName,
 			}
 			got, err := kc.handleContexts(tt.args.oldConfig)
 			if (err != nil) != tt.wantErr {
