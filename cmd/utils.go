@@ -215,25 +215,47 @@ func ClusterStatus() error {
 	if err != nil {
 		return err
 	}
-
 	clientSet, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return err
 	}
-
-	timeout := int64(5)
-	ctx := context.TODO()
-	cus, err := clientSet.CoreV1().ComponentStatuses().List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
+	versionInfo, err := clientSet.ServerVersion()
 	if err != nil {
 		return err
 	}
-	var names []string
-	for _, k := range cus.Items {
-		names = append(names, k.Name)
+
+	printString(os.Stdout, "Cluster check succeeded!")
+	printString(os.Stdout, "\nKubernetes version ")
+	printYellow(os.Stdout, versionInfo.GitVersion)
+	printService(os.Stdout, "\nKubernetes master", config.Host)
+	err = MoreInfo(clientSet)
+	if err != nil {
+		fmt.Println("(Error reporting can be ignored and does not affect usage.)")
 	}
-	printString(os.Stdout, "Cluster check succeeded!\n")
-	printService(os.Stdout, "Kubernetes master", config.Host)
-	printComponents(os.Stdout, "Contains components", names)
+	return nil
+}
+
+func MoreInfo(clientSet *kubernetes.Clientset) error {
+	timeout := int64(5)
+	ctx := context.TODO()
+	nodesList, err := clientSet.CoreV1().Nodes().List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
+	if err != nil {
+		return err
+	}
+	podsList, err := clientSet.CoreV1().Pods("").List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
+	if err != nil {
+		return err
+	}
+	nsList, err := clientSet.CoreV1().Namespaces().List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
+	if err != nil {
+		return err
+	}
+
+	kv := make(map[string]int)
+	kv["Namespace"] = len(nsList.Items)
+	kv["Node"] = len(nodesList.Items)
+	kv["Pod"] = len(podsList.Items)
+	printKV(os.Stdout, "[Summary] ", kv)
 	return nil
 }
 
@@ -334,21 +356,32 @@ func printString(out io.Writer, name string) {
 	ct.ResetColor()
 }
 
+func printKV(out io.Writer, prefix string, kv map[string]int) {
+	ct.ChangeColor(ct.Green, false, ct.None, false)
+	fmt.Fprint(out, prefix)
+	ct.ResetColor()
+	for k, v := range kv {
+		ct.ChangeColor(ct.Blue, false, ct.None, false)
+		fmt.Fprint(out, k)
+		fmt.Fprint(out, ": ")
+		ct.ResetColor()
+		ct.ChangeColor(ct.Yellow, false, ct.None, false)
+		fmt.Fprint(out, v)
+		ct.ResetColor()
+		fmt.Fprint(out, " ")
+	}
+}
+
+func printYellow(out io.Writer, content string) {
+	ct.ChangeColor(ct.Yellow, false, ct.None, false)
+	fmt.Fprint(out, content)
+	ct.ResetColor()
+}
+
 func printWarning(out io.Writer, name string) {
 	ct.ChangeColor(ct.Red, false, ct.None, false)
 	fmt.Fprint(out, name)
 	ct.ResetColor()
-}
-
-func printComponents(out io.Writer, name string, list []string) {
-	ct.ChangeColor(ct.Green, false, ct.None, false)
-	fmt.Fprint(out, name)
-	ct.ResetColor()
-	fmt.Fprint(out, ": ")
-	ct.ChangeColor(ct.Yellow, false, ct.None, false)
-	fmt.Printf("%v \n", list)
-	ct.ResetColor()
-	fmt.Fprintln(out, "")
 }
 
 func appendConfig(c1, c2 *clientcmdapi.Config) *clientcmdapi.Config {
