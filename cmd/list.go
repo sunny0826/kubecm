@@ -36,7 +36,7 @@ func (lc *ListCommand) runList(command *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	config = CheckValidContext(config)
+	config = CheckValidContext(false, config)
 	outConfig, err := filterArgs(args, config)
 	if err != nil {
 		return err

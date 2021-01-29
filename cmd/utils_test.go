@@ -214,7 +214,10 @@ func TestCheckAndTransformFilePath(t *testing.T) {
 }
 
 func TestCheckValidContext(t *testing.T) {
+	clearWrongConfig := wrongFederalConfig.DeepCopy()
+	clearWrongWant := appendRootConfigConflictAlfa.DeepCopy()
 	type args struct {
+		clear  bool
 		config *clientcmdapi.Config
 	}
 	tests := []struct {
@@ -223,12 +226,13 @@ func TestCheckValidContext(t *testing.T) {
 		want *clientcmdapi.Config
 	}{
 		// TODO: Add test cases.
-		{"clear-root", args{config: &wrongRootConfig}, &appendConfigAlfa},
-		{"clear-federal", args{config: &wrongFederalConfig}, &appendRootConfigConflictAlfa},
+		{"check-root", args{clear: false, config: &wrongRootConfig}, &appendConfigAlfa},
+		{"check-federal", args{clear: false, config: &wrongFederalConfig}, &appendRootConfigConflictAlfa},
+		{"clear-federal", args{clear: true, config: clearWrongConfig}, clearWrongWant},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := CheckValidContext(tt.args.config); !reflect.DeepEqual(got, tt.want) {
+			if got := CheckValidContext(tt.args.clear, tt.args.config); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("CheckValidContext() = %v, want %v", got, tt.want)
 			}
 		})
