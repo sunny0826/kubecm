@@ -404,17 +404,23 @@ func CheckAndTransformFilePath(path string) (string, error) {
 }
 
 // CheckValidContext check and clean mismatched AuthInfo and Cluster
-func CheckValidContext(config *clientcmdapi.Config) *clientcmdapi.Config {
+func CheckValidContext(clear bool, config *clientcmdapi.Config) *clientcmdapi.Config {
 	for key, obj := range config.Contexts {
 		if _, ok := config.AuthInfos[obj.AuthInfo]; !ok {
-			printString(os.Stdout, "Check Config: ")
-			fmt.Printf("AuthInfo 「%s」 has no matching context 「%s」, skip\n", obj.AuthInfo, key)
+			if clear {
+				printString(os.Stdout, fmt.Sprintf("clear lapsed AuthInfo [%s]\n", obj.AuthInfo))
+			} else {
+				printYellow(os.Stdout, fmt.Sprintf("WARNING: AuthInfo 「%s」 has no matching context 「%s」, please run `kubecm clear` to clean up this Context.\n", obj.AuthInfo, key))
+			}
 			delete(config.Contexts, key)
 			delete(config.Clusters, obj.Cluster)
 		}
 		if _, ok := config.Clusters[obj.Cluster]; !ok {
-			printString(os.Stdout, "Check Config: ")
-			fmt.Printf("Cluster 「%s」 has no matching context 「%s」, skip\n", obj.Cluster, key)
+			if clear {
+				printString(os.Stdout, fmt.Sprintf("clear lapsed Cluster [%s]\n", obj.Cluster))
+			} else {
+				printYellow(os.Stdout, fmt.Sprintf("WARNING: Cluster 「%s」 has no matching context 「%s」, please run `kubecm clear` to clean up this Context.\n", obj.Cluster, key))
+			}
 			delete(config.Contexts, key)
 			delete(config.AuthInfos, obj.AuthInfo)
 		}

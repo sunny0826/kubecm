@@ -54,7 +54,7 @@ func clearContext(file string) (bool, error) {
 		return false, err
 	}
 	outConfig := config.DeepCopy()
-	outConfig = CheckValidContext(outConfig)
+	outConfig = CheckValidContext(true, outConfig)
 	if reflect.DeepEqual(config, outConfig) {
 		return true, nil
 	}
