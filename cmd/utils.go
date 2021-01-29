@@ -384,17 +384,6 @@ func printWarning(out io.Writer, name string) {
 	ct.ResetColor()
 }
 
-func printComponents(out io.Writer, name string, list []string) {
-	ct.ChangeColor(ct.Green, false, ct.None, false)
-	fmt.Fprint(out, name)
-	ct.ResetColor()
-	fmt.Fprint(out, ": ")
-	ct.ChangeColor(ct.Yellow, false, ct.None, false)
-	fmt.Printf("%v \n", list)
-	ct.ResetColor()
-	fmt.Fprintln(out, "")
-}
-
 func appendConfig(c1, c2 *clientcmdapi.Config) *clientcmdapi.Config {
 	config := clientcmdapi.NewConfig()
 	_ = mergo.Merge(config, c1)
