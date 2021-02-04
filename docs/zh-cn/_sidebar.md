@@ -6,7 +6,7 @@
     * [alias](/zh-cn/cli/kubecm_alias.md)
     * [completion](/zh-cn/cli/kubecm_completion.md)
     * [delete](/zh-cn/cli/kubecm_delete.md)
-    * [ls](/zh-cn/cli/kubecm_ls.md)
+    * [list](/zh-cn/cli/kubecm_list.md)
     * [merge](/zh-cn/cli/kubecm_merge.md)
     * [namespace](/zh-cn/cli/kubecm_namespace.md)
     * [rename](/zh-cn/cli/kubecm_rename.md)
