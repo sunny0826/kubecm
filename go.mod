@@ -11,6 +11,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rsteube/cobra-zsh-gen v1.1.0
 	github.com/spf13/cobra v1.0.0
+	k8s.io/api v0.19.3
 	k8s.io/apimachinery v0.19.3
 	k8s.io/client-go v0.19.3
 	k8s.io/utils v0.0.0-20201015054608-420da100c033
