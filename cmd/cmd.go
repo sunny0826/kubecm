@@ -18,6 +18,7 @@ func NewBaseCommand() *BaseCommand {
 		&ListCommand{},       // list command
 		&AliasCommand{},      // alias command
 		&ClearCommand{},      // clear command
+		&CreateCommand{},     // create command
 	)
 
 	return baseCmd

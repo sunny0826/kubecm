@@ -25,6 +25,7 @@ Available Commands:
     alias       Generate alias for all contexts
     clear       Clear lapsed context, cluster and user
     completion  Generates bash/zsh completion scripts
+    create      Create new KubeConfig(experiment)
     delete      Delete the specified context from the kubeconfig
     help        Help about any command
     ls          List kubeconfig
