@@ -28,7 +28,7 @@ Available Commands:
     create      Create new KubeConfig(experiment)
     delete      Delete the specified context from the kubeconfig
     help        Help about any command
-    ls          List kubeconfig
+    list        List kubeconfig
     merge       Merge the kubeconfig files in the specified directory
     namespace   Switch or change namespace interactively
     rename      Rename the contexts of kubeconfig

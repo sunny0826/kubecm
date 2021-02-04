@@ -19,10 +19,10 @@ type ListCommand struct {
 // Init ListCommand
 func (lc *ListCommand) Init() {
 	lc.command = &cobra.Command{
-		Use:     "ls",
+		Use:     "list",
 		Short:   "List KubeConfig",
 		Long:    "List KubeConfig",
-		Aliases: []string{"l"},
+		Aliases: []string{"ls", "l"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return lc.runList(cmd, args)
 		},
@@ -79,8 +79,9 @@ func filterArgs(args []string, config *clientcmdapi.Config) (*clientcmdapi.Confi
 func listExample() string {
 	return `
 # List all the contexts in your KubeConfig file
-kubecm ls
+kubecm list
 # Aliases
+kubecm ls
 kubecm l
 # Filter out keywords(Multi-keyword support)
 kubecm ls kind k3s

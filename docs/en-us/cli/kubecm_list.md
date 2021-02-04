@@ -7,16 +7,17 @@ List KubeConfig
 List KubeConfig
 
 ```
-kubecm ls
+kubecm list
 ```
 
 ### Examples
 
 ```
 
-# List all the contexts in your kubeconfig file
-kubecm ls
+# List all the contexts in your KubeConfig file
+kubecm list
 # Aliases
+kubecm ls
 kubecm l
 # Filter out keywords(Multi-keyword support)
 kubecm ls kind k3s

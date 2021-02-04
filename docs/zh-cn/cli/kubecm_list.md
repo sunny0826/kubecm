@@ -7,16 +7,17 @@
 列举 Context，可以通过后跟关键字，筛选出包含该关键字的 context，支持多关键字筛选，关键字之间是 `或` 的关系。
 
 ```
-kubecm ls
+kubecm list
 ```
 
 ### 示例
 
 ```
 
-# List all the contexts in your kubeconfig file
-kubecm ls
+# List all the contexts in your KubeConfig file
+kubecm list
 # Aliases
+kubecm ls
 kubecm l
 # Filter out keywords(Multi-keyword support)
 kubecm ls kind k3s
