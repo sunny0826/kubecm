@@ -256,6 +256,7 @@ func MoreInfo(clientSet *kubernetes.Clientset) error {
 	kv["Node"] = len(nodesList.Items)
 	kv["Pod"] = len(podsList.Items)
 	printKV(os.Stdout, "[Summary] ", kv)
+
 	return nil
 }
 
@@ -361,7 +362,7 @@ func printKV(out io.Writer, prefix string, kv map[string]int) {
 	fmt.Fprint(out, prefix)
 	ct.ResetColor()
 	for k, v := range kv {
-		ct.ChangeColor(ct.Blue, false, ct.None, false)
+		ct.ChangeColor(ct.Cyan, false, ct.None, false)
 		fmt.Fprint(out, k)
 		fmt.Fprint(out, ": ")
 		ct.ResetColor()
@@ -370,6 +371,7 @@ func printKV(out io.Writer, prefix string, kv map[string]int) {
 		ct.ResetColor()
 		fmt.Fprint(out, " ")
 	}
+	fmt.Fprint(out, "\n")
 }
 
 func printYellow(out io.Writer, content string) {
