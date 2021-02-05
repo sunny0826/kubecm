@@ -256,7 +256,6 @@ func MoreInfo(clientSet *kubernetes.Clientset) error {
 	kv["Node"] = len(nodesList.Items)
 	kv["Pod"] = len(podsList.Items)
 	printKV(os.Stdout, "[Summary] ", kv)
-
 	return nil
 }
 
