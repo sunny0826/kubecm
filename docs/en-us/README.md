@@ -43,9 +43,9 @@ Flags:
 Use "kubecm [command] --help" for more information about a command.
 ```
 
-# Video
+# Demo
 
-[![](https://tva3.sinaimg.cn/large/ad5fbf65gy1gij1pl0pn5j218o0p81kx.jpg)](https://www.bilibili.com/video/av88259938/)
+<script id="asciicast-389595" src="https://asciinema.org/a/389595.js" async></script>
 
 # Thanks
 
