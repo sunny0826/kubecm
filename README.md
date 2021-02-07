@@ -47,9 +47,9 @@ Use "kubecm [command] --help" for more information about a command.
 
 For full documentation, please visit the KubeVela website: [https://kubecm.cloud](https://kubecm.cloud)
 
-## Video
+## Demo
 
-[![](https://tva3.sinaimg.cn/large/ad5fbf65gy1gij1pl0pn5j218o0p81kx.jpg)](https://www.bilibili.com/video/av88259938/)
+[![asciicast](https://asciinema.org/a/389595.svg)](https://asciinema.org/a/389595)
 
 ## Contribute
 
