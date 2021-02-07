@@ -16,7 +16,7 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
-// ClearCommand clean command struct
+// CreateCommand clean command struct
 type CreateCommand struct {
 	BaseCommand
 }
@@ -31,7 +31,7 @@ type CreateOptions struct {
 	namespace   string
 }
 
-// Init AliasCommand
+// Init CreateCommand
 func (ce *CreateCommand) Init() {
 	ce.command = &cobra.Command{
 		Use:   "create",
@@ -132,7 +132,6 @@ func (co *CreateOptions) chooseNamespace() error {
 
 func (co *CreateOptions) createServiceAccounts() error {
 	saName := co.userName
-	// TODO 判断 sa 是否存在
 	userServiceAccount, err := co.clientSet.CoreV1().ServiceAccounts(co.namespace).Get(context.TODO(), saName, metav1.GetOptions{})
 	if err != nil {
 		saObj := &coreV1.ServiceAccount{
@@ -188,7 +187,6 @@ func (co *CreateOptions) selectClusterRole() error {
 }
 
 func (co *CreateOptions) createRoleBinding() error {
-	co.role = "view"
 	rb := &rbacV1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-%s", co.userName, co.role),
