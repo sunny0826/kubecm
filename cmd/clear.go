@@ -14,7 +14,7 @@ type ClearCommand struct {
 	BaseCommand
 }
 
-// Init AliasCommand
+// Init ClearCommand
 func (cl *ClearCommand) Init() {
 	cl.command = &cobra.Command{
 		Use:   "clear",
