@@ -27,6 +27,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
 
@@ -43,16 +44,7 @@ func NewCli() *Cli {
 		rootCmd: &cobra.Command{
 			Use:   "kubecm",
 			Short: "KubeConfig Manager.",
-			Long: `
-Manage your kubeconfig more easily.
- _          _
-| | ___   _| |__   ___  ___ _ __ ___
-| |/ / | | | '_ \ / _ \/ __| '_ \ _ \
-|   <| |_| | |_) |  __/ (__| | | | | |
-|_|\_\\__,_|_.__/ \___|\___|_| |_| |_|
-
-Find more information at: https://kubecm.cloud
-`,
+			Long:  printLogo(),
 		},
 	}
 	cli.rootCmd.SetOutput(os.Stdout)
@@ -124,4 +116,28 @@ func homeWindows() string {
 	}
 
 	return home
+}
+func printLogo() string {
+	panel := pterm.DefaultHeader.WithMargin(8).
+		WithBackgroundStyle(pterm.NewStyle(pterm.BgLightBlue)).
+		WithTextStyle(pterm.NewStyle(pterm.FgLightWhite)).Sprint("Manage your kubeconfig more easily.")
+	//s, _ := pterm.DefaultBigText.WithLetters(
+	//	pterm.NewLettersFromStringWithStyle("kube", pterm.NewStyle(pterm.FgLightGreen)),
+	//	pterm.NewLettersFromStringWithStyle("cm", pterm.NewStyle(pterm.FgLightBlue))).Srender()
+	logo := pterm.FgLightGreen.Sprint(`
+██   ██ ██    ██ ██████  ███████  ██████ ███    ███ 
+██  ██  ██    ██ ██   ██ ██      ██      ████  ████ 
+█████   ██    ██ ██████  █████   ██      ██ ████ ██ 
+██  ██  ██    ██ ██   ██ ██      ██      ██  ██  ██ 
+██   ██  ██████  ██████  ███████  ██████ ██      ██
+`)
+	pterm.Info.Prefix = pterm.Prefix{
+		Text:  "Tips",
+		Style: pterm.NewStyle(pterm.BgBlue, pterm.FgLightWhite),
+	}
+	url:=pterm.Info.Sprintf("Find more information at: %s",pterm.LightMagenta("https://kubecm.cloud"))
+	return fmt.Sprintf(`
+%s%s
+%s
+`, panel, logo, url)
 }
