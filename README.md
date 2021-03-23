@@ -45,7 +45,7 @@ Use "kubecm [command] --help" for more information about a command.
 
 ## Documentation
 
-For full documentation, please visit the KubeVela website: [https://kubecm.cloud](https://kubecm.cloud)
+For full documentation, please visit the KubeCM website: [https://kubecm.cloud](https://kubecm.cloud)
 
 ## Demo
 
