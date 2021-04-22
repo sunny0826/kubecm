@@ -7,38 +7,39 @@
 [![codecov](https://codecov.io/gh/sunny0826/kubecm/branch/master/graph/badge.svg?token=KGTLBQ8HYZ)](https://codecov.io/gh/sunny0826/kubecm)
 
 ```text
-Manage your kubeconfig more easily.
- _          _
-| | ___   _| |__   ___  ___ _ __ ___
-| |/ / | | | '_ \ / _ \/ __| '_ \ _ \
-|   <| |_| | |_) |  __/ (__| | | | | |
-|_|\_\\__,_|_.__/ \___|\___|_| |_| |_|
 
-Find more information at: https://github.com/sunny0826/kubecm
+        Manage your kubeconfig more easily.
+
+
+██   ██ ██    ██ ██████  ███████  ██████ ███    ███
+██  ██  ██    ██ ██   ██ ██      ██      ████  ████
+█████   ██    ██ ██████  █████   ██      ██ ████ ██
+██  ██  ██    ██ ██   ██ ██      ██      ██  ██  ██
+██   ██  ██████  ██████  ███████  ██████ ██      ██
+
+ Tips  Find more information at: https://kubecm.cloud
 
 Usage:
-  kubecm [flags]
   kubecm [command]
 
 Available Commands:
-    add         Merge configuration file with $HOME/.kube/config
-    alias       Generate alias for all contexts
-    clear       Clear lapsed context, cluster and user
-    completion  Generates bash/zsh completion scripts
-    create      Create new KubeConfig(experiment)
-    delete      Delete the specified context from the kubeconfig
-    help        Help about any command
-    list        List kubeconfig
-    merge       Merge the kubeconfig files in the specified directory
-    namespace   Switch or change namespace interactively
-    rename      Rename the contexts of kubeconfig
-    switch      Switch Kube Context interactively
-    version     Print version info
-
+  add         Add KubeConfig to $HOME/.kube/config
+  alias       Generate alias for all contexts
+  clear       Clear lapsed context, cluster and user
+  completion  Generates bash/zsh completion scripts
+  create      Create new KubeConfig(experiment)
+  delete      Delete the specified context from the kubeconfig
+  help        Help about any command
+  list        List KubeConfig
+  merge       Merge the KubeConfig files in the specified directory
+  namespace   Switch or change namespace interactively
+  rename      Rename the contexts of kubeconfig
+  switch      Switch Kube Context interactively
+  version     Print version info
 
 Flags:
       --config string   path of kubeconfig (default "$HOME/.kube/config")
-  -h, --help   help for kubecm
+  -h, --help            help for kubecm
 
 Use "kubecm [command] --help" for more information about a command.
 ```
