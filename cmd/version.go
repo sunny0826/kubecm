@@ -17,9 +17,9 @@ var (
 	goarch        = runtime.GOARCH
 )
 
-// version returns the version of kustomize.
+// version returns the version of kubecm.
 type version struct {
-	// KustomizeVersion is a kustomize binary version.
+	// kubecmVersion is a kubecm binary version.
 	KubecmVersion string `json:"kubecmVersion"`
 	// GoOs holds OS name.
 	GoOs string `json:"goOs"`
