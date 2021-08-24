@@ -14,12 +14,6 @@ kubecm alias
 
 ```
 
-# dev 
-alias k-dev='kubectl --context dev'
-# test
-alias k-test='kubectl --context test'
-# prod
-alias k-prod='kubectl --context prod'
 $ kubecm alias -o zsh
 # add context to ~/.zshrc
 $ kubecm alias -o bash

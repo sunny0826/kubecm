@@ -17,10 +17,17 @@ limitations under the License.
 */
 
 import (
+	"bytes"
 	"flag"
+	"fmt"
 	"os"
+	"os/exec"
+	"os/user"
 	"path/filepath"
+	"runtime"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
 
@@ -37,16 +44,7 @@ func NewCli() *Cli {
 		rootCmd: &cobra.Command{
 			Use:   "kubecm",
 			Short: "KubeConfig Manager.",
-			Long: `
-KubeConfig Manager
- _          _
-| | ___   _| |__   ___  ___ _ __ ___
-| |/ / | | | '_ \ / _ \/ __| '_ \ _ \
-|   <| |_| | |_) |  __/ (__| | | | | |
-|_|\_\\__,_|_.__/ \___|\___|_| |_| |_|
-
-Find more information at: https://github.com/sunny0826/kubecm
-`,
+			Long:  printLogo(),
 		},
 	}
 	cli.rootCmd.SetOutput(os.Stdout)
@@ -62,12 +60,84 @@ func (cli *Cli) setFlags() {
 
 //Run command
 func (cli *Cli) Run() error {
+	// check and format kubeconfig path
+	config, err := CheckAndTransformFilePath(cfgFile)
+	if err != nil {
+		return err
+	}
+	err = flag.Set("config", config)
+	if err != nil {
+		return err
+	}
 	return cli.rootCmd.Execute()
 }
-
 func homeDir() string {
-	if h := os.Getenv("HOME"); h != "" {
-		return h
+	u, err := user.Current()
+	if nil == err {
+		return u.HomeDir
 	}
-	return os.Getenv("USERPROFILE") // windows
+	// cross compile support
+	if "windows" == runtime.GOOS {
+		return homeWindows()
+	}
+	// Unix-like system, so just assume Unix
+	return homeUnix()
+}
+
+func homeUnix() string {
+	if home := os.Getenv("HOME"); home != "" {
+		return home
+	}
+	var stdout bytes.Buffer
+	cmd := exec.Command("sh", "-c", "eval echo ~$USER")
+	cmd.Stdout = &stdout
+	if err := cmd.Run(); err != nil {
+		return ""
+	}
+	result := strings.TrimSpace(stdout.String())
+	if result == "" {
+		fmt.Println("blank output when reading home directory")
+		os.Exit(0)
+	}
+
+	return result
+}
+
+func homeWindows() string {
+	drive := os.Getenv("HOMEDRIVE")
+	path := os.Getenv("HOMEPATH")
+	home := drive + path
+	if drive == "" || path == "" {
+		home = os.Getenv("USERPROFILE")
+	}
+	if home == "" {
+		fmt.Println("HOMEDRIVE, HOMEPATH, and USERPROFILE are blank")
+		os.Exit(0)
+	}
+
+	return home
+}
+func printLogo() string {
+	panel := pterm.DefaultHeader.WithMargin(8).
+		WithBackgroundStyle(pterm.NewStyle(pterm.BgLightBlue)).
+		WithTextStyle(pterm.NewStyle(pterm.FgLightWhite)).Sprint("Manage your kubeconfig more easily.")
+	//s, _ := pterm.DefaultBigText.WithLetters(
+	//	pterm.NewLettersFromStringWithStyle("kube", pterm.NewStyle(pterm.FgLightGreen)),
+	//	pterm.NewLettersFromStringWithStyle("cm", pterm.NewStyle(pterm.FgLightBlue))).Srender()
+	logo := pterm.FgLightGreen.Sprint(`
+██   ██ ██    ██ ██████  ███████  ██████ ███    ███ 
+██  ██  ██    ██ ██   ██ ██      ██      ████  ████ 
+█████   ██    ██ ██████  █████   ██      ██ ████ ██ 
+██  ██  ██    ██ ██   ██ ██      ██      ██  ██  ██ 
+██   ██  ██████  ██████  ███████  ██████ ██      ██
+`)
+	pterm.Info.Prefix = pterm.Prefix{
+		Text:  "Tips",
+		Style: pterm.NewStyle(pterm.BgBlue, pterm.FgLightWhite),
+	}
+	url:=pterm.Info.Sprintf("Find more information at: %s",pterm.LightMagenta("https://kubecm.cloud"))
+	return fmt.Sprintf(`
+%s%s
+%s
+`, panel, logo, url)
 }

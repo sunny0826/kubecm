@@ -4,10 +4,10 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/sunny0826/kubecm)](https://goreportcard.com/report/github.com/sunny0826/kubecm)
 ![GitHub](https://img.shields.io/github/license/sunny0826/kubecm.svg)
 [![GitHub release](https://img.shields.io/github/release/sunny0826/kubecm)](https://github.com/sunny0826/kubecm/releases)
-[![codecov](https://codecov.io/gh/sunny0826/kubecm/branch/master/graph/badge.svg?token=KGTLBQ8HYZ)](undefined)
+[![codecov](https://codecov.io/gh/sunny0826/kubecm/branch/master/graph/badge.svg?token=KGTLBQ8HYZ)](https://codecov.io/gh/sunny0826/kubecm)
 
 ```text
-KubeConfig Manager
+Manage your kubeconfig more easily.
  _          _
 | | ___   _| |__   ___  ___ _ __ ___
 | |/ / | | | '_ \ / _ \/ __| '_ \ _ \
@@ -23,7 +23,9 @@ Usage:
 Available Commands:
     add         Merge configuration file with $HOME/.kube/config
     alias       Generate alias for all contexts
+    clear       Clear lapsed context, cluster and user
     completion  Generates bash/zsh completion scripts
+    create      Create new KubeConfig(experiment)
     delete      Delete the specified context from the kubeconfig
     help        Help about any command
     ls          List kubeconfig
@@ -41,9 +43,9 @@ Flags:
 Use "kubecm [command] --help" for more information about a command.
 ```
 
-# Video
+# Demo
 
-[![](https://tva3.sinaimg.cn/large/ad5fbf65gy1gij1pl0pn5j218o0p81kx.jpg)](https://www.bilibili.com/video/av88259938/)
+<script id="asciicast-389595" src="https://asciinema.org/a/389595.js" async></script>
 
 # Thanks
 

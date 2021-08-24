@@ -20,6 +20,8 @@ kubecm switch [flags]
 
 # Switch Kube Context interactively
 kubecm switch
+# Quick switch Kube Context
+kubecm switch dev
 
 ```
 

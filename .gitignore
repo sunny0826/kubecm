@@ -16,3 +16,6 @@ dist/
 kubecm
 
 target
+tmp
+mergeDir
+config.yaml

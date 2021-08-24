@@ -5,8 +5,9 @@
 ### 简介
 
 
-交互式切换 Kube Context
+切换 Kube Context，可以直接切换或交互式切换。
 
+**可以通过键入 `\` 来进行搜索**
 
 ```
 kubecm switch [flags]
@@ -20,6 +21,8 @@ kubecm switch [flags]
 
 # Switch Kube Context interactively
 kubecm switch
+# Quick switch Kube Context
+kubecm switch dev
 
 ```
 

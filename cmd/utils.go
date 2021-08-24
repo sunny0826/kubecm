@@ -9,6 +9,8 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/bndr/gotabulate"
@@ -77,23 +79,37 @@ func HashSuf(config *clientcmdapi.Config) string {
 	return sum
 }
 
-// Formatable generate table
-func Formatable() error {
-	config, err := clientcmd.LoadFromFile(cfgFile)
-	if err != nil {
-		return err
-	}
+func HashSufString(data string) string {
+	sum, _ := hEncode(Hash(data))
+	return sum
+}
+
+// PrintTable generate table
+func PrintTable(config *clientcmdapi.Config) error {
 	var table [][]string
-	for key, obj := range config.Contexts {
+	sortedKeys := make([]string, 0)
+	for k := range config.Contexts {
+		sortedKeys = append(sortedKeys, k)
+	}
+	sort.Strings(sortedKeys)
+	ctx := config.Contexts
+	for _, k := range sortedKeys {
 		namespace := "default"
 		head := ""
-		if config.CurrentContext == key {
+		if config.CurrentContext == k {
 			head = "*"
 		}
-		if obj.Namespace != "" {
-			namespace = obj.Namespace
+		if ctx[k].Namespace != "" {
+			namespace = ctx[k].Namespace
 		}
-		conTmp := []string{head, key, obj.Cluster, obj.AuthInfo, config.Clusters[obj.Cluster].Server, namespace}
+		if config.Clusters == nil {
+			continue
+		}
+		cluster, ok := config.Clusters[ctx[k].Cluster]
+		if !ok {
+			continue
+		}
+		conTmp := []string{head, k, ctx[k].Cluster, ctx[k].AuthInfo, cluster.Server, namespace}
 		table = append(table, conTmp)
 	}
 
@@ -106,7 +122,7 @@ func Formatable() error {
 		tabulate.SetAlign("center")
 		fmt.Println(tabulate.Render("grid", "left"))
 	} else {
-		return fmt.Errorf("context not found")
+		return errors.New("context not found")
 	}
 	return nil
 }
@@ -182,7 +198,7 @@ func BoolUI(label string) string {
 	}
 	prompt := promptui.Select{
 		Label:     label,
-		Items:     []string{"True", "False"},
+		Items:     []string{"False", "True"},
 		Templates: templates,
 		Size:      2,
 	}
@@ -197,27 +213,49 @@ func BoolUI(label string) string {
 func ClusterStatus() error {
 	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
 	if err != nil {
-		return fmt.Errorf(err.Error())
+		return err
 	}
-
-	clientset, err := kubernetes.NewForConfig(config)
+	clientSet, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		return fmt.Errorf(err.Error())
+		return err
+	}
+	versionInfo, err := clientSet.ServerVersion()
+	if err != nil {
+		return err
 	}
 
+	printString(os.Stdout, "Cluster check succeeded!")
+	printString(os.Stdout, "\nKubernetes version ")
+	printYellow(os.Stdout, versionInfo.GitVersion)
+	printService(os.Stdout, "\nKubernetes master", config.Host)
+	err = MoreInfo(clientSet)
+	if err != nil {
+		fmt.Println("(Error reporting can be ignored and does not affect usage.)")
+	}
+	return nil
+}
+
+func MoreInfo(clientSet *kubernetes.Clientset) error {
 	timeout := int64(5)
 	ctx := context.TODO()
-	cus, err := clientset.CoreV1().ComponentStatuses().List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
+	nodesList, err := clientSet.CoreV1().Nodes().List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
 	if err != nil {
-		return fmt.Errorf(err.Error())
+		return err
 	}
-	var names []string
-	for _, k := range cus.Items {
-		names = append(names, k.Name)
+	podsList, err := clientSet.CoreV1().Pods("").List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
+	if err != nil {
+		return err
 	}
-	printString(os.Stdout, "Cluster check succeeded!\n")
-	printService(os.Stdout, "Kubernetes master", config.Host)
-	printComponents(os.Stdout, "Contains components", names)
+	nsList, err := clientSet.CoreV1().Namespaces().List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
+	if err != nil {
+		return err
+	}
+
+	kv := make(map[string]int)
+	kv["Namespace"] = len(nsList.Items)
+	kv["Node"] = len(nodesList.Items)
+	kv["Pod"] = len(podsList.Items)
+	printKV(os.Stdout, "[Summary] ", kv)
 	return nil
 }
 
@@ -229,7 +267,7 @@ func WriteConfig(cover bool, file string, outConfig *clientcmdapi.Config) error 
 			return err
 		}
 		fmt.Printf("「%s」 write successful!\n", file)
-		err = Formatable()
+		err = PrintTable(outConfig)
 		if err != nil {
 			return err
 		}
@@ -238,8 +276,21 @@ func WriteConfig(cover bool, file string, outConfig *clientcmdapi.Config) error 
 		if err != nil {
 			return err
 		}
-		fmt.Println("generate ./config.yaml")
+		printString(os.Stdout, "generate ./config.yaml\n")
 	}
+	return nil
+}
+
+func UpdateConfigFile(file string, updateConfig *clientcmdapi.Config) error {
+	file, err := CheckAndTransformFilePath(file)
+	if err != nil {
+		return err
+	}
+	err = clientcmd.WriteToFile(*updateConfig, file)
+	if err != nil {
+		return err
+	}
+	printString(os.Stdout, "Update Config: "+file+"\n")
 	return nil
 }
 
@@ -305,15 +356,33 @@ func printString(out io.Writer, name string) {
 	ct.ResetColor()
 }
 
-func printComponents(out io.Writer, name string, list []string) {
+func printKV(out io.Writer, prefix string, kv map[string]int) {
 	ct.ChangeColor(ct.Green, false, ct.None, false)
+	fmt.Fprint(out, prefix)
+	ct.ResetColor()
+	for k, v := range kv {
+		ct.ChangeColor(ct.Cyan, false, ct.None, false)
+		fmt.Fprint(out, k)
+		fmt.Fprint(out, ": ")
+		ct.ResetColor()
+		ct.ChangeColor(ct.Yellow, false, ct.None, false)
+		fmt.Fprint(out, v)
+		ct.ResetColor()
+		fmt.Fprint(out, " ")
+	}
+	fmt.Fprint(out, "\n")
+}
+
+func printYellow(out io.Writer, content string) {
+	ct.ChangeColor(ct.Yellow, false, ct.None, false)
+	fmt.Fprint(out, content)
+	ct.ResetColor()
+}
+
+func printWarning(out io.Writer, name string) {
+	ct.ChangeColor(ct.Red, false, ct.None, false)
 	fmt.Fprint(out, name)
 	ct.ResetColor()
-	fmt.Fprint(out, ": ")
-	ct.ChangeColor(ct.Yellow, false, ct.None, false)
-	fmt.Printf("%v \n", list)
-	ct.ResetColor()
-	fmt.Fprintln(out, "")
 }
 
 func appendConfig(c1, c2 *clientcmdapi.Config) *clientcmdapi.Config {
@@ -321,4 +390,47 @@ func appendConfig(c1, c2 *clientcmdapi.Config) *clientcmdapi.Config {
 	_ = mergo.Merge(config, c1)
 	_ = mergo.Merge(config, c2)
 	return config
+}
+
+// CheckAndTransformFilePath return converted path
+func CheckAndTransformFilePath(path string) (string, error) {
+	if strings.HasPrefix(path, "~/") {
+		path = filepath.Join(homeDir(), path[2:])
+	}
+	_, err := os.Stat(path) //os.Stat获取文件信息
+	if err != nil {
+		return "", err
+	}
+	return path, nil
+}
+
+// CheckValidContext check and clean mismatched AuthInfo and Cluster
+func CheckValidContext(clear bool, config *clientcmdapi.Config) *clientcmdapi.Config {
+	for key, obj := range config.Contexts {
+		if _, ok := config.AuthInfos[obj.AuthInfo]; !ok {
+			if clear {
+				printString(os.Stdout, fmt.Sprintf("clear lapsed AuthInfo [%s]\n", obj.AuthInfo))
+			} else {
+				printYellow(os.Stdout, fmt.Sprintf("WARNING: AuthInfo 「%s」 has no matching context 「%s」, please run `kubecm clear` to clean up this Context.\n", obj.AuthInfo, key))
+			}
+			delete(config.Contexts, key)
+			delete(config.Clusters, obj.Cluster)
+		}
+		if _, ok := config.Clusters[obj.Cluster]; !ok {
+			if clear {
+				printString(os.Stdout, fmt.Sprintf("clear lapsed Cluster [%s]\n", obj.Cluster))
+			} else {
+				printYellow(os.Stdout, fmt.Sprintf("WARNING: Cluster 「%s」 has no matching context 「%s」, please run `kubecm clear` to clean up this Context.\n", obj.Cluster, key))
+			}
+			delete(config.Contexts, key)
+			delete(config.AuthInfos, obj.AuthInfo)
+		}
+	}
+	return config
+}
+
+func getFileName(path string) string {
+	n := strings.Split(path, "/")
+	result := strings.Split(n[len(n)-1], ".")
+	return result[0]
 }

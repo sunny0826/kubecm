@@ -19,22 +19,23 @@ type BaseCommand struct {
 }
 
 // Init BaseCommand
-func (bc *BaseCommand) Init() {
-}
+func (bc *BaseCommand) Init() {}
 
-// CobraCmd return BaseCommand
+// CobraCmd returns BaseCommand
 func (bc *BaseCommand) CobraCmd() *cobra.Command {
 	return bc.command
 }
 
-// Name return name of BaseCommand
+// Name returns name of BaseCommand
 func (bc *BaseCommand) Name() string {
 	return bc.command.Name()
 }
 
-//AddCommand is add child command to the parent command
-func (bc *BaseCommand) AddCommand(child Command) {
-	child.Init()
-	childCmd := child.CobraCmd()
-	bc.CobraCmd().AddCommand(childCmd)
+//AddCommand adds children commands to the parent command
+func (bc *BaseCommand) AddCommands(children ...Command) {
+	for _, child := range children {
+		child.Init()
+		childCmd := child.CobraCmd()
+		bc.CobraCmd().AddCommand(childCmd)
+	}
 }
