@@ -33,6 +33,7 @@ func (ac *AddCommand) Init() {
 	}
 	ac.command.Flags().StringP("file", "f", "", "Path to merge kubeconfig files")
 	_ = ac.command.MarkFlagRequired("file")
+	ac.AddCommands(&CloudCommand{})
 }
 
 func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
@@ -129,5 +130,7 @@ func addExample() string {
 	return `
 # Merge test.yaml with $HOME/.kube/config
 kubecm add -f test.yaml 
+# Select kubeconfig from the cloud
+kubecm add cloud
 `
 }
