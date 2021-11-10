@@ -59,6 +59,5 @@ func GetKubeConfig(clusterID string) (string, error) {
 	if _err != nil {
 		return "", _err
 	}
-	kubeConfig := *(res.Body.Config)
-	return kubeConfig, _err
+	return *(res.Body.Config), _err
 }

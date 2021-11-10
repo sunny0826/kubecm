@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/sunny0826/kubecm/pkg/cloud/aliyun"
+	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -51,6 +52,7 @@ func (cc *CloudCommand) Init() {
 func (cc *CloudCommand) runCloud(cmd *cobra.Command, args []string) error {
 	provider, _ := cc.command.Flags().GetString("provider")
 	clusterID, _ := cc.command.Flags().GetString("cluster_id")
+	cover, _ := cc.command.Flags().GetBool("cover")
 	var num int
 	if provider == "" {
 		num = selectCloud(Clouds, "Select Cloud")
@@ -79,14 +81,29 @@ func (cc *CloudCommand) runCloud(cmd *cobra.Command, args []string) error {
 			if err != nil {
 				return err
 			}
-			fmt.Println(kubeconfig)
+			newConfig, err := clientcmd.Load([]byte(kubeconfig))
+			if err != nil {
+				return err
+			}
+			err = AddToLocal(newConfig, clusters[clusterNum].Name, cover)
+			if err != nil {
+				return err
+			}
 		} else {
 			kubeconfig, err := aliyun.GetKubeConfig(clusterID)
 			if err != nil {
 				return err
 			}
-			fmt.Println(kubeconfig)
+			newConfig, err := clientcmd.Load([]byte(kubeconfig))
+			if err != nil {
+				return err
+			}
+			err = AddToLocal(newConfig, fmt.Sprint("alicloud-%s", clusterID), cover)
+			if err != nil {
+				return err
+			}
 		}
+
 	}
 	return nil
 }
@@ -154,7 +171,7 @@ func selectCluster(clouds []aliyun.ClusterInfo, label string) int {
 
 func addCloudExample() string {
 	return `
-# Select kubeconfig from the cloud
+# Interaction: select kubeconfig from the cloud
 kubecm add cloud
 # Add kubeconfig from cloud
 kubecm add cloud --provider alibabacloud --cluster_id=xxxxxx
