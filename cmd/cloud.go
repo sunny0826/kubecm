@@ -57,7 +57,7 @@ func (cc *CloudCommand) runCloud(cmd *cobra.Command, args []string) error {
 	if provider == "" {
 		num = selectCloud(Clouds, "Select Cloud")
 	} else {
-		num = cc.checkFlags(provider)
+		num = checkFlags(provider)
 		fmt.Printf("⛅  Selected: %s\n", Clouds[num].Name)
 	}
 	switch num {
@@ -98,7 +98,7 @@ func (cc *CloudCommand) runCloud(cmd *cobra.Command, args []string) error {
 			if err != nil {
 				return err
 			}
-			err = AddToLocal(newConfig, fmt.Sprint("alicloud-%s", clusterID), cover)
+			err = AddToLocal(newConfig, fmt.Sprintf("alicloud-%s", clusterID), cover)
 			if err != nil {
 				return err
 			}
@@ -108,7 +108,7 @@ func (cc *CloudCommand) runCloud(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func (cc *CloudCommand) checkFlags(provider string) int {
+func checkFlags(provider string) int {
 	for i, cloud := range Clouds {
 		for _, alias := range cloud.Alias {
 			if alias == provider {
