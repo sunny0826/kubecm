@@ -2,7 +2,6 @@ package aliyun
 
 import (
 	cs20151215 "github.com/alibabacloud-go/cs-20151215/v2/client"
-	env "github.com/alibabacloud-go/darabonba-env/client"
 	openapi "github.com/alibabacloud-go/darabonba-openapi/client"
 	"github.com/alibabacloud-go/tea/tea"
 )
@@ -15,10 +14,10 @@ type ClusterInfo struct {
 }
 
 // GetClient get aliyun openapi client
-func GetClient() (_result *cs20151215.Client, _err error) {
+func GetClient(accessKeyID, accessKeySecret string) (_result *cs20151215.Client, _err error) {
 	config := &openapi.Config{
-		AccessKeyId:     env.GetEnv(tea.String("ACCESS_KEY_ID")),
-		AccessKeySecret: env.GetEnv(tea.String("ACCESS_KEY_SECRET")),
+		AccessKeyId:     &accessKeyID,
+		AccessKeySecret: &accessKeySecret,
 		RegionId:        tea.String("cn-hongkong"),
 	}
 	_result = &cs20151215.Client{}
@@ -27,8 +26,8 @@ func GetClient() (_result *cs20151215.Client, _err error) {
 }
 
 // ListCluster list cluster info
-func ListCluster() (clusters []ClusterInfo, _err error) {
-	client, _err := GetClient()
+func ListCluster(accessKeyID, accessKeySecret string) (clusters []ClusterInfo, _err error) {
+	client, _err := GetClient(accessKeyID, accessKeySecret)
 	if _err != nil {
 		return nil, _err
 	}
@@ -49,8 +48,8 @@ func ListCluster() (clusters []ClusterInfo, _err error) {
 }
 
 // GetKubeConfig get kubeConfig file
-func GetKubeConfig(clusterID string) (string, error) {
-	client, _err := GetClient()
+func GetKubeConfig(accessKeyID, accessKeySecret, clusterID string) (string, error) {
+	client, _err := GetClient(accessKeyID, accessKeySecret)
 	if _err != nil {
 		return "", _err
 	}
