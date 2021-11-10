@@ -19,7 +19,6 @@ func getClient(accessKeyID, accessKeySecret string) (*cs20151215.Client, error) 
 		AccessKeySecret: &accessKeySecret,
 		RegionId:        tea.String("cn-hongkong"),
 	}
-	result := &cs20151215.Client{}
 	result, err := cs20151215.NewClient(config)
 	return result, err
 }

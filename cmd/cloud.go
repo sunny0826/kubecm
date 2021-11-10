@@ -60,19 +60,17 @@ func (cc *CloudCommand) runCloud(cmd *cobra.Command, args []string) error {
 		num = selectCloud(Clouds, "Select Cloud")
 	} else {
 		num = checkFlags(provider)
-		fmt.Printf("⛅  Selected: %s\n", Clouds[num].Name)
 	}
 	switch num {
 	case -1:
 		var allAlias []string
 		for _, cloud := range Clouds {
-			for _, alias := range cloud.Alias {
-				allAlias = append(allAlias, alias)
-			}
+			allAlias = append(allAlias, cloud.Alias...)
 		}
 		fmt.Printf("'%s' is not supported, supported cloud alias are %v \n", provider, allAlias)
 		return nil
 	case 0:
+		fmt.Println("⛅  Selected: AlibabaCloud")
 		accessKeyID, accessKeySecret := checkEnvForSecret(0)
 		ali := cloud.AliCloud{
 			AccessKeyID:     accessKeyID,
