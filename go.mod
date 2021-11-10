@@ -3,6 +3,11 @@ module github.com/sunny0826/kubecm
 go 1.15
 
 require (
+	github.com/alibabacloud-go/cs-20151215/v2 v2.4.5
+	github.com/alibabacloud-go/darabonba-env v1.0.0
+	github.com/alibabacloud-go/darabonba-openapi v0.1.7
+	github.com/alibabacloud-go/tea v1.1.17
+	github.com/alibabacloud-go/tea-utils v1.4.1 // indirect
 	github.com/bndr/gotabulate v1.1.3-0.20170315142410-bc555436bfd5
 	github.com/daviddengcn/go-colortext v1.0.0
 	github.com/imdario/mergo v0.3.7

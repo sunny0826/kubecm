@@ -15,6 +15,7 @@ type AddCommand struct {
 	BaseCommand
 }
 
+// KubeConfigOption kubeConfig option
 type KubeConfigOption struct {
 	config   *clientcmdapi.Config
 	fileName string
@@ -32,11 +33,14 @@ func (ac *AddCommand) Init() {
 		Example: addExample(),
 	}
 	ac.command.Flags().StringP("file", "f", "", "Path to merge kubeconfig files")
+	ac.command.PersistentFlags().BoolP("cover", "c", false, "Overwrite local kubeconfig files")
 	_ = ac.command.MarkFlagRequired("file")
+	ac.AddCommands(&CloudCommand{})
 }
 
 func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 	file, _ := ac.command.Flags().GetString("file")
+	cover, _ := ac.command.Flags().GetBool("cover")
 	// check path
 	file, err := CheckAndTransformFilePath(file)
 	if err != nil {
@@ -46,13 +50,22 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	err = AddToLocal(newConfig, file, cover)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// AddToLocal add kubeConfig to local
+func AddToLocal(newConfig *clientcmdapi.Config, path string, cover bool) error {
 	oldConfig, err := clientcmd.LoadFromFile(cfgFile)
 	if err != nil {
 		return err
 	}
 	kco := &KubeConfigOption{
 		config:   newConfig,
-		fileName: getFileName(file),
+		fileName: getFileName(path),
 	}
 	// merge context loop
 	outConfig, err := kco.handleContexts(oldConfig)
@@ -64,12 +77,13 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 			outConfig.CurrentContext = k
 		}
 	}
-	cover := BoolUI(fmt.Sprintf("Does it overwrite File 「%s」?", cfgFile))
-	confirm, err := strconv.ParseBool(cover)
-	if err != nil {
-		return err
+	if !cover {
+		cover, err = strconv.ParseBool(BoolUI(fmt.Sprintf("Does it overwrite File 「%s」?", cfgFile)))
+		if err != nil {
+			return err
+		}
 	}
-	err = WriteConfig(confirm, file, outConfig)
+	err = WriteConfig(cover, path, outConfig)
 	if err != nil {
 		return err
 	}
@@ -129,5 +143,7 @@ func addExample() string {
 	return `
 # Merge test.yaml with $HOME/.kube/config
 kubecm add -f test.yaml 
+# Interaction: select kubeconfig from the cloud
+kubecm add cloud
 `
 }
