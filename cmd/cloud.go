@@ -5,7 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/sunny0826/kubecm/pkg/cloud/aliyun"
+	"github.com/sunny0826/kubecm/pkg/cloud"
+
 	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/manifoldco/promptui"
@@ -73,13 +74,17 @@ func (cc *CloudCommand) runCloud(cmd *cobra.Command, args []string) error {
 		return nil
 	case 0:
 		accessKeyID, accessKeySecret := checkEnvForSecret(0)
+		ali := cloud.AliCloud{
+			AccessKeyID:     accessKeyID,
+			AccessKeySecret: accessKeySecret,
+		}
 		if clusterID == "" {
-			clusters, err := aliyun.ListCluster(accessKeyID, accessKeySecret)
+			clusters, err := ali.ListCluster()
 			if err != nil {
 				return err
 			}
 			clusterNum := selectCluster(clusters, "Select Cluster")
-			kubeconfig, err := aliyun.GetKubeConfig(accessKeyID, accessKeySecret, clusters[clusterNum].ID)
+			kubeconfig, err := ali.GetKubeConfig(clusters[clusterNum].ID)
 			if err != nil {
 				return err
 			}
@@ -92,7 +97,7 @@ func (cc *CloudCommand) runCloud(cmd *cobra.Command, args []string) error {
 				return err
 			}
 		} else {
-			kubeconfig, err := aliyun.GetKubeConfig(accessKeyID, accessKeySecret, clusterID)
+			kubeconfig, err := ali.GetKubeConfig(clusterID)
 			if err != nil {
 				return err
 			}
@@ -112,9 +117,9 @@ func (cc *CloudCommand) runCloud(cmd *cobra.Command, args []string) error {
 func checkEnvForSecret(num int) (string, string) {
 	switch num {
 	case 0:
-		accessKeyID, ok := os.LookupEnv("ACCESS_KEY_ID")
-		accessKeySecret, ok := os.LookupEnv("ACCESS_KEY_SECRET")
-		if !ok {
+		accessKeyID, id := os.LookupEnv("ACCESS_KEY_ID")
+		accessKeySecret, sec := os.LookupEnv("ACCESS_KEY_SECRET")
+		if !id || !sec {
 			accessKeyID = PromptUI("access key id", "")
 			accessKeySecret = PromptUI("access key secret", "")
 		}
@@ -159,7 +164,7 @@ func selectCloud(clouds []CloudInfo, label string) int {
 	return i
 }
 
-func selectCluster(clouds []aliyun.ClusterInfo, label string) int {
+func selectCluster(clouds []cloud.ClusterInfo, label string) int {
 	templates := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
 		Active:   "\U0001F680 {{ .Name | red }}",
