@@ -1,8 +1,6 @@
 package aliyun
 
 import (
-	"fmt"
-
 	cs20151215 "github.com/alibabacloud-go/cs-20151215/v2/client"
 	env "github.com/alibabacloud-go/darabonba-env/client"
 	openapi "github.com/alibabacloud-go/darabonba-openapi/client"
@@ -47,6 +45,20 @@ func ListCluster() (clusters []ClusterInfo, _err error) {
 			RegionID: *info.RegionId,
 		})
 	}
-	fmt.Println(clusterList)
 	return clusterList, _err
+}
+
+// GetKubeConfig get kubeConfig file
+func GetKubeConfig(clusterID string) (string, error) {
+	client, _err := GetClient()
+	if _err != nil {
+		return "", _err
+	}
+	describeClusterUserKubeconfigRequest := &cs20151215.DescribeClusterUserKubeconfigRequest{}
+	res, _err := client.DescribeClusterUserKubeconfig(tea.String(clusterID), describeClusterUserKubeconfigRequest)
+	if _err != nil {
+		return "", _err
+	}
+	kubeConfig := *(res.Body.Config)
+	return kubeConfig, _err
 }
