@@ -40,8 +40,8 @@ var Clouds = []CloudInfo{
 func (cc *CloudCommand) Init() {
 	cc.command = &cobra.Command{
 		Use:   "cloud",
-		Short: "Manage kubeconfig with public cloud",
-		Long:  "Manage kubeconfig with public cloud",
+		Short: "Add kubeconfig form public cloud",
+		Long:  "Add kubeconfig form public cloud",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cc.runCloud(cmd, args)
 		},

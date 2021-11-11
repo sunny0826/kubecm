@@ -1,5 +1,7 @@
 # Install
 
+Multiple installation paths are available.
+
 <!-- tabs:start -->
 
 #### ** Homebrew **
