@@ -2,12 +2,15 @@
 # Make sure to check the documentation at http://goreleaser.com
 builds:
 - env:
-  - CGO_ENABLED=1
+  - CGO_ENABLED=0
   ldflags: -s -X github.com/sunny0826/kubecm/cmd.kubecmVersion={{.Version}} -X github.com/sunny0826/kubecm/cmd.gitCommit={{.Commit}} -X github.com/sunny0826/kubecm/cmd.buildDate={{.Date}}
   goos:
     - linux
     - darwin
     - windows
+  ignore:
+    - goos: windows
+      goarch: arm64
 archives:
 - replacements:
     darwin: Darwin
