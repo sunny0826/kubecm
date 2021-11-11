@@ -4,7 +4,6 @@ go 1.15
 
 require (
 	github.com/alibabacloud-go/cs-20151215/v2 v2.4.5
-	github.com/alibabacloud-go/darabonba-env v1.0.0
 	github.com/alibabacloud-go/darabonba-openapi v0.1.7
 	github.com/alibabacloud-go/tea v1.1.17
 	github.com/alibabacloud-go/tea-utils v1.4.1 // indirect

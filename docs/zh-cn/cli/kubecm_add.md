@@ -16,12 +16,15 @@ kubecm add [flags]
 
 # Merge 1.yaml with $HOME/.kube/config
 kubecm add -f 1.yaml 
+# Interaction: select kubeconfig from the cloud
+kubecm add cloud
 
 ```
 
 ### 选项
 
 ```
+  -c, --cover         Overwrite local kubeconfig files
   -f, --file string   Path to merge kubeconfig files
   -h, --help          help for add
 ```
