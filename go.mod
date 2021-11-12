@@ -12,7 +12,7 @@ require (
 	github.com/imdario/mergo v0.3.12
 	github.com/manifoldco/promptui v0.3.2
 	github.com/pterm/pterm v0.12.33
-	github.com/rsteube/cobra-zsh-gen v1.1.0
+	github.com/rsteube/cobra-zsh-gen v1.2.10
 	github.com/spf13/cobra v1.2.1
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.290
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.290
