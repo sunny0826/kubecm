@@ -16,14 +16,14 @@ require (
 	github.com/spf13/cobra v1.0.0
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.290
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.286
-	k8s.io/api v0.19.3
+	k8s.io/api v0.22.3
 	k8s.io/apimachinery v0.22.3
-	k8s.io/client-go v0.19.3
-	k8s.io/utils v0.0.0-20201015054608-420da100c033 // indirect
+	k8s.io/client-go v0.22.3
+	k8s.io/utils v0.0.0-20210819203725-bdf08cb9a70a // indirect
 )
 
 require (
-	cloud.google.com/go v0.51.0 // indirect
+	cloud.google.com/go v0.54.0 // indirect
 	github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68 // indirect
 	github.com/alibabacloud-go/endpoint-util v1.1.0 // indirect
 	github.com/alibabacloud-go/openapi-util v0.0.8 // indirect
@@ -56,13 +56,14 @@ require (
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/tjfoc/gmsm v1.3.2 // indirect
 	github.com/tsenart/deadcode v0.0.0-20160724212837-210d2dc333e9 // indirect
-	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
-	golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f // indirect
+	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
+	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
 	golang.org/x/net v0.0.0-20210520170846-37e1c6afe023 // indirect
-	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6 // indirect
+	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	golang.org/x/sys v0.0.0-20210616094352-59db8d763f22 // indirect
+	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d // indirect
 	golang.org/x/text v0.3.6 // indirect
-	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
+	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	golang.org/x/tools v0.0.0-20210106214847-113979e3529a // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
