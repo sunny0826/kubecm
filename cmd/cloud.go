@@ -291,6 +291,11 @@ func selectRegion(regionList []string, label string) int {
 
 func addCloudExample() string {
 	return `
+# Supports Ali Cloud and Tencent Cloud
+# The AK/AS of the cloud platform will be retrieved directly 
+# if it exists in the environment variable, 
+# otherwise a prompt box will appear asking for it.
+
 # Set env AliCloud secret key
 export ACCESS_KEY_ID=xxx
 export ACCESS_KEY_SECRET=xxx

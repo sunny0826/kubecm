@@ -10,13 +10,20 @@ Manage kubeconfig with public cloud
 kubecm add cloud [flags]
 ```
 
+Supports [Ali Cloud](https://www.alibabacloud.com/) and [Tencent Cloud](https://cloud.tencent.com/). 
+The `AK/AS` of the cloud platform will be retrieved directly if it exists in the environment variable, otherwise a prompt box will appear asking for it.
+
+
 ### Examples
 
 ```bash
 
-# Set env secret key
+# Set env AliCloud secret key
 export ACCESS_KEY_ID=xxx
 export ACCESS_KEY_SECRET=xxx
+# Set env Tencent secret key
+export TENCENTCLOUD_SECRET_ID=xxx
+export TENCENTCLOUD_SECRET_KEY=xxx
 # Interaction: select kubeconfig from the cloud
 kubecm add cloud
 # Add kubeconfig from cloud
