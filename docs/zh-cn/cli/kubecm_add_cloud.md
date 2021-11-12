@@ -10,13 +10,18 @@
 kubecm add cloud [flags]
 ```
 
+目前支持阿里云和腾讯云，相应平台的 AK/AS 如果存在于环境变量中将会直接获取，否则将出现提示框询问。
+
 ### 示例
 
 ```bash
 
-# Set env secret key
+# Set env AliCloud secret key
 export ACCESS_KEY_ID=xxx
 export ACCESS_KEY_SECRET=xxx
+# Set env Tencent secret key
+export TENCENTCLOUD_SECRET_ID=xxx
+export TENCENTCLOUD_SECRET_KEY=xxx
 # Interaction: select kubeconfig from the cloud
 kubecm add cloud
 # Add kubeconfig from cloud
