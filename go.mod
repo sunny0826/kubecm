@@ -9,7 +9,7 @@ require (
 	github.com/alibabacloud-go/tea-utils v1.4.1 // indirect
 	github.com/bndr/gotabulate v1.1.3-0.20170315142410-bc555436bfd5
 	github.com/daviddengcn/go-colortext v1.0.0
-	github.com/imdario/mergo v0.3.7
+	github.com/imdario/mergo v0.3.12
 	github.com/manifoldco/promptui v0.3.2
 	github.com/pterm/pterm v0.12.8
 	github.com/rsteube/cobra-zsh-gen v1.1.0
