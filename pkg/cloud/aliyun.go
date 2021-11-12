@@ -1,7 +1,7 @@
 package cloud
 
 import (
-	cs20151215 "github.com/alibabacloud-go/cs-20151215/v2/client"
+	ack "github.com/alibabacloud-go/cs-20151215/v2/client"
 	openapi "github.com/alibabacloud-go/darabonba-openapi/client"
 	"github.com/alibabacloud-go/tea/tea"
 )
@@ -12,15 +12,21 @@ type AliCloud struct {
 	AccessKeySecret string
 }
 
-// GetClient get aliyun openapi client
-func getClient(accessKeyID, accessKeySecret string) (*cs20151215.Client, error) {
+// getClient get aliyun openapi client
+func getClient(accessKeyID, accessKeySecret string) (*ack.Client, error) {
 	config := &openapi.Config{
 		AccessKeyId:     &accessKeyID,
 		AccessKeySecret: &accessKeySecret,
 		RegionId:        tea.String("cn-hongkong"),
 	}
-	result, err := cs20151215.NewClient(config)
+	result, err := ack.NewClient(config)
 	return result, err
+}
+
+// GetRegionID get region id of ack cluster
+func (a *AliCloud) GetRegionID() ([]string, error) {
+	// ack No RegionID required, return nil
+	return nil, nil
 }
 
 // ListCluster list cluster info
@@ -29,7 +35,7 @@ func (a *AliCloud) ListCluster() (clusters []ClusterInfo, err error) {
 	if err != nil {
 		return nil, err
 	}
-	describeClustersV1Request := &cs20151215.DescribeClustersV1Request{}
+	describeClustersV1Request := &ack.DescribeClustersV1Request{}
 	v1, err := client.DescribeClustersV1(describeClustersV1Request)
 	if err != nil {
 		return nil, err
@@ -37,9 +43,10 @@ func (a *AliCloud) ListCluster() (clusters []ClusterInfo, err error) {
 	var clusterList []ClusterInfo
 	for _, info := range v1.Body.Clusters {
 		clusterList = append(clusterList, ClusterInfo{
-			Name:     *info.Name,
-			ID:       *info.ClusterId,
-			RegionID: *info.RegionId,
+			Name:       *info.Name,
+			ID:         *info.ClusterId,
+			RegionID:   *info.RegionId,
+			K8sVersion: *info.CurrentVersion,
 		})
 	}
 	return clusterList, err
@@ -51,7 +58,7 @@ func (a *AliCloud) GetKubeConfig(clusterID string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	describeClusterUserKubeconfigRequest := &cs20151215.DescribeClusterUserKubeconfigRequest{}
+	describeClusterUserKubeconfigRequest := &ack.DescribeClusterUserKubeconfigRequest{}
 	res, err := client.DescribeClusterUserKubeconfig(tea.String(clusterID), describeClusterUserKubeconfigRequest)
 	if err != nil {
 		return "", err
