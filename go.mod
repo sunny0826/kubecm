@@ -15,7 +15,7 @@ require (
 	github.com/rsteube/cobra-zsh-gen v1.1.0
 	github.com/spf13/cobra v1.0.0
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.290
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.286
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.290
 	k8s.io/api v0.22.3
 	k8s.io/apimachinery v0.22.3
 	k8s.io/client-go v0.22.3
