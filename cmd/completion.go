@@ -3,7 +3,6 @@ package cmd
 import (
 	"os"
 
-	zsh "github.com/rsteube/cobra-zsh-gen"
 	"github.com/spf13/cobra"
 )
 
@@ -15,50 +14,65 @@ type CompletionCommand struct {
 // Init CompletionCommand
 func (cc *CompletionCommand) Init() {
 	cc.command = &cobra.Command{
-		Use:     "completion",
-		Short:   "Generates bash/zsh completion scripts",
-		Long:    `Output shell completion code for the specified shell (bash or zsh).`,
-		Args:    cobra.ExactArgs(1),
-		Aliases: []string{"c"},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return cc.runCompletion(cmd, args)
+		Use:       "completion [bash|zsh|fish|powershell]",
+		Short:     "Generate completion script",
+		Long:      longDetail(),
+		ValidArgs: []string{"bash", "zsh", "fish", "powershell"},
+		Args:      cobra.ExactValidArgs(1),
+		Aliases:   []string{"c"},
+		Run: func(cmd *cobra.Command, args []string) {
+			switch args[0] {
+			case "bash":
+				_ = cmd.Root().GenBashCompletion(os.Stdout)
+			case "zsh":
+				_ = cmd.Root().GenZshCompletion(os.Stdout)
+			case "fish":
+				_ = cmd.Root().GenFishCompletion(os.Stdout, true)
+			case "powershell":
+				_ = cmd.Root().GenPowerShellCompletionWithDesc(os.Stdout)
+			}
 		},
-		Example: completionExample(),
 	}
 }
 
-func (cc *CompletionCommand) runCompletion(command *cobra.Command, args []string) error {
-	complet := args[0]
-	switch complet {
-	case "bash":
-		err := command.Root().GenBashCompletion(os.Stdout)
-		if err != nil {
-			return err
-		}
-	case "zsh":
-		err := zsh.Wrap(cc.command).GenZshCompletion(os.Stdout)
-		if err != nil {
-			return err
-		}
-	default:
-		cc.command.PrintErrln("Parameter error! Please input bash or zsh")
-	}
-	return nil
-}
+func longDetail() string {
+	return `To load completions:
 
-func completionExample() string {
-	return `
-# bash
-kubecm completion bash > ~/.kube/kubecm.bash.inc
-printf "
-# kubecm shell completion
-source '$HOME/.kube/kubecm.bash.inc'
-" >> $HOME/.bash_profile
-source $HOME/.bash_profile
+Bash:
 
-# add to $HOME/.zshrc
-source <(kubecm completion zsh)
-# or
-kubecm completion zsh > "${fpath[1]}/_kubecm"
+  $ source <(kubecm completion bash)
+
+  # To load completions for each session, execute once:
+  # Linux:
+  $ kubecm completion bash > /etc/bash_completion.d/kubecm
+  # macOS:
+  $ kubecm completion bash > /usr/local/etc/bash_completion.d/kubecm
+
+Zsh:
+
+  # If shell completion is not already enabled in your environment,
+  # you will need to enable it.  You can execute the following once:
+
+  $ echo "autoload -U compinit; compinit" >> ~/.zshrc
+
+  # To load completions for each session, execute once:
+  $ kubecm completion zsh > "${fpath[1]}/_kubecm"
+
+  # You will need to start a new shell for this setup to take effect.
+
+fish:
+
+  $ kubecm completion fish | source
+
+  # To load completions for each session, execute once:
+  $ kubecm completion fish > ~/.config/fish/completions/kubecm.fish
+
+PowerShell:
+
+  PS> kubecm completion powershell | Out-String | Invoke-Expression
+
+  # To load completions for every new session, run:
+  PS> kubecm completion powershell > kubecm.ps1
+  # and source this file from your PowerShell profile.
 `
 }
