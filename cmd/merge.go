@@ -40,10 +40,13 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 		return err
 	}
 	files := listFile(folder)
+	if len(files) == 0 {
+		return fmt.Errorf("%s is empty", folder)
+	}
 	outConfigs := clientcmdapi.NewConfig()
 	for _, yaml := range files {
 		printString(os.Stdout, "Loading KubeConfig file:"+yaml+" \n")
-		loadConfig, err := clientcmd.LoadFromFile(yaml)
+		loadConfig, err := loadKubeConfig(yaml)
 		if err != nil {
 			return err
 		}
@@ -66,6 +69,17 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 		return err
 	}
 	return nil
+}
+
+func loadKubeConfig(yaml string) (*clientcmdapi.Config, error) {
+	loadConfig, err := clientcmd.LoadFromFile(yaml)
+	if err != nil {
+		return nil, err
+	}
+	if loadConfig.APIVersion == "" {
+		return nil, fmt.Errorf("file %s is not kubeconfig", yaml)
+	}
+	return loadConfig, err
 }
 
 func listFile(folder string) []string {
