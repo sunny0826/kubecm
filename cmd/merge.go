@@ -77,7 +77,7 @@ func loadKubeConfig(yaml string) (*clientcmdapi.Config, error) {
 		return nil, err
 	}
 	if len(loadConfig.Contexts) == 0 {
-		return nil, fmt.Errorf("file %s is not kubeconfig", yaml)
+		return nil, fmt.Errorf("no kubeconfig in %s ", yaml)
 	}
 	return loadConfig, err
 }
