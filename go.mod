@@ -14,7 +14,7 @@ require (
 	github.com/pterm/pterm v0.12.33
 	github.com/spf13/cobra v1.2.1
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.296
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.297
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.300
 	k8s.io/api v0.22.4
 	k8s.io/apimachinery v0.22.4
 	k8s.io/client-go v0.22.4
