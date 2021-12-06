@@ -62,11 +62,13 @@ github.com/MarvinJWendt/testza v0.2.10/go.mod h1:pd+VWsoGUiFtq+hRKSU1Bktnn+DMCSr
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
+github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.2 h1:/c6fLTlYKFd44Bx36A/cNuKekFzMqEPRc0QCLOC2Nok=
+github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.2/go.mod h1:sCavSAvdzOjul4cEqeVtvlSaSScfNsTQ+46HwlTL1hc=
 github.com/alibabacloud-go/cs-20151215/v2 v2.4.5 h1:v7SWYM+3nCfw7L5DjstXgwSo6PLGpMYZHdNdDi6yajU=
 github.com/alibabacloud-go/cs-20151215/v2 v2.4.5/go.mod h1:pIg8PCfRO6qSylVbW9BiG6q0zaYCP/aIKCCEwsuvbPg=
 github.com/alibabacloud-go/darabonba-openapi v0.1.4/go.mod h1:j03z4XUkIC9aBj/w5Bt7H0cygmPNt5sug8NXle68+Og=
-github.com/alibabacloud-go/darabonba-openapi v0.1.11 h1:w59gtSA0s87p0U5NNG/N/PIHsRP3rtj7qCP9hx9+GL8=
-github.com/alibabacloud-go/darabonba-openapi v0.1.11/go.mod h1:MPJMxv7HYrFm5m9uOZWkDYsAWyZztEgnBRfk9Fg0eIU=
+github.com/alibabacloud-go/darabonba-openapi v0.1.12 h1:AB5v5lh7JlD4dhIlvln1gW04sDagAvTS129BVsPrl9k=
+github.com/alibabacloud-go/darabonba-openapi v0.1.12/go.mod h1:sTAjsFJmVsmcVeklL9d9uDBlFsgl43wZ6jhI6BHqHqU=
 github.com/alibabacloud-go/darabonba-string v1.0.0/go.mod h1:93cTfV3vuPhhEwGGpKKqhVW4jLe7tDpo3LUM0i0g6mA=
 github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68 h1:NqugFkGxx1TXSh/pBcU00Y6bljgDPaFdh5MUSeJ7e50=
 github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68/go.mod h1:6pb/Qy8c+lqua8cFpEy7g39NRRqOWc3rOwAy8m5Y2BY=
