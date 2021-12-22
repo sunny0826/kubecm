@@ -227,7 +227,7 @@ func selectCloud(clouds []CloudInfo, label string) int {
 		Label:     label,
 		Items:     clouds,
 		Templates: templates,
-		Size:      4,
+		Size:      uiSize,
 	}
 	i, _, err := prompt.Run()
 	if err != nil {
@@ -253,7 +253,7 @@ func selectCluster(clouds []cloud.ClusterInfo, label string) int {
 		Label:     label,
 		Items:     clouds,
 		Templates: templates,
-		Size:      4,
+		Size:      uiSize,
 	}
 	i, _, err := prompt.Run()
 	if err != nil {
@@ -279,7 +279,7 @@ func selectRegion(regionList []string, label string) int {
 		Label:     label,
 		Items:     regionList,
 		Templates: templates,
-		Size:      4,
+		Size:      uiSize,
 		Searcher:  searcher,
 	}
 	i, _, err := prompt.Run()

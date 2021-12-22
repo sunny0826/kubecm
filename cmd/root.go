@@ -31,7 +31,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var cfgFile string
+var (
+	cfgFile string
+	uiSize  int
+)
 
 // Cli cmd struct
 type Cli struct {
@@ -56,6 +59,7 @@ func (cli *Cli) setFlags() {
 	kubeconfig := flag.String("kubeconfig", filepath.Join(homeDir(), ".kube", "config"), "(optional) absolute path to the kubeconfig file")
 	flags := cli.rootCmd.PersistentFlags()
 	flags.StringVar(&cfgFile, "config", *kubeconfig, "path of kubeconfig")
+	flags.IntVar(&uiSize, "ui-size", 4, "number of list items to show in menu at once")
 }
 
 //Run command
@@ -135,7 +139,7 @@ func printLogo() string {
 		Text:  "Tips",
 		Style: pterm.NewStyle(pterm.BgBlue, pterm.FgLightWhite),
 	}
-	url:=pterm.Info.Sprintf("Find more information at: %s",pterm.LightMagenta("https://kubecm.cloud"))
+	url := pterm.Info.Sprintf("Find more information at: %s", pterm.LightMagenta("https://kubecm.cloud"))
 	return fmt.Sprintf(`
 %s%s
 %s
