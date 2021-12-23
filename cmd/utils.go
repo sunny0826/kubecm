@@ -153,7 +153,7 @@ func SelectUI(kubeItems []Needle, label string) int {
 		Label:     label,
 		Items:     kubeItems,
 		Templates: templates,
-		Size:      4,
+		Size:      uiSize,
 		Searcher:  searcher,
 	}
 	i, _, err := prompt.Run()
@@ -200,7 +200,7 @@ func BoolUI(label string) string {
 		Label:     label,
 		Items:     []string{"False", "True"},
 		Templates: templates,
-		Size:      2,
+		Size:      uiSize,
 	}
 	_, obj, err := prompt.Run()
 	if err != nil {

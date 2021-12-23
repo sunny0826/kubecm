@@ -166,7 +166,7 @@ func (co *CreateOptions) selectClusterRole() error {
 		Label:     "please select the cluster role of the user:",
 		Items:     clusterRoleList,
 		Templates: templates,
-		Size:      4,
+		Size:      uiSize,
 	}
 	i, _, err := prompt.Run()
 	if err != nil {

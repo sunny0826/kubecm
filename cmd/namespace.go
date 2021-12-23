@@ -96,7 +96,7 @@ func selectNamespace(namespaces []Namespaces) int {
 		Label:     "Select Namespace:",
 		Items:     namespaces,
 		Templates: templates,
-		Size:      4,
+		Size:      uiSize,
 		Searcher:  searcher,
 	}
 	i, _, err := prompt.Run()
