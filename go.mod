@@ -13,7 +13,7 @@ require (
 	github.com/manifoldco/promptui v0.3.2
 	github.com/pterm/pterm v0.12.33
 	github.com/spf13/cobra v1.2.1
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.303
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.366
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.303
 	k8s.io/api v0.22.4
 	k8s.io/apimachinery v0.22.4
