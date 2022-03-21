@@ -30,6 +30,7 @@ func (mc *MergeCommand) Init() {
 		Example: mergeExample(),
 	}
 	mc.command.Flags().StringP("folder", "f", "", "KubeConfig folder")
+	mc.command.Flags().BoolP("assumeyes", "y", false, "skip interactive file overwrite confirmation")
 	_ = mc.command.MarkFlagRequired("folder")
 }
 
@@ -59,8 +60,11 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 			return err
 		}
 	}
-	cover := BoolUI(fmt.Sprintf("Are you sure you want to overwrite the「%s」file?", cfgFile))
-	confirm, err := strconv.ParseBool(cover)
+	confirm, _ := mc.command.Flags().GetBool("assumeyes")
+	if !confirm {
+		cover := BoolUI(fmt.Sprintf("Are you sure you want to overwrite the「%s」file?", cfgFile))
+		confirm, err = strconv.ParseBool(cover)
+	}
 	if err != nil {
 		return err
 	}
