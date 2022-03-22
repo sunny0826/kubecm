@@ -11,7 +11,7 @@ require (
 	github.com/daviddengcn/go-colortext v1.0.0
 	github.com/imdario/mergo v0.3.12
 	github.com/manifoldco/promptui v0.3.2
-	github.com/pterm/pterm v0.12.33
+	github.com/pterm/pterm v0.12.39
 	github.com/spf13/cobra v1.2.1
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.370
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.370
