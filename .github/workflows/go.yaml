@@ -6,9 +6,13 @@ on:
       - "master"
     paths:
       - '**.go'
+      - '**.yaml'
+      - '**.mod'
   pull_request:
     paths:
       - '**.go'
+      - '**.yaml'
+      - '**.mod'
 
 jobs:
   test:
