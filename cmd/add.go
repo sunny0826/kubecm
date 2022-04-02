@@ -3,6 +3,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strconv"
 
 	"github.com/spf13/cobra"
@@ -41,15 +43,32 @@ func (ac *AddCommand) Init() {
 func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 	file, _ := ac.command.Flags().GetString("file")
 	cover, _ := ac.command.Flags().GetBool("cover")
-	// check path
-	file, err := CheckAndTransformFilePath(file)
-	if err != nil {
-		return err
+
+	var newConfig *clientcmdapi.Config
+	var err error
+
+	if file == "-" {
+		// from stdin
+		contents, err := ioutil.ReadAll(os.Stdin)
+		if err != nil {
+			return err
+		}
+		newConfig, err = clientcmd.Load(contents)
+		if err != nil {
+			return err
+		}
+	} else {
+		// check path
+		file, err := CheckAndTransformFilePath(file)
+		if err != nil {
+			return err
+		}
+		newConfig, err = clientcmd.LoadFromFile(file)
+		if err != nil {
+			return err
+		}
 	}
-	newConfig, err := clientcmd.LoadFromFile(file)
-	if err != nil {
-		return err
-	}
+
 	err = AddToLocal(newConfig, file, cover)
 	if err != nil {
 		return err
