@@ -25,45 +25,55 @@ snapshot:
 changelog:
   skip: false
   sort: asc
+  use: github
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: 'Bug fixes'
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Others
+      order: 999
 release:
   github:
     owner: sunny0826
     name: kubecm
   name_template: '{{.ProjectName}}-v{{.Version}}'
-brews:
-  - name: kubecm
-    tap:
-      owner: sunny0826
-      name: homebrew-tap
-      token: "{{ .Env.HOMEBREW_TOKEN }}"
-
-    url_template: "https://github.com/sunny0826/kubecm/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-    # Git author used to commit to the repository.
-    # Defaults are shown.
-    commit_author:
-      name: goreleaserbot
-      email: goreleaser@carlosbecker.com
-    homepage: "https://github.com/sunny0826/kubecm"
-    description: "Merge multiple kubeconfig"
-
-    # Packages your package depends on.
-    dependencies:
-      - name: git
-
-    # So you can `brew test` your formula.
-    # Default is empty.
-    test: |
-      system "#{bin}/kubecm version"
-
-    # Custom install script for brew.
-    # Default is 'bin.install "program"'.
-    install: |
-      bin.install "kubecm"
-
-      # Install bash completion
-      output = Utils.safe_popen_read("#{bin}/kubecm", "completion", "bash")
-      (bash_completion/"kubecm").write output
-
-      # Install zsh completion
-      output = Utils.safe_popen_read("#{bin}/kubecm", "completion", "zsh")
-      (zsh_completion/"_kubecm").write output
+#brews:
+#  - name: kubecm
+#    tap:
+#      owner: sunny0826
+#      name: homebrew-tap
+#      token: "{{ .Env.HOMEBREW_TOKEN }}"
+#
+#    url_template: "https://github.com/sunny0826/kubecm/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+#    # Git author used to commit to the repository.
+#    # Defaults are shown.
+#    commit_author:
+#      name: goreleaserbot
+#      email: goreleaser@carlosbecker.com
+#    homepage: "https://github.com/sunny0826/kubecm"
+#    description: "Merge multiple kubeconfig"
+#
+#    # Packages your package depends on.
+#    dependencies:
+#      - name: git
+#
+#    # So you can `brew test` your formula.
+#    # Default is empty.
+#    test: |
+#      system "#{bin}/kubecm version"
+#
+#    # Custom install script for brew.
+#    # Default is 'bin.install "program"'.
+#    install: |
+#      bin.install "kubecm"
+#
+#      # Install bash completion
+#      output = Utils.safe_popen_read("#{bin}/kubecm", "completion", "bash")
+#      (bash_completion/"kubecm").write output
+#
+#      # Install zsh completion
+#      output = Utils.safe_popen_read("#{bin}/kubecm", "completion", "zsh")
+#      (zsh_completion/"_kubecm").write output
