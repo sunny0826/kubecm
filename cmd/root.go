@@ -50,7 +50,8 @@ func NewCli() *Cli {
 			Long:  printLogo(),
 		},
 	}
-	cli.rootCmd.SetOutput(os.Stdout)
+	cli.rootCmd.SetOut(os.Stdout)
+	cli.rootCmd.SetErr(os.Stderr)
 	cli.setFlags()
 	return cli
 }
