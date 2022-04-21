@@ -15,8 +15,8 @@ require (
 	github.com/spf13/cobra v1.4.0
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.370
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.370
-	k8s.io/api v0.23.5
-	k8s.io/apimachinery v0.23.5
+	k8s.io/api v0.23.6
+	k8s.io/apimachinery v0.23.6
 	k8s.io/client-go v0.23.5
 	k8s.io/utils v0.0.0-20211116205334-6203023598ed // indirect
 )
