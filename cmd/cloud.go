@@ -42,6 +42,12 @@ var Clouds = []CloudInfo{
 		HomePage: "https://console.cloud.tencent.com/tke",
 		Service:  "TKE",
 	},
+	{
+		Name:     "Rancher",
+		Alias:    []string{"rancher"},
+		HomePage: "https://rancher.com",
+		Service:  "Rancher",
+	},
 }
 
 // Init AddCommand
@@ -174,6 +180,48 @@ func (cc *CloudCommand) runCloud(cmd *cobra.Command, args []string) error {
 				return err
 			}
 		}
+	case 2:
+		fmt.Println("⛅  Selected: Rancher")
+		serverURL, apiKey := checkEnvForSecret(2)
+		rancher := cloud.Rancher{
+			ServerURL: serverURL,
+			APIKey:    apiKey,
+		}
+		if clusterID == "" {
+			clusters, err := rancher.ListCluster()
+			if err != nil {
+				return err
+			}
+			if len(clusters) == 0 {
+				return errors.New("no clusters found")
+			}
+			clusterNum := selectCluster(clusters, "Select Cluster")
+			kubeconfig, err := rancher.GetKubeConfig(clusters[clusterNum].ID)
+			if err != nil {
+				return err
+			}
+			newConfig, err := clientcmd.Load([]byte(kubeconfig))
+			if err != nil {
+				return err
+			}
+			err = AddToLocal(newConfig, clusters[clusterNum].Name, cover)
+			if err != nil {
+				return err
+			}
+		} else {
+			kubeconfig, err := rancher.GetKubeConfig(clusterID)
+			if err != nil {
+				return err
+			}
+			newConfig, err := clientcmd.Load([]byte(kubeconfig))
+			if err != nil {
+				return err
+			}
+			err = AddToLocal(newConfig, fmt.Sprintf("rancher-%s", clusterID), cover)
+			if err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
@@ -196,6 +244,14 @@ func checkEnvForSecret(num int) (string, string) {
 			secretKey = PromptUI("TencentCloud API secretKey", "")
 		}
 		return secretID, secretKey
+	case 2:
+		serverURL, su := os.LookupEnv("RANCHER_SERVER_URL")
+		apiKey, key := os.LookupEnv("RANCHER_API_KEY")
+		if !su || !key {
+			serverURL = PromptUI("Rancher API serverURL", "")
+			apiKey = PromptUI("Rancher API key", "")
+		}
+		return serverURL, apiKey
 	}
 	return "", ""
 }
@@ -302,6 +358,9 @@ export ACCESS_KEY_SECRET=xxx
 # Set env Tencent secret key
 export TENCENTCLOUD_SECRET_ID=xxx
 export TENCENTCLOUD_SECRET_KEY=xxx
+# Set env Rancher secret key
+export RANCHER_SERVER_URL=https://xxx
+export RANCHER_API_KEY=xxx
 # Interaction: select kubeconfig from the cloud
 kubecm add cloud
 # Add kubeconfig from cloud
