@@ -78,6 +78,9 @@ ifneq ($(wildcard "tmp/cli"),)
 endif
 	go run hack/docgen/gen.go
 
+doc-run:
+	docsify serve docs
+
 GOLANGCILINT_VERSION ?= v1.29.0
 HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 HOSTARCH := $(shell uname -m)
