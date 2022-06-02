@@ -38,7 +38,7 @@ Switch or change namespace interactively
 func (nc *NamespaceCommand) runNamespace(command *cobra.Command, args []string) error {
 	config, err := clientcmd.LoadFromFile(cfgFile)
 	if err != nil {
-		return nil
+		return err
 	}
 	currentContext := config.CurrentContext
 	contNs := config.Contexts[currentContext].Namespace

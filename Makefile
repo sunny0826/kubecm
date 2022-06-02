@@ -67,7 +67,7 @@ vet:
 	go vet ./...
 
 lint: golangci
-	$(GOLANGCILINT) run --disable=typecheck --timeout 10m -E golint,goimports  ./...
+	$(GOLANGCILINT) run ./...
 
 test: fmt vet lint
 		go test -race -coverprofile=coverage.txt -covermode=atomic ./cmd/...
@@ -81,7 +81,7 @@ endif
 doc-run:
 	docsify serve docs
 
-GOLANGCILINT_VERSION ?= v1.29.0
+GOLANGCILINT_VERSION ?= v1.46.2
 HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 HOSTARCH := $(shell uname -m)
 ifeq ($(HOSTARCH),x86_64)

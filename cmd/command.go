@@ -31,7 +31,7 @@ func (bc *BaseCommand) Name() string {
 	return bc.command.Name()
 }
 
-//AddCommand adds children commands to the parent command
+// AddCommands adds children commands to the parent command
 func (bc *BaseCommand) AddCommands(children ...Command) {
 	for _, child := range children {
 		child.Init()

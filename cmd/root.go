@@ -63,7 +63,7 @@ func (cli *Cli) setFlags() {
 	flags.IntVar(&uiSize, "ui-size", 4, "number of list items to show in menu at once")
 }
 
-//Run command
+// Run command
 func (cli *Cli) Run() error {
 	// check and format kubeconfig path
 	config, err := CheckAndTransformFilePath(cfgFile)
@@ -82,7 +82,7 @@ func homeDir() string {
 		return u.HomeDir
 	}
 	// cross compile support
-	if "windows" == runtime.GOOS {
+	if runtime.GOOS == "windows" {
 		return homeWindows()
 	}
 	// Unix-like system, so just assume Unix
@@ -126,7 +126,7 @@ func printLogo() string {
 	panel := pterm.DefaultHeader.WithMargin(8).
 		WithBackgroundStyle(pterm.NewStyle(pterm.BgLightBlue)).
 		WithTextStyle(pterm.NewStyle(pterm.FgLightWhite)).Sprint("Manage your kubeconfig more easily.")
-	//s, _ := pterm.DefaultBigText.WithLetters(
+	// 	s, _ := pterm.DefaultBigText.WithLetters(
 	//	pterm.NewLettersFromStringWithStyle("kube", pterm.NewStyle(pterm.FgLightGreen)),
 	//	pterm.NewLettersFromStringWithStyle("cm", pterm.NewStyle(pterm.FgLightBlue))).Srender()
 	logo := pterm.FgLightGreen.Sprint(`
