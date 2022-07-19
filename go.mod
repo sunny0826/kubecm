@@ -15,7 +15,7 @@ require (
 	github.com/rancher/norman v0.0.0-20200820172041-261460ee9088
 	github.com/rancher/rancher/pkg/client v0.0.0-20211110212758-cc2b8beb1473
 	github.com/spf13/cobra v1.4.0
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.403
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.445
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.403
 	k8s.io/api v0.23.5
 	k8s.io/apimachinery v0.23.5
