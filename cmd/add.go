@@ -162,6 +162,8 @@ func addExample() string {
 	return `
 # Merge test.yaml with $HOME/.kube/config
 kubecm add -f test.yaml 
+# Add kubeconfig from stdin
+cat /etc/kubernetes/admin.conf |  kubecm add -f -
 # Interaction: select kubeconfig from the cloud
 kubecm add cloud
 `

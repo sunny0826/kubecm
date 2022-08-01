@@ -12,7 +12,7 @@ kubecm add cloud [flags]
 
 ### Examples
 
-```bash
+```
 
 # Supports Ali Cloud and Tencent Cloud
 # The AK/AS of the cloud platform will be retrieved directly 
@@ -52,6 +52,3 @@ kubecm add cloud --provider alibabacloud --cluster_id=xxxxxx
       --ui-size int     number of list items to show in menu at once (default 4)
 ```
 
-### SEE ALSO
-
-* [kubecm add](kubecm_add.md)	 - Add KubeConfig to $HOME/.kube/config
