@@ -28,9 +28,6 @@ kubecm create
 ### Options inherited from parent commands
 
 ```
-      --config string   path of kubeconfig (default "/Users/saybot/.kube/config")
+      --config string   path of kubeconfig (default "/Users/guoxudong/.kube/config")
+      --ui-size int     number of list items to show in menu at once (default 4)
 ```
-
-### SEE ALSO
-
-* [kubecm](../../../tmp/cli/kubecm.md)	 - KubeConfig Manager.

@@ -29,5 +29,6 @@ kubecm create
 
 ```
       --config string   path of kubeconfig (default "/Users/saybot/.kube/config")
+      --ui-size int     number of list items to show in menu at once (default 4)
 ```
 
