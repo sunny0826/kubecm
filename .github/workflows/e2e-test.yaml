@@ -43,3 +43,8 @@ jobs:
       - name: Go Build
         run: make build
 
+      - name: E2E Test
+        run: |
+          bin/kubecm version
+          bin/kubecm ls
+
