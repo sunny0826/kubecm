@@ -39,7 +39,7 @@ jobs:
 
       - name: Setup 2nd Kind
         run: |
-          kind create cluster --image kindest/node:v1.22.7 --name 2nd-kind --config kind-config.yaml --kubeconfig 2nd-kind
+          kind create cluster --image kindest/node:v1.22.7 --name 2nd-kind --kubeconfig 2nd-kind
           ls
           kubectl version
           kubectl cluster-info
