@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
 
       - name: Setup Go
         uses: actions/setup-go@v2
@@ -34,6 +36,17 @@ jobs:
         uses: engineerd/setup-kind@v0.5.0
         with:
           version: "v0.11.1"
+
+      - name: Setup Kind
+        uses: engineerd/setup-kind@v0.5.0
+        with:
+          version: "v0.11.1"
+
+      - name: Setup 2nd Kind
+        run: |
+          kind create cluster --image kindest/node:v1.22.7
+          kubectl version
+          kubectl cluster-info
 
       - name: Check Kind Cluster
         run: |
