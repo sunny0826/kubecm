@@ -54,6 +54,14 @@ jobs:
       - name: E2E Test
         run: |
           bin/kubecm version
+          echo "Running kubecm add..."
           bin/kubecm add -f 2nd-kind -c
-          bin/kubecm ls
-
+          
+          echo "Running kubecm ls..."
+          bin/kubecm list
+          
+          echo "Running kubecm switch..."
+          bin/kubecm s 2nd-kind
+          
+          echo "Running kubecm delete..."
+          bin/kubecm d kind-kind

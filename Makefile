@@ -43,6 +43,7 @@ pre_build:mkdir_build_target
 
 quick_build:
 	# build kubecm
+	KUBECM_VERSION=e2e-test
 	$(GO) build $(GO_FLAGS) -o bin/kubecm .
 	# PTAH:$(BUILD_TARGET_PKG_DIR)/kubecm
 
