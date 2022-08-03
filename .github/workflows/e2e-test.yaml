@@ -41,7 +41,7 @@ jobs:
           kubectl cluster-info
 
       - name: Go Build
-        run: make build
+        run: make quick_build
 
       - name: E2E Test
         run: |
