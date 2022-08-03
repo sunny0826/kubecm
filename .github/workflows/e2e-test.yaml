@@ -35,10 +35,8 @@ jobs:
         with:
           version: "v0.11.1"
 
-      - name: Setup Kind Cluster
+      - name: Check Kind Cluster
         run: |
-          kind delete cluster
-          kind create cluster --image kindest/node:${{ matrix.k8s-version }}
           kubectl version
           kubectl cluster-info
 
