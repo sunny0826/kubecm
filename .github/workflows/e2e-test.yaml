@@ -20,46 +20,10 @@ env:
   KIND_IMAGE_VERSIONS: '[\"v1.18.20\",\"v1.20.7\",\"v1.22.7\"]'
 
 jobs:
-
-  detect-noop:
-    runs-on: ubuntu-20.04
-    outputs:
-      noop: ${{ steps.noop.outputs.should_skip }}
+  kind:
+    runs-on: ubuntu-latest
     steps:
-      - name: Detect No-op Changes
-        id: noop
-        uses: fkirc/skip-duplicate-actions@v4.0.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          paths_ignore: '["**.md", "**.mdx", "**.png", "**.jpg"]'
-          do_not_skip: '["workflow_dispatch", "schedule", "push"]'
-          concurrent_skipping: false
-
-  set-k8s-matrix:
-    runs-on: ubuntu-20.04
-    outputs:
-      matrix: ${{ steps.set-k8s-matrix.outputs.matrix }}
-    steps:
-      - id: set-k8s-matrix
-        run: |
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            echo "pushing tag: ${{ github.ref_name }}"
-            echo "::set-output name=matrix::${{ env.KIND_IMAGE_VERSIONS }}"
-          else
-            echo "::set-output name=matrix::${{ env.KIND_IMAGE_VERSION }}"
-          fi
-
-  e2e-tests:
-    runs-on: aliyun
-    needs: [ detect-noop,set-k8s-matrix ]
-    if: needs.detect-noop.outputs.noop != 'true'
-    strategy:
-      matrix:
-        k8s-version: ${{ fromJson(needs.set-k8s-matrix.outputs.matrix) }}
-
-    steps:
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       - name: Setup Go
         uses: actions/setup-go@v2
@@ -72,9 +36,6 @@ jobs:
 
       - name: Setup Kind
         uses: engineerd/setup-kind@v0.5.0
-        with:
-          version: ${{ env.KIND_VERSION }}
-          skipClusterCreation: true
 
       - name: Setup Kind Cluster
         run: |
