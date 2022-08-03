@@ -15,8 +15,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CloudCommand add command struct
-type CloudCommand struct {
+// AddCloudCommand add command struct
+type AddCloudCommand struct {
 	AddCommand
 }
 
@@ -51,7 +51,7 @@ var Clouds = []CloudInfo{
 }
 
 // Init AddCommand
-func (cc *CloudCommand) Init() {
+func (cc *AddCloudCommand) Init() {
 	cc.command = &cobra.Command{
 		Use:   "cloud",
 		Short: "Add kubeconfig from public cloud",
@@ -66,7 +66,7 @@ func (cc *CloudCommand) Init() {
 	cc.command.Flags().String("region_id", "", "cloud region id")
 }
 
-func (cc *CloudCommand) runCloud(cmd *cobra.Command, args []string) error {
+func (cc *AddCloudCommand) runCloud(cmd *cobra.Command, args []string) error {
 	provider, _ := cc.command.Flags().GetString("provider")
 	clusterID, _ := cc.command.Flags().GetString("cluster_id")
 	regionID, _ := cc.command.Flags().GetString("region_id")
