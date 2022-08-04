@@ -41,11 +41,6 @@ pre_build:mkdir_build_target
 	# clean target
 	rm -rf $(BUILD_TARGET_PKG_DIR) $(BUILD_TARGET_PKG_FILE_PATH)
 
-quick_build:
-	# build kubecm
-	KUBECM_VERSION=e2e-test $(GO) build $(GO_FLAGS) -o bin/kubecm .
-	# PTAH:$(BUILD_TARGET_PKG_DIR)/kubecm
-
 # create cache dir
 mkdir_build_target:
 ifneq ($(BUILD_TARGET_CACHE), $(wildcard $(BUILD_TARGET_CACHE)))

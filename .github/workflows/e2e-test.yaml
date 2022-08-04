@@ -23,6 +23,10 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%dT%H:%M:%S')"
+
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
@@ -31,14 +35,16 @@ jobs:
       - name: Get dependencies
         run: |
           go get -v -t -d ./...
-          make quick_build
+          go build -ldflags="-X github.com/sunny0826/kubecm/cmd.kubecmVersion=e2e-test \
+          -X github.com/sunny0826/kubecm/cmd.gitCommit=$(shell git rev-parse HEAD) \
+          -X 'github.com/sunny0826/kubecm/cmd.buildDate=${{ steps.date.outputs.date }}'" \
+          -o bin/kubecm .
 
       - name: Setup Kind
         uses: engineerd/setup-kind@v0.5.0
         with:
           version: "v0.11.1"
           image: "kindest/node:v1.22.7"
-          name: "1st-kind"
 
       - name: Setup 2nd Kind
         run: |
@@ -53,18 +59,24 @@ jobs:
       - name: E2E Test
         run: |
           bin/kubecm version
+          echo "********************************************************************************"
           echo "Running kubecm add..."
+          echo "********************************************************************************"
           bin/kubecm add -f 2nd-kind -c
           bin/kubecm add -f 3rd-kind -c
-          
+          echo "********************************************************************************"
           echo "Running kubecm ls..."
+          echo "********************************************************************************"
           bin/kubecm list
-               
+          echo "********************************************************************************"
           echo "Running kubecm global flag --config..."
+          echo "********************************************************************************"
           bin/kubecm list --config 2nd-kind
-          
+          echo "********************************************************************************"
           echo "Running kubecm switch..."
-          bin/kubecm s 2nd-kind
-          
+          echo "********************************************************************************"
+          bin/kubecm s 3rd-kind
+          echo "********************************************************************************"
           echo "Running kubecm delete..."
-          bin/kubecm d 1st-kind
+          echo "********************************************************************************"
+          bin/kubecm d kind-kind
