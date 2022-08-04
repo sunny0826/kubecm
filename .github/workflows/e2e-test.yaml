@@ -38,7 +38,7 @@ jobs:
 
       - name: Go build
         run: |
-          go build -ldflags="-X github.com/sunny0826/kubecm/cmd.kubecmVersion=${{ github.ref_name }} \
+          go build -ldflags="-X github.com/sunny0826/kubecm/cmd.kubecmVersion=${{ github.run_id }} \
           -X github.com/sunny0826/kubecm/cmd.gitCommit=${{ github.sha }} \
           -X 'github.com/sunny0826/kubecm/cmd.buildDate=${{ steps.date.outputs.date }}'" \
           -o bin/kubecm .
