@@ -35,8 +35,11 @@ jobs:
       - name: Get dependencies
         run: |
           go get -v -t -d ./...
-          go build -ldflags="-X github.com/sunny0826/kubecm/cmd.kubecmVersion=e2e-test \
-          -X github.com/sunny0826/kubecm/cmd.gitCommit=$(shell git rev-parse HEAD) \
+
+      - name: Go build
+        run: |
+          go build -ldflags="-X github.com/sunny0826/kubecm/cmd.kubecmVersion=${{ github.ref_name }} \
+          -X github.com/sunny0826/kubecm/cmd.gitCommit=${{ github.sha }} \
           -X 'github.com/sunny0826/kubecm/cmd.buildDate=${{ steps.date.outputs.date }}'" \
           -o bin/kubecm .
 
