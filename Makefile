@@ -19,7 +19,7 @@ GO_ENV=CGO_ENABLED=0
 GO_MODULE=GO111MODULE=on
 VERSION_PKG=github.com/sunny0826/kubecm/cmd
 GO_FLAGS=-ldflags="-X ${VERSION_PKG}.kubecmVersion=$(KUBECM_VERSION) -X ${VERSION_PKG}.gitCommit=$(GITCOMMIT) -X '${VERSION_PKG}.buildDate=`date`'"
-GO=env $(GO_ENV) $(GO_MODULE) go
+GO=$(GO_ENV) $(GO_MODULE) go
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -43,8 +43,7 @@ pre_build:mkdir_build_target
 
 quick_build:
 	# build kubecm
-	KUBECM_VERSION:=e2e-test
-	$(GO) build $(GO_FLAGS) -o bin/kubecm .
+	KUBECM_VERSION=e2e-test $(GO) build $(GO_FLAGS) -o bin/kubecm .
 	# PTAH:$(BUILD_TARGET_PKG_DIR)/kubecm
 
 # create cache dir
