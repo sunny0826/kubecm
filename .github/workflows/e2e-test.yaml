@@ -36,17 +36,17 @@ jobs:
         uses: engineerd/setup-kind@v0.5.0
         with:
           version: "v0.11.1"
+          image: "kindest/node:v1.22.7"
 
       - name: Setup 2nd Kind
         run: |
-          kind create cluster --image kindest/node:v1.22.7 --name 2nd-kind --kubeconfig 2nd-kind
-          kubectl version
-          kubectl cluster-info
+          kind create cluster --image kindest/node:v1.20.7 --name 2nd-kind --kubeconfig 2nd-kind
+          kind get clusters
 
-      - name: Check Kind Cluster
+      - name: Setup 3rd Kind
         run: |
-          kubectl version
-          kubectl cluster-info
+          kind create cluster --image kindest/node:v1.18.20 --name 3rd-kind --kubeconfig 3rd-kind
+          kind get clusters
 
       - name: Go Build
         run: make quick_build
@@ -56,9 +56,16 @@ jobs:
           bin/kubecm version
           echo "Running kubecm add..."
           bin/kubecm add -f 2nd-kind -c
+          bin/kubecm add -f 3rd-kind -c
+          
+#          echo "Running kubecm merge..."
+#          bin/kubecm merge -f .
           
           echo "Running kubecm ls..."
           bin/kubecm list
+               
+          echo "Running kubecm global flag --config..."
+          bin/kubecm list --config 2nd-kind
           
           echo "Running kubecm switch..."
           bin/kubecm s 2nd-kind
