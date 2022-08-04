@@ -37,6 +37,7 @@ jobs:
         with:
           version: "v0.11.1"
           image: "kindest/node:v1.22.7"
+          name: "1st-kind"
 
       - name: Setup 2nd Kind
         run: |
@@ -49,7 +50,8 @@ jobs:
           kind get clusters
 
       - name: Go Build
-        run: make quick_build
+        run: |
+          make quick_build
 
       - name: E2E Test
         run: |
@@ -71,4 +73,4 @@ jobs:
           bin/kubecm s 2nd-kind
           
           echo "Running kubecm delete..."
-          bin/kubecm d kind-kind
+          bin/kubecm d 1st-kind
