@@ -31,6 +31,7 @@ jobs:
       - name: Get dependencies
         run: |
           go get -v -t -d ./...
+          make quick_build
 
       - name: Setup Kind
         uses: engineerd/setup-kind@v0.5.0
@@ -48,10 +49,6 @@ jobs:
         run: |
           kind create cluster --image kindest/node:v1.18.20 --name 3rd-kind --kubeconfig 3rd-kind
           kind get clusters
-
-      - name: Go Build
-        run: |
-          make quick_build
 
       - name: E2E Test
         run: |
