@@ -1,0 +1,85 @@
+name: E2E Test
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+  workflow_dispatch: {}
+  pull_request:
+    branches:
+      - master
+
+env:
+  # Common versions
+  GO_VERSION: '1.17'
+
+jobs:
+  kind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%dT%H:%M:%S')"
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Get dependencies
+        run: |
+          go get -v -t -d ./...
+
+      - name: Go build
+        run: |
+          go build -ldflags="-X github.com/sunny0826/kubecm/cmd.kubecmVersion=${{ github.run_id }} \
+          -X github.com/sunny0826/kubecm/cmd.gitCommit=${{ github.sha }} \
+          -X 'github.com/sunny0826/kubecm/cmd.buildDate=${{ steps.date.outputs.date }}'" \
+          -o bin/kubecm .
+
+      - name: Setup Kind
+        uses: engineerd/setup-kind@v0.5.0
+        with:
+          version: "v0.11.1"
+          image: "kindest/node:v1.22.7"
+
+      - name: Setup 2nd Kind
+        run: |
+          kind create cluster --image kindest/node:v1.20.7 --name 2nd-kind --kubeconfig 2nd-kind
+          kind get clusters
+
+      - name: Setup 3rd Kind
+        run: |
+          kind create cluster --image kindest/node:v1.18.20 --name 3rd-kind --kubeconfig 3rd-kind
+          kind get clusters
+
+      - name: E2E Test
+        run: |
+          bin/kubecm version
+          echo "********************************************************************************"
+          echo "Running kubecm add..."
+          echo "********************************************************************************"
+          bin/kubecm add -f 2nd-kind -c
+          bin/kubecm add -f 3rd-kind -c
+          echo "********************************************************************************"
+          echo "Running kubecm ls..."
+          echo "********************************************************************************"
+          bin/kubecm list
+          echo "********************************************************************************"
+          echo "Running kubecm global flag --config..."
+          echo "********************************************************************************"
+          bin/kubecm list --config 2nd-kind
+          echo "********************************************************************************"
+          echo "Running kubecm switch..."
+          echo "********************************************************************************"
+          bin/kubecm s 3rd-kind
+          echo "********************************************************************************"
+          echo "Running kubecm delete..."
+          echo "********************************************************************************"
+          bin/kubecm d kind-kind
