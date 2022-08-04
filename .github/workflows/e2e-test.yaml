@@ -57,9 +57,6 @@ jobs:
           bin/kubecm add -f 2nd-kind -c
           bin/kubecm add -f 3rd-kind -c
           
-#          echo "Running kubecm merge..."
-#          bin/kubecm merge -f .
-          
           echo "Running kubecm ls..."
           bin/kubecm list
                
