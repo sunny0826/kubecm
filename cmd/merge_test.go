@@ -36,6 +36,7 @@ func Test_listFile(t *testing.T) {
 	defer os.RemoveAll(tempDir)
 	filename1 := filepath.Join(tempDir, "config1")
 	filename2 := filepath.Join(tempDir, "config2")
+	dsStore := filepath.Join(tempDir, ".DS_Store")
 	err = ioutil.WriteFile(filename1, []byte("shmorp"), 0444)
 	if err != nil {
 		t.Fatalf("WriteFile %s: %v", filename1, err)
@@ -44,6 +45,11 @@ func Test_listFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("WriteFile %s: %v", filename2, err)
 	}
+	err = ioutil.WriteFile(dsStore, []byte("xxxx"), 0444)
+	if err != nil {
+		t.Fatalf("WriteFile %s: %v", filename2, err)
+	}
+
 	type args struct {
 		folder string
 	}
