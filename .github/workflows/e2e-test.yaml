@@ -68,13 +68,16 @@ jobs:
           bin/kubecm add -f 2nd-kind -c
           bin/kubecm add -f 3rd-kind -c
           echo "********************************************************************************"
+          echo "Running kubecm merge..."
+          echo "********************************************************************************"
+          mkdir -p tmp/kubecm-merge
+          cp -r 2nd-kind tmp/kubecm-merge/2nd-kind
+          cp -r 3rd-kind tmp/kubecm-merge/3rd-kind
+          bin/kubecm merge -f tmp/kubecm-merge -y --config merge.config
+          echo "********************************************************************************"
           echo "Running kubecm ls..."
           echo "********************************************************************************"
           bin/kubecm list
-          echo "********************************************************************************"
-          echo "Running kubecm global flag --config..."
-          echo "********************************************************************************"
-          bin/kubecm list --config 2nd-kind
           echo "********************************************************************************"
           echo "Running kubecm switch..."
           echo "********************************************************************************"
@@ -83,3 +86,8 @@ jobs:
           echo "Running kubecm delete..."
           echo "********************************************************************************"
           bin/kubecm d kind-kind
+          echo "********************************************************************************"
+          echo "Running kubecm global flag --config..."
+          echo "********************************************************************************"
+          bin/kubecm s 3rd-kind --config merge.config
+          bin/kubecm list --config merge.config

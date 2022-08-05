@@ -46,10 +46,12 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 	}
 	outConfigs := clientcmdapi.NewConfig()
 	for _, yaml := range files {
-		printString(os.Stdout, "Loading KubeConfig file:"+yaml+" \n")
+		printString(os.Stdout, "Loading KubeConfig file: "+yaml+" \n")
 		loadConfig, err := loadKubeConfig(yaml)
 		if err != nil {
-			return err
+			// If an error is reported, the loading of this file is skipped.
+			printWarning(os.Stdout, "File "+yaml+" is not kubeconfig\n")
+			continue
 		}
 		kco := &KubeConfigOption{
 			config:   loadConfig,
@@ -62,13 +64,13 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 	}
 	confirm, _ := mc.command.Flags().GetBool("assumeyes")
 	if !confirm {
-		cover := BoolUI(fmt.Sprintf("Are you sure you want to overwrite the「%s」file?", cfgFile))
+		cover := BoolUI(fmt.Sprintf("Are you sure you want to overwrite the 「%s」 file?", cfgFile))
 		confirm, err = strconv.ParseBool(cover)
 	}
 	if err != nil {
 		return err
 	}
-	err = WriteConfig(confirm, folder, outConfigs)
+	err = WriteConfig(confirm, cfgFile, outConfigs)
 	if err != nil {
 		return err
 	}
@@ -90,6 +92,9 @@ func listFile(folder string) []string {
 	files, _ := ioutil.ReadDir(folder)
 	var fileList []string
 	for _, file := range files {
+		if file.Name() == ".DS_Store" {
+			continue
+		}
 		if file.IsDir() {
 			listFile(folder + "/" + file.Name())
 		} else {
@@ -103,5 +108,7 @@ func mergeExample() string {
 	return `
 # Merge KubeConfig in the dir directory
 kubecm merge -f dir
+# Merge KubeConfig in the dir directory to the specified file.
+kubecm merge -f dir --config kubecm.config
 `
 }

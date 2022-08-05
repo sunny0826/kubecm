@@ -272,11 +272,11 @@ func WriteConfig(cover bool, file string, outConfig *clientcmdapi.Config) error 
 			return err
 		}
 	} else {
-		err := clientcmd.WriteToFile(*outConfig, "config.yaml")
+		err := clientcmd.WriteToFile(*outConfig, "kubecm.config")
 		if err != nil {
 			return err
 		}
-		printString(os.Stdout, "generate ./config.yaml\n")
+		printString(os.Stdout, "generate ./kubecm.config\n")
 	}
 	return nil
 }
