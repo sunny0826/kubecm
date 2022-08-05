@@ -19,3 +19,5 @@ target
 tmp
 mergeDir
 config.yaml
+
+merge/
