@@ -73,8 +73,8 @@ test: fmt vet lint
 		go test -race -coverprofile=coverage.txt -covermode=atomic ./cmd/...
 
 doc-gen:
-ifneq ($(wildcard "tmp/cli"),)
-	rm -r tmp/cli/*
+ifneq ($(wildcard "docs/en-us/cli"),)
+	rm -r docs/en-us/cli/*
 endif
 	go run hack/docgen/gen.go
 

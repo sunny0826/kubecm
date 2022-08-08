@@ -52,3 +52,7 @@ kubecm add cloud --provider alibabacloud --cluster_id=xxxxxx
       --ui-size int     number of list items to show in menu at once (default 4)
 ```
 
+### SEE ALSO
+
+* [kubecm add](kubecm_add.md)	 - Add KubeConfig to $HOME/.kube/config
+
