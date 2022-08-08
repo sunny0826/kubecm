@@ -1,10 +1,10 @@
 ## kubecm merge
 
-选定目录，合并其中所有的 KubeConfig
+合并选中的 KubeConfig
 
 ### 简介
 
-选定目录，合并其中所有的 KubeConfig
+合并选中的 KubeConfig
 
 ```
 kubecm merge [flags]
@@ -14,15 +14,20 @@ kubecm merge [flags]
 
 ```
 
-# Merge kubeconfig in the dir directory
+# Merge multiple kubeconfig
+kubecm merge 1st.yaml 2nd.yaml 3rd.yaml
+# Merge KubeConfig in the dir directory
 kubecm merge -f dir
+# Merge KubeConfig in the dir directory to the specified file.
+kubecm merge -f dir --config kubecm.config
 
 ```
 
 ### 选项
 
 ```
-  -f, --folder string   Kubeconfig folder
+  -y, --assumeyes       skip interactive file overwrite confirmation
+  -f, --folder string   KubeConfig folder
   -h, --help            help for merge
 ```
 

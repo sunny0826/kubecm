@@ -35,7 +35,7 @@ KubeConfig Manager.
 * [kubecm create](kubecm_create.md)	 - Create new KubeConfig(experiment)
 * [kubecm delete](kubecm_delete.md)	 - Delete the specified context from the kubeconfig
 * [kubecm list](kubecm_list.md)	 - List KubeConfig
-* [kubecm merge](kubecm_merge.md)	 - Merge the KubeConfig files in the specified directory
+* [kubecm merge](kubecm_merge.md)	 - Merge multiple kubeconfig files into one
 * [kubecm namespace](kubecm_namespace.md)	 - Switch or change namespace interactively
 * [kubecm rename](kubecm_rename.md)	 - Rename the contexts of kubeconfig
 * [kubecm switch](kubecm_switch.md)	 - Switch Kube Context interactively

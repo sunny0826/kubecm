@@ -38,3 +38,8 @@ kubecm add cloud
       --ui-size int     number of list items to show in menu at once (default 4)
 ```
 
+### SEE ALSO
+
+* [kubecm](kubecm.md)	 - KubeConfig Manager.
+* [kubecm add cloud](kubecm_add_cloud.md)	 - Add kubeconfig from public cloud
+

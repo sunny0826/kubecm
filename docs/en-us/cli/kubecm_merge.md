@@ -1,10 +1,10 @@
 ## kubecm merge
 
-Merge the KubeConfig files in the specified directory
+Merge multiple kubeconfig files into one
 
 ### Synopsis
 
-Merge the KubeConfig files in the specified directory
+Merge multiple kubeconfig files into one
 
 ```
 kubecm merge [flags]
@@ -14,15 +14,20 @@ kubecm merge [flags]
 
 ```
 
-# Merge kubeconfig in the dir directory
+# Merge multiple kubeconfig
+kubecm merge 1st.yaml 2nd.yaml 3rd.yaml
+# Merge KubeConfig in the dir directory
 kubecm merge -f dir
+# Merge KubeConfig in the dir directory to the specified file.
+kubecm merge -f dir --config kubecm.config
 
 ```
 
 ### Options
 
 ```
-  -f, --folder string   Kubeconfig folder
+  -y, --assumeyes       skip interactive file overwrite confirmation
+  -f, --folder string   KubeConfig folder
   -h, --help            help for merge
 ```
 
@@ -32,3 +37,8 @@ kubecm merge -f dir
       --config string   path of kubeconfig (default "/Users/guoxudong/.kube/config")
       --ui-size int     number of list items to show in menu at once (default 4)
 ```
+
+### SEE ALSO
+
+* [kubecm](kubecm.md)	 - KubeConfig Manager.
+

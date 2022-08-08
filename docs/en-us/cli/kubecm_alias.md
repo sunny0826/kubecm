@@ -35,3 +35,7 @@ $ kubecm alias -o bash
       --ui-size int     number of list items to show in menu at once (default 4)
 ```
 
+### SEE ALSO
+
+* [kubecm](kubecm.md)	 - KubeConfig Manager.
+

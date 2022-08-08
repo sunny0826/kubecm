@@ -53,6 +53,7 @@ func NewCli() *Cli {
 	cli.rootCmd.SetOut(os.Stdout)
 	cli.rootCmd.SetErr(os.Stderr)
 	cli.setFlags()
+	cli.rootCmd.DisableAutoGenTag = true
 	return cli
 }
 
