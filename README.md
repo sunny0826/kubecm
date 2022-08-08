@@ -32,7 +32,7 @@ Available Commands:
   delete      Delete the specified context from the kubeconfig
   help        Help about any command
   list        List KubeConfig
-  merge       Merge the KubeConfig files in the specified directory
+  merge       Merge multiple kubeconfig files into one
   namespace   Switch or change namespace interactively
   rename      Rename the contexts of kubeconfig
   switch      Switch Kube Context interactively

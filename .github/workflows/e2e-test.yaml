@@ -3,13 +3,16 @@ name: E2E Test
 on:
   push:
     branches:
-      - master
-    tags:
-      - v*
-  workflow_dispatch: {}
+      - "master"
+    paths:
+      - '**.go'
+      - '**.yaml'
+      - '**.mod'
   pull_request:
-    branches:
-      - master
+    paths:
+      - '**.go'
+      - '**.yaml'
+      - '**.mod'
 
 env:
   # Common versions
