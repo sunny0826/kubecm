@@ -68,12 +68,18 @@ jobs:
           bin/kubecm add -f 2nd-kind -c
           bin/kubecm add -f 3rd-kind -c
           echo "********************************************************************************"
-          echo "Running kubecm merge..."
+          echo "Running kubecm merge multiple kubeconfig..."
+          echo "********************************************************************************"
+          bin/kubecm merge -y 2nd-kind 3rd-kind --config multi.config
+          cat multi.config
+          echo "********************************************************************************"
+          echo "Running kubecm merge in dir..."
           echo "********************************************************************************"
           mkdir -p tmp/kubecm-merge
           cp -r 2nd-kind tmp/kubecm-merge/2nd-kind
           cp -r 3rd-kind tmp/kubecm-merge/3rd-kind
           bin/kubecm merge -f tmp/kubecm-merge -y --config merge.config
+          cat merge.config
           echo "********************************************************************************"
           echo "Running kubecm ls..."
           echo "********************************************************************************"

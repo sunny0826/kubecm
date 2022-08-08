@@ -21,8 +21,8 @@ type MergeCommand struct {
 func (mc *MergeCommand) Init() {
 	mc.command = &cobra.Command{
 		Use:     "merge",
-		Short:   "Merge the KubeConfig files in the specified directory",
-		Long:    `Merge the KubeConfig files in the specified directory`,
+		Short:   "Merge multiple kubeconfig files into one",
+		Long:    `Merge multiple kubeconfig files into one`,
 		Aliases: []string{"m"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return mc.runMerge(cmd, args)
@@ -31,18 +31,21 @@ func (mc *MergeCommand) Init() {
 	}
 	mc.command.Flags().StringP("folder", "f", "", "KubeConfig folder")
 	mc.command.Flags().BoolP("assumeyes", "y", false, "skip interactive file overwrite confirmation")
-	_ = mc.command.MarkFlagRequired("folder")
+	//_ = mc.command.MarkFlagRequired("folder")
 }
 
 func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
+	files := args
 	folder, _ := mc.command.Flags().GetString("folder")
-	folder, err := CheckAndTransformFilePath(folder)
-	if err != nil {
-		return err
+	if folder != "" {
+		folder, err := CheckAndTransformFilePath(folder)
+		if err != nil {
+			return err
+		}
+		files = append(files, listFile(folder)...)
 	}
-	files := listFile(folder)
 	if len(files) == 0 {
-		return fmt.Errorf("%s is empty", folder)
+		return fmt.Errorf("please enter the files to be merged")
 	}
 	outConfigs := clientcmdapi.NewConfig()
 	for _, yaml := range files {
@@ -65,12 +68,9 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 	confirm, _ := mc.command.Flags().GetBool("assumeyes")
 	if !confirm {
 		cover := BoolUI(fmt.Sprintf("Are you sure you want to overwrite the 「%s」 file?", cfgFile))
-		confirm, err = strconv.ParseBool(cover)
+		confirm, _ = strconv.ParseBool(cover)
 	}
-	if err != nil {
-		return err
-	}
-	err = WriteConfig(confirm, cfgFile, outConfigs)
+	err := WriteConfig(confirm, cfgFile, outConfigs)
 	if err != nil {
 		return err
 	}
@@ -106,6 +106,8 @@ func listFile(folder string) []string {
 
 func mergeExample() string {
 	return `
+# Merge multiple kubeconfig
+kubecm merge 1st.yaml 2nd.yaml 3rd.yaml
 # Merge KubeConfig in the dir directory
 kubecm merge -f dir
 # Merge KubeConfig in the dir directory to the specified file.

@@ -19,5 +19,6 @@ target
 tmp
 mergeDir
 config.yaml
+kubecm.config
 
 merge/
