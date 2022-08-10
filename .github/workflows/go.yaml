@@ -41,7 +41,7 @@ jobs:
 
       - name: Run Build
         run: |
-          make build
+          make test-build
           
           mkdir -p .debpkg/usr/bin
           mkdir -p .debpkg/usr/lib/kubecm
