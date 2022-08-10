@@ -64,7 +64,13 @@ jobs:
           depends: 'git'
           desc: 'Manage your kubeconfig more easily.'
 
+      - name: Run Build
+        run: |
+          ls
+          ls -la .debpkg
+          tree .debpkg
+
       - uses: actions/upload-artifact@v2
         with:
           name: deb-artifact
-          path: .debpkg/*
+          path: ./*.deb
