@@ -59,7 +59,7 @@ jobs:
           package: kubecm
           package_root: .debpkg
           maintainer: 'Xudong Guo'
-          version: ${{ github.ref }} # refs/tags/v*.*.*
+          version: 'v0.18.0'
           arch: 'amd64'
           depends: 'git'
           desc: 'Manage your kubeconfig more easily.'
