@@ -38,3 +38,33 @@ jobs:
           file: ./coverage.txt
           flags: unittests
           name: codecov-umbrella
+
+      - name: Run Build
+        run: |
+          make build
+          
+          mkdir -p .debpkg/usr/bin
+          mkdir -p .debpkg/usr/lib/kubecm
+          cp -r bin/kubecm .debpkg/usr/bin/
+          chmod +x .debpkg/usr/bin/kubecm
+          echo -e "a=1" > .debpkg/usr/lib/kubecm/kubecm.conf
+          
+          # create DEBIAN directory if you want to add other pre/post scripts
+          mkdir -p .debpkg/DEBIAN
+          echo -e "echo postinst" > .debpkg/DEBIAN/postinst
+          chmod +x .debpkg/DEBIAN/postinst
+
+      - uses: jiro4989/build-deb-action@v2
+        with:
+          package: kubecm
+          package_root: .debpkg
+          maintainer: 'Xudong Guo'
+          version: ${{ github.ref }} # refs/tags/v*.*.*
+          arch: 'amd64'
+          depends: 'git'
+          desc: 'Manage your kubeconfig more easily.'
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: deb-artifact
+          path: .debpkg/*
