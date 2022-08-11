@@ -56,10 +56,10 @@ jobs:
           # create DEBIAN directory if you want to add other pre/post scripts
           mkdir -p .debpkg/DEBIAN
           cp -r LICENSE .debpkg/DEBIAN/
-          cp -r script/postinst .debpkg/DEBIAN/postinst
-          cp -r script/prerm .debpkg/DEBIAN/prerm
+          cp -r scripts/postinst .debpkg/DEBIAN/postinst
+          cp -r scriptd/postrm .debpkg/DEBIAN/postrm
           chmod +x .debpkg/DEBIAN/postinst
-          chmod +x .debpkg/DEBIAN/prerm
+          chmod +x .debpkg/DEBIAN/postrm
 
       - uses: jiro4989/build-deb-action@v2
         with:
