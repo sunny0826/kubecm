@@ -57,7 +57,7 @@ jobs:
           mkdir -p .debpkg/DEBIAN
           cp -r LICENSE .debpkg/DEBIAN/
           cp -r scripts/postinst .debpkg/DEBIAN/postinst
-          cp -r scriptd/postrm .debpkg/DEBIAN/postrm
+          cp -r scripts/postrm .debpkg/DEBIAN/postrm
           chmod +x .debpkg/DEBIAN/postinst
           chmod +x .debpkg/DEBIAN/postrm
 
