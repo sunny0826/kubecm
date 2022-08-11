@@ -39,7 +39,7 @@ jobs:
           flags: unittests
           name: codecov-umbrella
 
-      - name: Run Build
+      - name: Prepare for build
         run: |
           go build -ldflags="-X github.com/sunny0826/kubecm/cmd.kubecmVersion=${{ github.run_id }} \
           -X github.com/sunny0826/kubecm/cmd.gitCommit=${{ github.sha }} \
@@ -52,7 +52,6 @@ jobs:
           chmod +x .debpkg/usr/bin/kubecm
           .debpkg/usr/bin/kubecm completion bash > .debpkg/usr/lib/kubecm/completions/bash/kubecm
           .debpkg/usr/bin/kubecm completion zsh > .debpkg/usr/lib/kubecm/completions/zsh/_kubecm
-#          echo -e "a=1" > .debpkg/usr/lib/kubecm/kubecm.conf
           
           # create DEBIAN directory if you want to add other pre/post scripts
           mkdir -p .debpkg/DEBIAN
