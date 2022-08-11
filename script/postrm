@@ -1,0 +1,31 @@
+#!/bin/sh -e
+
+case "$1" in
+purge)
+  rm -rf /var/lib/kubecm
+  ;;
+
+remove)
+  [ -L /usr/bin/kubecm ] && rm -rf /usr/bin/kubecm
+
+
+  [ -L /etc/bash_completion.d/kubecm ] && rm -rf /etc/bash_completion.d/kubecm
+  [ -L /usr/share/zsh/site-functions/_kubecm ] && rm -rf /usr/share/zsh/site-functions/_kubecm
+  [ -L /usr/local/share/zsh/site-functions/_kubecm ] && rm -rf /usr/local/share/zsh/site-functions/_kubecm
+  ;;
+
+upgrade | deconfigure)
+  #
+  ;;
+
+abort-upgrade | failed-upgrade)
+  # if [ -e "/etc/sudoers.pre-conffile" ]; then
+  # mv /etc/sudoers.pre-conffile /etc/sudoers
+  # fi
+  ;;
+
+*)
+  echo "unknown argument --> $1" >&2
+  exit 0
+  ;;
+esac

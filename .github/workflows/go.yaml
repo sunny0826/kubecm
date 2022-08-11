@@ -41,18 +41,26 @@ jobs:
 
       - name: Run Build
         run: |
-          make test-build
+          go build -ldflags="-X github.com/sunny0826/kubecm/cmd.kubecmVersion=${{ github.run_id }} \
+          -X github.com/sunny0826/kubecm/cmd.gitCommit=${{ github.sha }} \
+          -X 'github.com/sunny0826/kubecm/cmd.buildDate=${{ steps.date.outputs.date }}'" \
+          -o bin/kubecm .
           
-          mkdir -p .debpkg/usr/bin
-          mkdir -p .debpkg/usr/lib/kubecm
+          mkdir -p .debpkg/usr/{bin,lib}
+          mkdir -p .debpkg/usr/lib/kubecm/completions/{zsh,bash}
           cp -r bin/kubecm .debpkg/usr/bin/
           chmod +x .debpkg/usr/bin/kubecm
-          echo -e "a=1" > .debpkg/usr/lib/kubecm/kubecm.conf
+          .debpkg/usr/bin/kubecm completion bash > .debpkg/usr/lib/kubecm/completions/bash/kubecm
+          .debpkg/usr/bin/kubecm completion zsh > .debpkg/usr/lib/kubecm/completions/zsh/_kubecm
+#          echo -e "a=1" > .debpkg/usr/lib/kubecm/kubecm.conf
           
           # create DEBIAN directory if you want to add other pre/post scripts
           mkdir -p .debpkg/DEBIAN
-          echo -e "echo postinst" > .debpkg/DEBIAN/postinst
+          cp -r LICENSE .debpkg/DEBIAN/
+          cp -r script/postinst .debpkg/DEBIAN/postinst
+          cp -r script/prerm .debpkg/DEBIAN/prerm
           chmod +x .debpkg/DEBIAN/postinst
+          chmod +x .debpkg/DEBIAN/prerm
 
       - uses: jiro4989/build-deb-action@v2
         with:
@@ -60,14 +68,10 @@ jobs:
           package_root: .debpkg
           maintainer: 'Xudong Guo'
           version: 'v0.18.0'
-          arch: 'amd64'
-          depends: 'git'
           desc: 'Manage your kubeconfig more easily.'
 
       - name: Run Build
         run: |
-          ls
-          ls -la .debpkg
           tree .debpkg
 
       - uses: actions/upload-artifact@v2

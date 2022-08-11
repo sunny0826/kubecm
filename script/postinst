@@ -1,0 +1,44 @@
+#!/bin/sh -e
+
+set -e
+
+# ref: postinst in sudo package
+
+case "$1" in
+configure)
+
+  if [ -d /etc/bash_completion.d ]; then
+    if [ ! -L /etc/bash_completion.d/kubecm ]; then
+      ln -s /usr/lib/kubecm/completions/bash/kubecm /etc/bash_completion.d/
+    fi
+  fi
+
+  if [ -x /bin/zsh ]; then
+    if [ ! -d /usr/local/share/zsh/site-functions ]; then
+      mkdir -pv /usr/local/share/zsh/site-functions
+    fi
+    if [ -d /usr/share/zsh/site-functions ]; then
+      if [ ! -L /usr/share/zsh/site-functions/_kubecm ]; then
+        ln -s /usr/lib/kubecm/completions/zsh/_kubecm /usr/share/zsh/site-functions/
+      fi
+    elif [ -d /usr/local/share/zsh/site-functions ]; then
+      if [ ! -L /usr/local/share/zsh/site-functions/_kubecm ]; then
+        ln -s /usr/lib/kubecm/completions/zsh/_kubecm /usr/local/share/zsh/site-functions/
+      fi
+    fi
+  fi
+
+  [ -d /etc/kubecm ] || ln -s /usr/lib/kubecm/etc/kubecm /etc/
+  ;;
+
+abort-removal)
+  [ -L /usr/bin/kubecm ] && rm -rf /usr/bin/kubecm
+
+  [ -L /usr/lib/kubecm/completions/bash/kubecm ] && rm -rf /usr/lib/kubecm/completions/bash/kubecm
+  [ -L /usr/lib/kubecm/completions/zsh/_kubecm ] && rm -rf /usr/lib/kubecm/completions/zsh/_kubecm
+  [ -L /etc/bash_completion.d/kubecm ] && rm -rf /etc/bash_completion.d/kubecm
+  [ -L /usr/local/share/zsh/site-functions/_kubecm ] && rm -rf /usr/local/share/zsh/site-functions/_kubecm
+  [ -L /usr/share/zsh/site-functions/_kubecm ] && rm -rf /usr/share/zsh/site-functions/_kubecm
+  ;;
+
+esac
