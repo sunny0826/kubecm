@@ -13,4 +13,5 @@ type ClusterInfo struct {
 	ID         string
 	RegionID   string
 	K8sVersion string
+	ConsoleURL string
 }

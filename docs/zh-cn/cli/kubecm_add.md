@@ -14,10 +14,10 @@ kubecm add [flags]
 
 ```
 
-# Merge 1.yaml with $HOME/.kube/config
-kubecm add -f 1.yaml 
-# Interaction: select kubeconfig from the cloud
-kubecm add cloud
+# Merge test.yaml with $HOME/.kube/config
+kubecm add -f test.yaml 
+# Add kubeconfig from stdin
+cat /etc/kubernetes/admin.conf |  kubecm add -f -
 
 ```
 

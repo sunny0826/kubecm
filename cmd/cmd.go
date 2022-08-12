@@ -19,6 +19,7 @@ func NewBaseCommand() *BaseCommand {
 		&AliasCommand{},      // alias command
 		&ClearCommand{},      // clear command
 		&CreateCommand{},     // create command
+		&CloudCommand{},      // cloud command
 	)
 
 	return baseCmd

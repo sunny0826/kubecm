@@ -8,14 +8,14 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6065/badge)](https://bestpractices.coreinfrastructure.org/projects/6065)
 
 ```text
+                                                 
+        Manage your kubeconfig more easily.        
+                                                   
 
-        Manage your kubeconfig more easily.
-
-
-██   ██ ██    ██ ██████  ███████  ██████ ███    ███
-██  ██  ██    ██ ██   ██ ██      ██      ████  ████
-█████   ██    ██ ██████  █████   ██      ██ ████ ██
-██  ██  ██    ██ ██   ██ ██      ██      ██  ██  ██
+██   ██ ██    ██ ██████  ███████  ██████ ███    ███ 
+██  ██  ██    ██ ██   ██ ██      ██      ████  ████ 
+█████   ██    ██ ██████  █████   ██      ██ ████ ██ 
+██  ██  ██    ██ ██   ██ ██      ██      ██  ██  ██ 
 ██   ██  ██████  ██████  ███████  ██████ ██      ██
 
  Tips  Find more information at: https://kubecm.cloud
@@ -27,7 +27,8 @@ Available Commands:
   add         Add KubeConfig to $HOME/.kube/config
   alias       Generate alias for all contexts
   clear       Clear lapsed context, cluster and user
-  completion  Generates bash/zsh completion scripts
+  cloud       manage kubeconfig from cloud
+  completion  Generate completion script
   create      Create new KubeConfig(experiment)
   delete      Delete the specified context from the kubeconfig
   help        Help about any command
@@ -41,6 +42,7 @@ Available Commands:
 Flags:
       --config string   path of kubeconfig (default "$HOME/.kube/config")
   -h, --help            help for kubecm
+      --ui-size int     number of list items to show in menu at once (default 4)
 
 Use "kubecm [command] --help" for more information about a command.
 ```

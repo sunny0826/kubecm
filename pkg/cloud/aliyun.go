@@ -1,6 +1,8 @@
 package cloud
 
 import (
+	"fmt"
+
 	ack "github.com/alibabacloud-go/cs-20151215/v2/client"
 	openapi "github.com/alibabacloud-go/darabonba-openapi/client"
 	"github.com/alibabacloud-go/tea/tea"
@@ -47,6 +49,7 @@ func (a *AliCloud) ListCluster() (clusters []ClusterInfo, err error) {
 			ID:         *info.ClusterId,
 			RegionID:   *info.RegionId,
 			K8sVersion: *info.CurrentVersion,
+			ConsoleURL: fmt.Sprintf("https://cs.console.aliyun.com/#/k8s/cluster/%s/v2/info/overview", *info.ClusterId),
 		})
 	}
 	return clusterList, err

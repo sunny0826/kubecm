@@ -67,6 +67,7 @@ func (t *TencentCloud) ListCluster() (clusters []ClusterInfo, err error) {
 			ID:         *cluster.ClusterId,
 			RegionID:   t.RegionID,
 			K8sVersion: *cluster.ClusterVersion,
+			ConsoleURL: fmt.Sprintf("https://console.cloud.tencent.com/tke2/cluster/sub/list/basic/info?clusterId=%s", *cluster.ClusterId),
 		})
 	}
 	return clusterList, err

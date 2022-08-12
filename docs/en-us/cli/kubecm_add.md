@@ -18,8 +18,6 @@ kubecm add [flags]
 kubecm add -f test.yaml 
 # Add kubeconfig from stdin
 cat /etc/kubernetes/admin.conf |  kubecm add -f -
-# Interaction: select kubeconfig from the cloud
-kubecm add cloud
 
 ```
 
@@ -41,5 +39,4 @@ kubecm add cloud
 ### SEE ALSO
 
 * [kubecm](kubecm.md)	 - KubeConfig Manager.
-* [kubecm add cloud](kubecm_add_cloud.md)	 - Add kubeconfig from public cloud
 

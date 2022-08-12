@@ -1,13 +1,13 @@
-## kubecm add cloud
+## kubecm cloud add
 
-Add kubeconfig from public cloud
+Add kubeconfig from cloud
 
 ### Synopsis
 
-Add kubeconfig from public cloud
+Add kubeconfig from cloud
 
 ```
-kubecm add cloud [flags]
+kubecm cloud add [flags]
 ```
 
 ### Examples
@@ -29,30 +29,29 @@ export TENCENTCLOUD_SECRET_KEY=xxx
 export RANCHER_SERVER_URL=https://xxx
 export RANCHER_API_KEY=xxx
 # Interaction: select kubeconfig from the cloud
-kubecm add cloud
+kubecm cloud add
 # Add kubeconfig from cloud
-kubecm add cloud --provider alibabacloud --cluster_id=xxxxxx
+kubecm cloud add --provider alibabacloud --cluster_id=xxxxxx
 
 ```
 
 ### Options
 
 ```
-      --cluster_id string   kubernetes cluster id
-  -h, --help                help for cloud
-      --provider string     public cloud
-      --region_id string    cloud region id
+  -h, --help   help for add
 ```
 
 ### Options inherited from parent commands
 
 ```
-      --config string   path of kubeconfig (default "/Users/guoxudong/.kube/config")
-  -c, --cover           Overwrite local kubeconfig files
-      --ui-size int     number of list items to show in menu at once (default 4)
+      --cluster_id string   kubernetes cluster id
+      --config string       path of kubeconfig (default "/Users/guoxudong/.kube/config")
+      --provider string     public cloud
+      --region_id string    cloud region id
+      --ui-size int         number of list items to show in menu at once (default 4)
 ```
 
 ### SEE ALSO
 
-* [kubecm add](kubecm_add.md)	 - Add KubeConfig to $HOME/.kube/config
+* [kubecm cloud](kubecm_cloud.md)	 - manage kubeconfig from cloud
 

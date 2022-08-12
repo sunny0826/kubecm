@@ -37,7 +37,6 @@ func (ac *AddCommand) Init() {
 	ac.command.Flags().StringP("file", "f", "", "Path to merge kubeconfig files")
 	ac.command.PersistentFlags().BoolP("cover", "c", false, "Overwrite local kubeconfig files")
 	_ = ac.command.MarkFlagRequired("file")
-	ac.AddCommands(&AddCloudCommand{})
 }
 
 func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
@@ -164,7 +163,5 @@ func addExample() string {
 kubecm add -f test.yaml 
 # Add kubeconfig from stdin
 cat /etc/kubernetes/admin.conf |  kubecm add -f -
-# Interaction: select kubeconfig from the cloud
-kubecm add cloud
 `
 }

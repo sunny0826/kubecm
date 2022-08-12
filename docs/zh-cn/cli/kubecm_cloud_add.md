@@ -1,20 +1,19 @@
-## kubecm add cloud
+## kubecm cloud add
 
-获取公有云 K8s 服务的 `kubeconfig`
+添加云上的 kubeconfig 到本地
 
-### 简介
+### Synopsis
 
-获取公有云 K8s 服务的 `kubeconfig`
+添加云上的 kubeconfig 到本地
 
 ```
-kubecm add cloud [flags]
+kubecm cloud add [flags]
 ```
 
-目前支持阿里云和腾讯云，相应平台的 AK/AS 如果存在于环境变量中将会直接获取，否则将出现提示框询问。
+### Examples
 
-### 示例
+```
 
-```bash
 # Supports Ali Cloud and Tencent Cloud
 # The AK/AS of the cloud platform will be retrieved directly 
 # if it exists in the environment variable, 
@@ -30,26 +29,29 @@ export TENCENTCLOUD_SECRET_KEY=xxx
 export RANCHER_SERVER_URL=https://xxx
 export RANCHER_API_KEY=xxx
 # Interaction: select kubeconfig from the cloud
-kubecm add cloud
+kubecm cloud add
 # Add kubeconfig from cloud
-kubecm add cloud --provider alibabacloud --cluster_id=xxxxxx
+kubecm cloud add --provider alibabacloud --cluster_id=xxxxxx
 
 ```
 
-### 选项
+### Options
+
+```
+  -h, --help   help for add
+```
+
+### Options inherited from parent commands
 
 ```
       --cluster_id string   kubernetes cluster id
-  -h, --help                help for cloud
+      --config string       path of kubeconfig (default "/Users/guoxudong/.kube/config")
       --provider string     public cloud
       --region_id string    cloud region id
+      --ui-size int         number of list items to show in menu at once (default 4)
 ```
 
-### 全局选项
+### SEE ALSO
 
-```
-      --config string   path of kubeconfig (default "/Users/guoxudong/.kube/config")
-  -c, --cover           Overwrite local kubeconfig files
-      --ui-size int     number of list items to show in menu at once (default 4)
-```
+* [kubecm cloud](kubecm_cloud.md)	 - manage kubeconfig from cloud
 

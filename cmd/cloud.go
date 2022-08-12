@@ -1,23 +1,19 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 
-	"github.com/sunny0826/kubecm/pkg/cloud"
-
-	"k8s.io/client-go/tools/clientcmd"
-
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"github.com/sunny0826/kubecm/pkg/cloud"
 )
 
-// AddCloudCommand add command struct
-type AddCloudCommand struct {
-	AddCommand
+// CloudCommand cloud command struct
+type CloudCommand struct {
+	BaseCommand
 }
 
 // CloudInfo Public cloud info
@@ -50,85 +46,41 @@ var Clouds = []CloudInfo{
 	},
 }
 
-// Init AddCommand
-func (cc *AddCloudCommand) Init() {
+// Init CloudCommand
+func (cc *CloudCommand) Init() {
 	cc.command = &cobra.Command{
-		Use:   "cloud",
-		Short: "Add kubeconfig from public cloud",
-		Long:  "Add kubeconfig from public cloud",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return cc.runCloud(cmd, args)
-		},
-		Example: addCloudExample(),
+		Use:   "cloud [COMMANDS]",
+		Short: "manage kubeconfig from cloud",
+		Long:  "manage kubeconfig from cloud",
 	}
-	cc.command.Flags().String("provider", "", "public cloud")
-	cc.command.Flags().String("cluster_id", "", "kubernetes cluster id")
-	cc.command.Flags().String("region_id", "", "cloud region id")
+	cc.command.PersistentFlags().String("provider", "", "public cloud")
+	cc.command.PersistentFlags().String("cluster_id", "", "kubernetes cluster id")
+	cc.command.PersistentFlags().String("region_id", "", "cloud region id")
+	cc.AddCommands(&CloudAddCommand{})
+	cc.AddCommands(&CloudListCommand{})
 }
 
-func (cc *AddCloudCommand) runCloud(cmd *cobra.Command, args []string) error {
-	provider, _ := cc.command.Flags().GetString("provider")
-	clusterID, _ := cc.command.Flags().GetString("cluster_id")
-	regionID, _ := cc.command.Flags().GetString("region_id")
-	cover, _ := cc.command.Flags().GetBool("cover")
-	var num int
-	if provider == "" {
-		num = selectCloud(Clouds, "Select Cloud")
-	} else {
-		num = checkFlags(provider)
-	}
+func getClusters(provider, regionID string, num int) ([]cloud.ClusterInfo, error) {
+	var clusters []cloud.ClusterInfo
+	var err error
 	switch num {
 	case -1:
 		var allAlias []string
 		for _, cloud := range Clouds {
 			allAlias = append(allAlias, cloud.Alias...)
 		}
-		fmt.Printf("'%s' is not supported, supported cloud alias are %v \n", provider, allAlias)
-		return nil
+		return nil, fmt.Errorf("'%s' is not supported, supported cloud alias are %v", provider, allAlias)
 	case 0:
-		fmt.Println("⛅  Selected: AlibabaCloud")
 		accessKeyID, accessKeySecret := checkEnvForSecret(0)
 		ali := cloud.AliCloud{
 			AccessKeyID:     accessKeyID,
 			AccessKeySecret: accessKeySecret,
 		}
-		if clusterID == "" {
-			clusters, err := ali.ListCluster()
-			if err != nil {
-				return err
-			}
-			if len(clusters) == 0 {
-				return errors.New("no clusters found")
-			}
-			clusterNum := selectCluster(clusters, "Select Cluster")
-			kubeconfig, err := ali.GetKubeConfig(clusters[clusterNum].ID)
-			if err != nil {
-				return err
-			}
-			newConfig, err := clientcmd.Load([]byte(kubeconfig))
-			if err != nil {
-				return err
-			}
-			err = AddToLocal(newConfig, clusters[clusterNum].Name, cover)
-			if err != nil {
-				return err
-			}
-		} else {
-			kubeconfig, err := ali.GetKubeConfig(clusterID)
-			if err != nil {
-				return err
-			}
-			newConfig, err := clientcmd.Load([]byte(kubeconfig))
-			if err != nil {
-				return err
-			}
-			err = AddToLocal(newConfig, fmt.Sprintf("alicloud-%s", clusterID), cover)
-			if err != nil {
-				return err
-			}
+		clusters, err = ali.ListCluster()
+		if err != nil {
+			return nil, err
 		}
 	case 1:
-		fmt.Println("⛅  Selected: TencentCloud")
 		secretID, secretKey := checkEnvForSecret(1)
 		ten := cloud.TencentCloud{
 			SecretID:  secretID,
@@ -137,48 +89,16 @@ func (cc *AddCloudCommand) runCloud(cmd *cobra.Command, args []string) error {
 		if regionID == "" {
 			regionList, err := ten.GetRegionID()
 			if err != nil {
-				return err
+				return nil, err
 			}
 			regionNum := selectRegion(regionList, "Select Region Name")
 			ten.RegionID = regionList[regionNum]
 		} else {
 			ten.RegionID = regionID
 		}
-
-		if clusterID == "" {
-			clusters, err := ten.ListCluster()
-			if err != nil {
-				return err
-			}
-			if len(clusters) == 0 {
-				return errors.New("no clusters found")
-			}
-			clusterNum := selectCluster(clusters, "Select Cluster")
-			kubeconfig, err := ten.GetKubeConfig(clusters[clusterNum].ID)
-			if err != nil {
-				return err
-			}
-			newConfig, err := clientcmd.Load([]byte(kubeconfig))
-			if err != nil {
-				return err
-			}
-			err = AddToLocal(newConfig, clusters[clusterNum].Name, cover)
-			if err != nil {
-				return err
-			}
-		} else {
-			kubeconfig, err := ten.GetKubeConfig(clusterID)
-			if err != nil {
-				return err
-			}
-			newConfig, err := clientcmd.Load([]byte(kubeconfig))
-			if err != nil {
-				return err
-			}
-			err = AddToLocal(newConfig, fmt.Sprintf("tencent-%s", clusterID), cover)
-			if err != nil {
-				return err
-			}
+		clusters, err = ten.ListCluster()
+		if err != nil {
+			return nil, err
 		}
 	case 2:
 		fmt.Println("⛅  Selected: Rancher")
@@ -187,43 +107,12 @@ func (cc *AddCloudCommand) runCloud(cmd *cobra.Command, args []string) error {
 			ServerURL: serverURL,
 			APIKey:    apiKey,
 		}
-		if clusterID == "" {
-			clusters, err := rancher.ListCluster()
-			if err != nil {
-				return err
-			}
-			if len(clusters) == 0 {
-				return errors.New("no clusters found")
-			}
-			clusterNum := selectCluster(clusters, "Select Cluster")
-			kubeconfig, err := rancher.GetKubeConfig(clusters[clusterNum].ID)
-			if err != nil {
-				return err
-			}
-			newConfig, err := clientcmd.Load([]byte(kubeconfig))
-			if err != nil {
-				return err
-			}
-			err = AddToLocal(newConfig, clusters[clusterNum].Name, cover)
-			if err != nil {
-				return err
-			}
-		} else {
-			kubeconfig, err := rancher.GetKubeConfig(clusterID)
-			if err != nil {
-				return err
-			}
-			newConfig, err := clientcmd.Load([]byte(kubeconfig))
-			if err != nil {
-				return err
-			}
-			err = AddToLocal(newConfig, fmt.Sprintf("rancher-%s", clusterID), cover)
-			if err != nil {
-				return err
-			}
+		clusters, err = rancher.ListCluster()
+		if err != nil {
+			return nil, err
 		}
 	}
-	return nil
+	return clusters, err
 }
 
 func checkEnvForSecret(num int) (string, string) {
@@ -343,27 +232,4 @@ func selectRegion(regionList []string, label string) int {
 		log.Fatalf("Prompt failed %v\n", err)
 	}
 	return i
-}
-
-func addCloudExample() string {
-	return `
-# Supports Ali Cloud and Tencent Cloud
-# The AK/AS of the cloud platform will be retrieved directly 
-# if it exists in the environment variable, 
-# otherwise a prompt box will appear asking for it.
-
-# Set env AliCloud secret key
-export ACCESS_KEY_ID=xxx
-export ACCESS_KEY_SECRET=xxx
-# Set env Tencent secret key
-export TENCENTCLOUD_SECRET_ID=xxx
-export TENCENTCLOUD_SECRET_KEY=xxx
-# Set env Rancher secret key
-export RANCHER_SERVER_URL=https://xxx
-export RANCHER_API_KEY=xxx
-# Interaction: select kubeconfig from the cloud
-kubecm add cloud
-# Add kubeconfig from cloud
-kubecm add cloud --provider alibabacloud --cluster_id=xxxxxx
-`
 }
