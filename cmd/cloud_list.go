@@ -28,8 +28,8 @@ func (cl *CloudListCommand) Init() {
 }
 
 func (cl *CloudListCommand) runCloudList(cmd *cobra.Command, args []string) error {
-	provider, err := cl.command.Flags().GetString("provider")
-	regionID, err := cl.command.Flags().GetString("region_id")
+	provider, _ := cl.command.Flags().GetString("provider")
+	regionID, _ := cl.command.Flags().GetString("region_id")
 	var num int
 	if provider == "" {
 		num = selectCloud(Clouds, "Select Cloud")
