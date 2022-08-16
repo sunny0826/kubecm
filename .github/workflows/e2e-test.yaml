@@ -28,7 +28,7 @@ jobs:
 
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
 
       - name: Setup Go
         uses: actions/setup-go@v3
@@ -41,9 +41,9 @@ jobs:
 
       - name: Go build
         run: |
-          go build -ldflags="-X github.com/sunny0826/kubecm/cmd.kubecmVersion=${{ github.run_id }} \
-          -X github.com/sunny0826/kubecm/cmd.gitCommit=${{ github.sha }} \
-          -X 'github.com/sunny0826/kubecm/cmd.buildDate=${{ steps.date.outputs.date }}'" \
+          go build -ldflags="-X github.com/sunny0826/kubecm/version.Version=${{ github.run_id }} \
+          -X github.com/sunny0826/kubecm/version.GitRevision=${{ github.sha }} \
+          -X 'github.com/sunny0826/kubecm/version.BuildDate=${{ steps.date.outputs.date }}'" \
           -o bin/kubecm .
 
       - name: Setup Kind
