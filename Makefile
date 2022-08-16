@@ -18,7 +18,7 @@ BUILD_TARGET_PKG_FILE_PATH=$(BUILD_TARGET)/$(BUILD_TARGET_DIR_NAME)
 GO_ENV=CGO_ENABLED=0
 GO_MODULE=GO111MODULE=on
 VERSION_PKG=github.com/sunny0826/kubecm/version
-GO_FLAGS=-ldflags="-X ${VERSION_PKG}.kubecmVersion=$(KUBECM_VERSION) -X ${VERSION_PKG}.gitRevision=$(GITCOMMIT) -X ${VERSION_PKG}.buildDate=$(shell date -u +'%Y-%m-%d')"
+GO_FLAGS=-ldflags="-X ${VERSION_PKG}.Version=$(KUBECM_VERSION) -X ${VERSION_PKG}.GitRevision=$(GITCOMMIT) -X ${VERSION_PKG}.BuildDate=$(shell date -u +'%Y-%m-%d')"
 GO=go
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
@@ -29,7 +29,7 @@ GOBIN=$(shell go env GOBIN)
 endif
 
 ifeq ($(GOOS), linux)
-	GO_FLAGS=-ldflags="-linkmode external -extldflags -static -X ${VERSION_PKG}.kubecmVersion=$(KUBECM_VERSION) -X ${VERSION_PKG}.gitRevision=$(GITCOMMIT) -X ${VERSION_PKG}.buildDate=$(shell date -u +'%Y-%m-%d')"
+	GO_FLAGS=-ldflags="-linkmode external -extldflags -static -X ${VERSION_PKG}.Version=$(KUBECM_VERSION) -X ${VERSION_PKG}.GitRevision=$(GITCOMMIT) -X ${VERSION_PKG}.BuildDate=$(shell date -u +'%Y-%m-%d')"
 endif
 
 build: pre_build

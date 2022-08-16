@@ -38,7 +38,7 @@ func (vc *VersionCommand) Init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("%s: %s\n",
 				ansi.Color("Version:", "blue"),
-				ansi.Color(strings.TrimPrefix(getVersion().KubecmVersion, "v"), "white+h"))
+				ansi.Color(strings.TrimPrefix(getVersion().KubecmVersion+fmt.Sprintf("(%s)", getVersion().BuildDate), "v"), "white+h"))
 			fmt.Printf("%s: %s\n",
 				ansi.Color("GitRevision:", "blue"),
 				ansi.Color(getVersion().GitRevision, "white+h"))
