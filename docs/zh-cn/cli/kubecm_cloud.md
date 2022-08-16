@@ -26,5 +26,5 @@
 
 * [kubecm](kubecm.md)	 - KubeConfig Manager.
 * [kubecm cloud add](kubecm_cloud_add.md)	 - Add kubeconfig from cloud
-* [kubecm cloud list](kubecm_cloud_list.md)	 - list Cluster from cloud
+* [kubecm cloud list](kubecm_cloud_list.md)	 - List Cluster from cloud
 

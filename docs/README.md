@@ -27,7 +27,7 @@ Available Commands:
   add         Add KubeConfig to $HOME/.kube/config
   alias       Generate alias for all contexts
   clear       Clear lapsed context, cluster and user
-  cloud       manage kubeconfig from cloud
+  cloud       Manage kubeconfig from cloud
   completion  Generate completion script
   create      Create new KubeConfig(experiment)
   delete      Delete the specified context from the kubeconfig
