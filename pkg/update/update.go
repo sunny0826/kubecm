@@ -9,6 +9,7 @@ import (
 )
 
 // ReleaseInfo stores information about a release
+// nolint:tagliatelle
 type ReleaseInfo struct {
 	Version     string    `json:"tag_name"`
 	URL         string    `json:"html_url"`
