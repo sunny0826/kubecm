@@ -41,9 +41,9 @@ jobs:
 
       - name: Go build
         run: |
-          go build -ldflags="-X github.com/sunny0826/kubecm/version.kubecmVersion=${{ github.run_id }} \
-          -X github.com/sunny0826/kubecm/version.gitCommit=${{ github.sha }} \
-          -X 'github.com/sunny0826/kubecm/version.buildDate=${{ steps.date.outputs.date }}'" \
+          go build -ldflags="-X github.com/sunny0826/kubecm/version.Version=${{ github.run_id }} \
+          -X github.com/sunny0826/kubecm/version.GitRevision=${{ github.sha }} \
+          -X 'github.com/sunny0826/kubecm/version.BuildDate=${{ steps.date.outputs.date }}'" \
           -o bin/kubecm .
 
       - name: Setup Kind
