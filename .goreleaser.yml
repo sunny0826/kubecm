@@ -3,7 +3,7 @@
 builds:
 - env:
   - CGO_ENABLED=0
-  ldflags: -s -X github.com/sunny0826/kubecm/version.Version={{.Version}} -X github.com/sunny0826/kubecm/version.GitRevision={{.Commit}} -X github.com/sunny0826/kubecm/version.BuildDate={{ {{ time "2006-01-02" }}' }}
+  ldflags: -s -X github.com/sunny0826/kubecm/version.Version={{.Version}} -X github.com/sunny0826/kubecm/version.GitRevision={{.ShortCommit}} -X github.com/sunny0826/kubecm/version.BuildDate={{ time "2006-01-02" }}
   goos:
     - linux
     - darwin

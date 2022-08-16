@@ -100,3 +100,7 @@ GOLANGCILINT=$(GOBIN)/golangci-lint
 else
 GOLANGCILINT=$(shell which golangci-lint)
 endif
+
+goreleaser-snapshot:
+	goreleaser build --single-target --snapshot --rm-dist
+	dist/kubecm_darwin_amd64/kubecm version
