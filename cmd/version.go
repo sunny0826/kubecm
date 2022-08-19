@@ -2,7 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
+
+	"github.com/cli/safeexec"
+	"github.com/sunny0826/kubecm/pkg/update"
 
 	"github.com/mgutz/ansi"
 	"github.com/spf13/cobra"
@@ -18,10 +24,6 @@ type VersionCommand struct {
 type version struct {
 	// kubecmVersion is a kubecm binary version.
 	KubecmVersion string `json:"kubecmVersion"`
-	// GitRevision is the commit of repo
-	GitRevision string `json:"gitRevision"`
-	// BuildDate is the build date of kubecm binary.
-	BuildDate string `json:"buildDate"`
 	// GoOs holds OS name.
 	GoOs string `json:"goOs"`
 	// GoArch holds architecture name.
@@ -36,18 +38,34 @@ func (vc *VersionCommand) Init() {
 		Long:    "Print version info",
 		Aliases: []string{"v"},
 		Run: func(cmd *cobra.Command, args []string) {
+			kubecmVersion := getVersion().KubecmVersion
+
+			updateMessageChan := make(chan *update.ReleaseInfo)
+			go func() {
+				rel, _ := update.CheckForUpdate("sunny0826/kubecm", kubecmVersion)
+				updateMessageChan <- rel
+			}()
 			fmt.Printf("%s: %s\n",
 				ansi.Color("Version:", "blue"),
-				ansi.Color(strings.TrimPrefix(getVersion().KubecmVersion+fmt.Sprintf("(%s)", getVersion().BuildDate), "v"), "white+h"))
-			fmt.Printf("%s: %s\n",
-				ansi.Color("GitRevision:", "blue"),
-				ansi.Color(getVersion().GitRevision, "white+h"))
+				ansi.Color(strings.TrimPrefix(getVersion().KubecmVersion, "v"), "white+h"))
 			fmt.Printf("%s: %s\n",
 				ansi.Color("GoOs:", "blue"),
 				ansi.Color(getVersion().GoOs, "white+h"))
 			fmt.Printf("%s: %s\n",
 				ansi.Color("GoArch:", "blue"),
 				ansi.Color(getVersion().GoArch, "white+h"))
+			newRelease := <-updateMessageChan
+			if newRelease != nil {
+				fmt.Printf("\n\n%s %s → %s\n",
+					ansi.Color("A new release of kubecm is available:", "yellow"),
+					ansi.Color(strings.TrimPrefix(kubecmVersion, "v"), "cyan"),
+					ansi.Color(strings.TrimPrefix(newRelease.Version, "v"), "green"))
+				if isUnderHomebrew() {
+					fmt.Printf("To upgrade, run: %s\n", "brew update && brew upgrade kubecm")
+				}
+				fmt.Printf("%s\n\n",
+					ansi.Color(newRelease.URL, "yellow"))
+			}
 		},
 	}
 }
@@ -56,9 +74,32 @@ func (vc *VersionCommand) Init() {
 func getVersion() version {
 	return version{
 		v.Version,
-		v.GitRevision,
-		v.BuildDate,
 		v.GoOs,
 		v.GoArch,
 	}
+}
+
+// Check whether the gh binary was found under the Homebrew prefix
+func isUnderHomebrew() bool {
+	brewExe, err := safeexec.LookPath("brew")
+	if err != nil {
+		return false
+	}
+
+	brewPrefixBytes, err := exec.Command(brewExe, "--prefix").Output()
+	if err != nil {
+		return false
+	}
+
+	path, err := exec.LookPath(os.Args[0])
+	if err != nil {
+		return false
+	}
+	kubecmBinary, err := filepath.Abs(path)
+	if err != nil {
+		return false
+	}
+
+	brewBinPrefix := filepath.Join(strings.TrimSpace(string(brewPrefixBytes)), "bin") + string(filepath.Separator)
+	return strings.HasPrefix(kubecmBinary, brewBinPrefix)
 }
