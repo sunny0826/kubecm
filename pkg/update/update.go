@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -23,7 +24,7 @@ func CheckForUpdate(repo, currentVersion string) (*ReleaseInfo, error) {
 		return nil, err
 	}
 
-	if releaseInfo.Version != currentVersion {
+	if strings.TrimPrefix(releaseInfo.Version, "v") != currentVersion {
 		return releaseInfo, nil
 	}
 	return nil, nil

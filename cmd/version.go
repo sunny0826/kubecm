@@ -46,13 +46,13 @@ func (vc *VersionCommand) Init() {
 				updateMessageChan <- rel
 			}()
 			fmt.Printf("%s: %s\n",
-				ansi.Color("Version:", "blue"),
+				ansi.Color("Version", "blue"),
 				ansi.Color(strings.TrimPrefix(getVersion().KubecmVersion, "v"), "white+h"))
 			fmt.Printf("%s: %s\n",
-				ansi.Color("GoOs:", "blue"),
+				ansi.Color("GoOs", "blue"),
 				ansi.Color(getVersion().GoOs, "white+h"))
 			fmt.Printf("%s: %s\n",
-				ansi.Color("GoArch:", "blue"),
+				ansi.Color("GoArch", "blue"),
 				ansi.Color(getVersion().GoArch, "white+h"))
 			newRelease := <-updateMessageChan
 			if newRelease != nil {
