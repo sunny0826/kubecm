@@ -2,7 +2,7 @@
 * [交互式操作](/zh-cn/interactive.md)
 * CLI 参考
     * [add](/zh-cn/cli/kubecm_add.md)
-      * [cloud](/zh-cn/cli/kubecm_add_cloud.md)
+    * [cloud](/zh-cn/cli/kubecm_cloud.md)
     * [create（实验性）](/zh-cn/cli/kubecm_create.md)
     * [alias](/zh-cn/cli/kubecm_alias.md)
     * [completion](/zh-cn/cli/kubecm_completion.md)

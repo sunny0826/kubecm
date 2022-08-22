@@ -2,7 +2,7 @@
 * [Interactive operation](/en-us/interactive.md)
 * CLI References
     * [add](/en-us/cli/kubecm_add.md)
-      * [cloud](/en-us/cli/kubecm_add_cloud.md)
+    * [cloud](/en-us/cli/kubecm_cloud.md)
     * [create(experiment)](/en-us/cli/kubecm_create.md)
     * [alias](/en-us/cli/kubecm_alias.md)
     * [completion](/en-us/cli/kubecm_completion.md)
