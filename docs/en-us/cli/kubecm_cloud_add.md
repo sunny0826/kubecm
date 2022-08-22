@@ -53,5 +53,5 @@ kubecm cloud add --provider alibabacloud --cluster_id=xxxxxx
 
 ### SEE ALSO
 
-* [kubecm cloud](kubecm_cloud.md)	 - manage kubeconfig from cloud
+* [kubecm cloud](kubecm_cloud.md)	 - Manage kubeconfig from cloud
 

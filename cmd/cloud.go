@@ -50,8 +50,8 @@ var Clouds = []CloudInfo{
 func (cc *CloudCommand) Init() {
 	cc.command = &cobra.Command{
 		Use:   "cloud [COMMANDS]",
-		Short: "manage kubeconfig from cloud",
-		Long:  "manage kubeconfig from cloud",
+		Short: "Manage kubeconfig from cloud",
+		Long:  "Manage kubeconfig from cloud",
 	}
 	cc.command.PersistentFlags().String("provider", "", "public cloud")
 	cc.command.PersistentFlags().String("cluster_id", "", "kubernetes cluster id")

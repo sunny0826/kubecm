@@ -1,10 +1,10 @@
 ## kubecm cloud list
 
-list Cluster from cloud
+List Cluster from cloud
 
 ### Synopsis
 
-list Cluster from cloud
+List Cluster from cloud
 
 ```
 kubecm cloud list [flags]
@@ -53,5 +53,5 @@ kubecm cloud list --provider alibabacloud --cluster_id=xxxxxx
 
 ### SEE ALSO
 
-* [kubecm cloud](kubecm_cloud.md)	 - manage kubeconfig from cloud
+* [kubecm cloud](kubecm_cloud.md)	 - Manage kubeconfig from cloud
 

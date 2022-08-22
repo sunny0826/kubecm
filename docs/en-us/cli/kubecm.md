@@ -31,7 +31,7 @@ KubeConfig Manager.
 * [kubecm add](kubecm_add.md)	 - Add KubeConfig to $HOME/.kube/config
 * [kubecm alias](kubecm_alias.md)	 - Generate alias for all contexts
 * [kubecm clear](kubecm_clear.md)	 - Clear lapsed context, cluster and user
-* [kubecm cloud](kubecm_cloud.md)	 - manage kubeconfig from cloud
+* [kubecm cloud](kubecm_cloud.md)	 - Manage kubeconfig from cloud
 * [kubecm completion](kubecm_completion.md)	 - Generate completion script
 * [kubecm create](kubecm_create.md)	 - Create new KubeConfig(experiment)
 * [kubecm delete](kubecm_delete.md)	 - Delete the specified context from the kubeconfig

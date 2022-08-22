@@ -18,8 +18,8 @@ type CloudListCommand struct {
 func (cl *CloudListCommand) Init() {
 	cl.command = &cobra.Command{
 		Use:   "list",
-		Short: "list Cluster from cloud",
-		Long:  "list Cluster from cloud",
+		Short: "List Cluster from cloud",
+		Long:  "List Cluster from cloud",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cl.runCloudList(cmd, args)
 		},

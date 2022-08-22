@@ -26,9 +26,10 @@ type KubeConfigOption struct {
 // Init AddCommand
 func (ac *AddCommand) Init() {
 	ac.command = &cobra.Command{
-		Use:   "add",
-		Short: "Add KubeConfig to $HOME/.kube/config",
-		Long:  "Add KubeConfig to $HOME/.kube/config",
+		Use:     "add",
+		Short:   "Add KubeConfig to $HOME/.kube/config",
+		Long:    "Add KubeConfig to $HOME/.kube/config",
+		Aliases: []string{"a"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return ac.runAdd(cmd, args)
 		},
