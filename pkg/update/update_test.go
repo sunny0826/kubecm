@@ -67,7 +67,7 @@ func TestCheckForUpdate(t *testing.T) {
 			name: "need update",
 			args: args{
 				repo:           "sunny0826/kubectl-pod-lens",
-				currentVersion: "v0.2.1",
+				currentVersion: "0.2.1",
 			},
 			want: &ReleaseInfo{
 				Version:     "v0.2.2",
@@ -79,7 +79,7 @@ func TestCheckForUpdate(t *testing.T) {
 			name: "do not need update",
 			args: args{
 				repo:           "sunny0826/kubectl-pod-lens",
-				currentVersion: "v0.2.2",
+				currentVersion: "0.2.2",
 			},
 			want: nil,
 		},
