@@ -5,7 +5,7 @@
     * [kubecm alias](/en-us/cli/kubecm_alias.md)
     * [kubecm completion](/en-us/cli/kubecm_completion.md)
     * [kubecm delete](/en-us/cli/kubecm_delete.md)
-    * [kubecm ls](/en-us/cli/kubecm_ls.md)
+    * [kubecm list](/en-us/cli/kubecm_list.md)
     * [kubecm merge](/en-us/cli/kubecm_merge.md)
     * [kubecm namespace](/en-us/cli/kubecm_namespace.md)
     * [kubecm rename](/en-us/cli/kubecm_rename.md)
