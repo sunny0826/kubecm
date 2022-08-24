@@ -28,6 +28,7 @@ import (
 	"strings"
 
 	"github.com/pterm/pterm"
+	"github.com/savioxavier/termlink"
 	"github.com/spf13/cobra"
 )
 
@@ -141,7 +142,7 @@ func printLogo() string {
 		Text:  "Tips",
 		Style: pterm.NewStyle(pterm.BgBlue, pterm.FgLightWhite),
 	}
-	url := pterm.Info.Sprintf("Find more information at: %s", pterm.LightMagenta("https://kubecm.cloud"))
+	url := pterm.Info.Sprintf("Find more information at: %s", termlink.ColorLink("kubecm.cloud", "https://kubecm.cloud", "italic green"))
 	return fmt.Sprintf(`
 %s%s
 %s
