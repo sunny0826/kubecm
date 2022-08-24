@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/savioxavier/termlink"
+
 	"github.com/cli/safeexec"
 	"github.com/sunny0826/kubecm/pkg/update"
 
@@ -64,7 +66,8 @@ func (vc *VersionCommand) Init() {
 					fmt.Printf("To upgrade, run: %s\n", "brew update && brew upgrade kubecm")
 				}
 				fmt.Printf("%s\n\n",
-					ansi.Color(newRelease.URL, "yellow"))
+					termlink.ColorLink("Click into the release page", newRelease.URL, "yellow"))
+				//ansi.Color(newRelease.URL, "yellow"))
 			}
 		},
 	}
