@@ -46,11 +46,28 @@ Flags:
 Use "kubecm [command] --help" for more information about a command.
 ```
 
-# Demo
+## Demo
 
 <script id="asciicast-389595" src="https://asciinema.org/a/389595.js" async></script>
 
-# Thanks
+## Install
+Using [krew](https://krew.sigs.k8s.io/):
+
+```bash
+kubectl krew install kc
+```
+
+Using brew:
+
+```bash
+brew install kubecm
+```
+
+Source binary:
+
+[Download the library](https://github.com/sunny0826/kubecm/releases)
+
+## Thanks
 
 - [JetBrains IDEs](https://www.jetbrains.com/?from=kubecm)
 

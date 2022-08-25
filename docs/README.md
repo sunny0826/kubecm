@@ -51,9 +51,26 @@ Use "kubecm [command] --help" for more information about a command.
 
 For full documentation, please visit the KubeVela website: [https://kubecm.cloud](https://kubecm.cloud)
 
-## Video
+## Demo
 
 [![](https://tva3.sinaimg.cn/large/ad5fbf65gy1gij1pl0pn5j218o0p81kx.jpg)](https://www.bilibili.com/video/av88259938/)
+
+## Install
+Using [krew](https://krew.sigs.k8s.io/):
+
+```bash
+kubectl krew install kc
+```
+
+Using brew:
+
+```bash
+brew install kubecm
+```
+
+Source binary:
+
+[Download the library](https://github.com/sunny0826/kubecm/releases)
 
 ## Contribute
 

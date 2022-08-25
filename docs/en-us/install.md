@@ -2,6 +2,14 @@ Multiple installation paths are available.
 
 <!-- tabs:start -->
 
+#### ** Krew **
+
+Using [krew](https://krew.sigs.k8s.io/):
+
+```bash
+kubectl krew install kc
+```
+
 #### ** Homebrew **
 
 ```bash
