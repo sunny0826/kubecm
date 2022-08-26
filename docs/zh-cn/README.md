@@ -57,7 +57,7 @@ Using [Krew](https://krew.sigs.k8s.io/):
 kubectl krew install kc
 ```
 
-Using brew:
+Using Homebrew:
 
 ```bash
 brew install kubecm

@@ -4,7 +4,7 @@
 
 #### ** Krew **
 
-Using [krew](https://krew.sigs.k8s.io/):
+Using [Krew](https://krew.sigs.k8s.io/):
 
 ```bash
 kubectl krew install kc

@@ -56,13 +56,13 @@ For full documentation, please visit the KubeVela website: [https://kubecm.cloud
 [![](https://tva3.sinaimg.cn/large/ad5fbf65gy1gij1pl0pn5j218o0p81kx.jpg)](https://www.bilibili.com/video/av88259938/)
 
 ## Install
-Using [krew](https://krew.sigs.k8s.io/):
+Using [Krew](https://krew.sigs.k8s.io/):
 
 ```bash
 kubectl krew install kc
 ```
 
-Using brew:
+Using Homebrew:
 
 ```bash
 brew install kubecm

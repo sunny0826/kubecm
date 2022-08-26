@@ -51,19 +51,19 @@ Use "kubecm [command] --help" for more information about a command.
 <script id="asciicast-389595" src="https://asciinema.org/a/389595.js" async></script>
 
 ## Install
-Using [krew](https://krew.sigs.k8s.io/):
+Using [Krew](https://krew.sigs.k8s.io/):
 
 ```bash
 kubectl krew install kc
 ```
 
-Using brew:
+Using Homebrew:
 
 ```bash
 brew install kubecm
 ```
 
-Source binary:
+Source Binary:
 
 [Download the library](https://github.com/sunny0826/kubecm/releases)
 
