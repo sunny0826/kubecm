@@ -55,6 +55,23 @@ For full documentation, please visit the KubeCM website: [https://kubecm.cloud](
 
 [![asciicast](https://asciinema.org/a/389595.svg)](https://asciinema.org/a/389595)
 
+## Install
+Using [Krew](https://krew.sigs.k8s.io/):
+
+```bash
+kubectl krew install kc
+```
+
+Using Homebrew:
+
+```bash
+brew install kubecm
+```
+
+Source binary:
+
+[Download the library](https://github.com/sunny0826/kubecm/releases)
+
 ## Contribute
 
 Feel free to open issues and pull requests. Any feedback is highly appreciated!

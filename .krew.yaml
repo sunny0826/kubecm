@@ -1,0 +1,54 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: kc
+spec:
+  version: {{ .TagName }}
+  homepage: https://github.com/sunny0826/kubecm
+  shortDescription: "Easier management of kubeconfig."
+  description: |
+    This plugin provide easier management of kubeconfig.
+    We can 'list', 'switch', 'add' and 'delete' kubeconfig ctx more efficiently.
+  platforms:
+  - selector:
+      matchLabels:
+        os: darwin
+        arch: amd64
+    {{ addURIAndSha "https://github.com/sunny0826/kubecm/releases/download/{{ .TagName }}/kubecm_{{ .TagName }}_Darwin_x86_64.tar.gz" .TagName }}
+    bin: kubecm
+  - selector:
+      matchLabels:
+        os: darwin
+        arch: arm64
+    {{ addURIAndSha "https://github.com/sunny0826/kubecm/releases/download/{{ .TagName }}/kubecm_{{ .TagName }}_Darwin_arm64.tar.gz" .TagName }}
+    bin: kubecm
+  - selector:
+      matchLabels:
+        os: linux
+        arch: amd64
+    {{ addURIAndSha "https://github.com/sunny0826/kubecm/releases/download/{{ .TagName }}/kubecm_{{ .TagName }}_Linux_x86_64.tar.gz" .TagName }}
+    bin: kubecm
+  - selector:
+      matchLabels:
+        os: linux
+        arch: arm64
+    {{ addURIAndSha "https://github.com/sunny0826/kubecm/releases/download/{{ .TagName }}/kubecm_{{ .TagName }}_Linux_arm64.tar.gz" .TagName }}
+    bin: kubecm
+  - selector:
+      matchLabels:
+        os: linux
+        arch: 386
+    {{ addURIAndSha "https://github.com/sunny0826/kubecm/releases/download/{{ .TagName }}/kubecm_{{ .TagName }}_Linux_i386.tar.gz" .TagName }}
+    bin: kubecm
+  - selector:
+      matchLabels:
+        os: windows
+        arch: amd64
+    {{ addURIAndSha "https://github.com/sunny0826/kubecm/releases/download/{{ .TagName }}/kubecm_{{ .TagName }}_Windows_x86_64.tar.gz" .TagName }}
+    bin: kubecm.exe
+  - selector:
+      matchLabels:
+        os: windows
+        arch: 386
+    {{ addURIAndSha "https://github.com/sunny0826/kubecm/releases/download/{{ .TagName }}/kubecm_{{ .TagName }}_Windows_i386.tar.gz" .TagName }}
+    bin: kubecm.exe

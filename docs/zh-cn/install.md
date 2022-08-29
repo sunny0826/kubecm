@@ -2,6 +2,14 @@
 
 <!-- tabs:start -->
 
+#### ** Krew **
+
+Using [Krew](https://krew.sigs.k8s.io/):
+
+```bash
+kubectl krew install kc
+```
+
 #### ** Homebrew **
 
 ```bash
