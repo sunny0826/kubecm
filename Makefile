@@ -53,7 +53,7 @@ clean:
 	rm -rf $(GORELEASER_DIST)
 
 tag:
-	git tag -a $(TAG) -m "$(TAG) relsase"
+	git tag -a $(TAG) -m "$(TAG) release"
 
 push_tag:
 	git push origin $(KUBECM_VERSION)
