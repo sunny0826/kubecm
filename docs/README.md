@@ -55,23 +55,6 @@ For full documentation, please visit the KubeVela website: [https://kubecm.cloud
 
 [![](https://tva3.sinaimg.cn/large/ad5fbf65gy1gij1pl0pn5j218o0p81kx.jpg)](https://www.bilibili.com/video/av88259938/)
 
-## Install
-Using [Krew](https://krew.sigs.k8s.io/):
-
-```bash
-kubectl krew install kc
-```
-
-Using Homebrew:
-
-```bash
-brew install kubecm
-```
-
-Source binary:
-
-[Download the library](https://github.com/sunny0826/kubecm/releases)
-
 ## Contribute
 
 Feel free to open issues and pull requests. Any feedback is highly appreciated!
