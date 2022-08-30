@@ -70,7 +70,7 @@ brew install kubecm
 
 Source binary:
 
-[Download the library](https://github.com/sunny0826/kubecm/releases)
+[Download the binary](https://github.com/sunny0826/kubecm/releases)
 
 ## Contribute
 

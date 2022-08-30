@@ -5,10 +5,10 @@ metadata:
 spec:
   version: {{ .TagName }}
   homepage: https://github.com/sunny0826/kubecm
-  shortDescription: "Easier management of kubeconfig."
+  shortDescription: "Interactive CRUD operations to manage kubeconfig"
   description: |
-    This plugin provide easier management of kubeconfig.
-    We can 'list', 'switch', 'add' and 'delete' kubeconfig ctx more efficiently.
+    List, switch, add, delete and more interactive operations to manage kubeconfig.
+    It also supports kubeconfig management from cloud.
   platforms:
   - selector:
       matchLabels:

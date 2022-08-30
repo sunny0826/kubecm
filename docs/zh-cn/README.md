@@ -65,7 +65,7 @@ brew install kubecm
 
 下载可执行文件:
 
-[Download the library](https://github.com/sunny0826/kubecm/releases)
+[Download the binary](https://github.com/sunny0826/kubecm/releases)
 
 ## 鸣谢
 
