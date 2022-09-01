@@ -12,6 +12,9 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
+
+	"k8s.io/client-go/rest"
 
 	"github.com/bndr/gotabulate"
 	ct "github.com/daviddengcn/go-colortext"
@@ -19,6 +22,7 @@ import (
 	"github.com/manifoldco/promptui"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	v "k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -79,6 +83,7 @@ func HashSuf(config *clientcmdapi.Config) string {
 	return sum
 }
 
+// HashSufString return the string of HashSuf.
 func HashSufString(data string) string {
 	sum, _ := hEncode(Hash(data))
 	return sum
@@ -209,34 +214,39 @@ func BoolUI(label string) string {
 	return obj
 }
 
-// ClusterStatus output cluster status
-func ClusterStatus() error {
-	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
-	if err != nil {
-		return err
-	}
-	clientSet, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return err
-	}
-	versionInfo, err := clientSet.ServerVersion()
-	if err != nil {
-		return err
-	}
-
-	printString(os.Stdout, "Cluster check succeeded!")
-	printString(os.Stdout, "\nKubernetes version ")
-	printYellow(os.Stdout, versionInfo.GitVersion)
-	printService(os.Stdout, "\nKubernetes master", config.Host)
-	err = MoreInfo(clientSet)
-	if err != nil {
-		fmt.Println("(Error reporting can be ignored and does not affect usage.)")
-	}
-	return nil
+// ClusterStatusCheck check cluster status
+type ClusterStatusCheck struct {
+	Version   *v.Info
+	ClientSet *kubernetes.Clientset
+	Config    *rest.Config
 }
 
+// ClusterStatus output cluster status
+func ClusterStatus(duration time.Duration) (*ClusterStatusCheck, error) {
+	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
+	if err != nil {
+		return nil, err
+	}
+	config.Timeout = time.Second * duration
+	clientSet, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	serverVersion, err := clientSet.ServerVersion()
+	if err != nil {
+		return nil, err
+	}
+
+	return &ClusterStatusCheck{
+		Version:   serverVersion,
+		ClientSet: clientSet,
+		Config:    config,
+	}, nil
+}
+
+// MoreInfo output more info
 func MoreInfo(clientSet *kubernetes.Clientset) error {
-	timeout := int64(5)
+	timeout := int64(2)
 	ctx := context.TODO()
 	nodesList, err := clientSet.CoreV1().Nodes().List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
 	if err != nil {
@@ -281,6 +291,7 @@ func WriteConfig(cover bool, file string, outConfig *clientcmdapi.Config) error 
 	return nil
 }
 
+// UpdateConfigFile update kubeconfig
 func UpdateConfigFile(file string, updateConfig *clientcmdapi.Config) error {
 	file, err := CheckAndTransformFilePath(file)
 	if err != nil {
