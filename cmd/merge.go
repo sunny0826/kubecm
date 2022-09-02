@@ -74,7 +74,7 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	return nil
+	return MacNotifier("Merge Successfully")
 }
 
 func loadKubeConfig(yaml string) (*clientcmdapi.Config, error) {

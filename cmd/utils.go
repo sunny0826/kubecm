@@ -8,8 +8,10 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	"os/user"
 	"path/filepath"
+	r "runtime"
 	"sort"
 	"strings"
 	"time"
@@ -444,4 +446,18 @@ func getFileName(path string) string {
 	n := strings.Split(path, "/")
 	result := strings.Split(n[len(n)-1], ".")
 	return result[0]
+}
+
+// MacNotifier send notify message in macOS
+func MacNotifier(msg string) error {
+	if isMacOs() {
+		cmd := exec.Command("osascript", "-e", fmt.Sprintf(`display notification "%s" with title "Kubecm"`, msg))
+		return cmd.Run()
+	}
+	return nil
+}
+
+// isMacOs check if current system is macOS
+func isMacOs() bool {
+	return r.GOOS == "darwin"
 }

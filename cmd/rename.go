@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
@@ -56,7 +57,7 @@ func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error 
 	if err != nil {
 		return err
 	}
-	return nil
+	return MacNotifier(fmt.Sprintf("Rename [%s] to [%s]\n", kubeName, rename))
 }
 
 func renameComplet(rename, kubeName string, config *clientcmdapi.Config) (*clientcmdapi.Config, error) {

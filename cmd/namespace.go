@@ -62,7 +62,7 @@ func (nc *NamespaceCommand) runNamespace(command *cobra.Command, args []string) 
 	if err != nil {
 		return err
 	}
-	return nil
+	return MacNotifier(fmt.Sprintf("Switch to the [%s] namespace\n", config.Contexts[currentContext].Namespace))
 }
 
 func changeNamespace(args []string, namespaceList []Namespaces, currentContext string, config *clientcmdapi.Config) error {
