@@ -59,7 +59,7 @@ func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error 
 		return err
 	}
 	fmt.Printf("Switched to context 「%s」\n", config.CurrentContext)
-	return nil
+	return MacNotifier(fmt.Sprintf("Switched to context [%s]\n", config.CurrentContext))
 }
 
 func handleQuickSwitch(config *clientcmdapi.Config, name string) (*clientcmdapi.Config, error) {
