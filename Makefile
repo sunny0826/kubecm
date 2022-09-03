@@ -35,7 +35,7 @@ endif
 build: pre_build
 	# build kubecm
 	$(GO) build $(GO_FLAGS) -o $(BUILD_TARGET_PKG_DIR)/kubecm .
-	# PTAH:$(BUILD_TARGET_PKG_DIR)/kubecm
+	# PATH:$(BUILD_TARGET_PKG_DIR)/kubecm
 
 pre_build:mkdir_build_target
 	# clean target
