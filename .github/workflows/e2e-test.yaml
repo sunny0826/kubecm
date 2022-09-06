@@ -16,7 +16,7 @@ on:
 
 env:
   # Common versions
-  GO_VERSION: '1.17'
+  GO_VERSION: '1.18'
 
 jobs:
   kind:
