@@ -16,7 +16,6 @@ linters:
     - typecheck
     - varcheck
     - stylecheck
-    - staticcheck
     - tagliatelle
   disable:
     - unused

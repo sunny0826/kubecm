@@ -20,5 +20,6 @@ tmp
 mergeDir
 config.yaml
 kubecm.config
+coverage.txt
 
 merge/
