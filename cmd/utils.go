@@ -450,7 +450,7 @@ func getFileName(path string) string {
 
 // MacNotifier send notify message in macOS
 func MacNotifier(msg string) error {
-	if isMacOs() {
+	if isMacOs() && macNotify {
 		cmd := exec.Command("osascript", "-e", fmt.Sprintf(`display notification "%s" with title "Kubecm"`, msg))
 		return cmd.Run()
 	}

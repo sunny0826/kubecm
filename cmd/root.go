@@ -33,8 +33,9 @@ import (
 )
 
 var (
-	cfgFile string
-	uiSize  int
+	cfgFile   string
+	uiSize    int
+	macNotify bool
 )
 
 // Cli cmd struct
@@ -63,6 +64,7 @@ func (cli *Cli) setFlags() {
 	flags := cli.rootCmd.PersistentFlags()
 	flags.StringVar(&cfgFile, "config", *kubeconfig, "path of kubeconfig")
 	flags.IntVar(&uiSize, "ui-size", 4, "number of list items to show in menu at once")
+	flags.BoolVarP(&macNotify, "mac-notify", "m", false, "enable to display Mac notification banner")
 }
 
 // Run command
