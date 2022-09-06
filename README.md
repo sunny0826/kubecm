@@ -1,4 +1,6 @@
-# KubeCM
+<p align="center">
+    <img src="docs/static/kubecm.png" title="KubeCM" alt="Kubecm" height="200" />
+</p>
 
 ![Go version](https://img.shields.io/github/go-mod/go-version/sunny0826/kubecm)
 ![Go](https://github.com/sunny0826/kubecm/workflows/Go/badge.svg?branch=master)
