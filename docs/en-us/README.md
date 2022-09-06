@@ -1,10 +1,12 @@
 # KubeCM
 
+![Go version](https://img.shields.io/github/go-mod/go-version/sunny0826/kubecm)
 ![Go](https://github.com/sunny0826/kubecm/workflows/Go/badge.svg?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sunny0826/kubecm)](https://goreportcard.com/report/github.com/sunny0826/kubecm)
 ![GitHub](https://img.shields.io/github/license/sunny0826/kubecm.svg)
 [![GitHub release](https://img.shields.io/github/release/sunny0826/kubecm)](https://github.com/sunny0826/kubecm/releases)
 [![codecov](https://codecov.io/gh/sunny0826/kubecm/branch/master/graph/badge.svg?token=KGTLBQ8HYZ)](https://codecov.io/gh/sunny0826/kubecm)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6065/badge)](https://bestpractices.coreinfrastructure.org/projects/6065)
 
 ```text
                                                  

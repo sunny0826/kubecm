@@ -1,5 +1,6 @@
 # KubeCM
 
+![Go version](https://img.shields.io/github/go-mod/go-version/sunny0826/kubecm)
 ![Go](https://github.com/sunny0826/kubecm/workflows/Go/badge.svg?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sunny0826/kubecm)](https://goreportcard.com/report/github.com/sunny0826/kubecm)
 ![GitHub](https://img.shields.io/github/license/sunny0826/kubecm.svg)
