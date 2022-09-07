@@ -1,5 +1,5 @@
-* [Install](/en-us/install.md)
 * [Introduction](/en-us/introduction.md)
+* [Install](/en-us/install.md)
 * CLI References
     * [add](/en-us/cli/kubecm_add.md)
     * [cloud](/en-us/cli/kubecm_cloud.md)

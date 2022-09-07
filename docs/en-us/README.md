@@ -10,8 +10,6 @@
 [![codecov](https://codecov.io/gh/sunny0826/kubecm/branch/master/graph/badge.svg?token=KGTLBQ8HYZ)](https://codecov.io/gh/sunny0826/kubecm)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6065/badge)](https://bestpractices.coreinfrastructure.org/projects/6065)
 
-## Introduction
-
 List, switch, add, delete and more interactive operations to manage kubeconfig. It also supports kubeconfig management from cloud.
 
 ```text
