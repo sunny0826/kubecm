@@ -1,5 +1,5 @@
+* [介绍](/zh-cn/introduction.md)
 * [安装](/zh-cn/install.md)
-* [交互式操作](/zh-cn/interactive.md)
 * CLI 参考
     * [add](/zh-cn/cli/kubecm_add.md)
     * [cloud](/zh-cn/cli/kubecm_cloud.md)

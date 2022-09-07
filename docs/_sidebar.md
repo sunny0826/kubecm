@@ -1,5 +1,5 @@
 * [Install](/en-us/install.md)
-* [Interactive operation](/en-us/interactive.md)
+* [Introduction](/en-us/introduction.md)
 * CLI References
     * [kubecm add](/en-us/cli/kubecm_add.md)
     * [kubecm alias](/en-us/cli/kubecm_alias.md)

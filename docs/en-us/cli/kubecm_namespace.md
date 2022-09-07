@@ -12,6 +12,8 @@ Switch or change namespace interactively
 kubecm namespace [flags]
 ```
 
+![ns](../../static/ns.gif)
+
 ### Examples
 
 ```
