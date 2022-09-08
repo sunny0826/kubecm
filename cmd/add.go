@@ -129,7 +129,7 @@ func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config) (*cli
 				continue
 			}
 		}
-		itemConfig := kc.handleContext(newName, ctx)
+		itemConfig := kc.handleContext(oldConfig, newName, ctx)
 		newConfig = appendConfig(newConfig, itemConfig)
 		fmt.Printf("Add Context: %s \n", newName)
 	}
@@ -144,17 +144,52 @@ func checkContextName(name string, oldConfig *clientcmdapi.Config) bool {
 	return false
 }
 
-func (kc *KubeConfigOption) handleContext(key string, ctx *clientcmdapi.Context) *clientcmdapi.Config {
+func checkClusterAndUserName(oldConfig *clientcmdapi.Config, newClusterName, newUserName string) (bool, bool) {
+	var (
+		isClusterNameExist bool
+		isUserNameExist    bool
+	)
+
+	for _, ctx := range oldConfig.Contexts {
+		if ctx.Cluster == newClusterName {
+			isClusterNameExist = true
+		}
+		if ctx.AuthInfo == newUserName {
+			isUserNameExist = true
+		}
+	}
+
+	return isClusterNameExist, isUserNameExist
+}
+
+func (kc *KubeConfigOption) handleContext(oldConfig *clientcmdapi.Config,
+	name string, ctx *clientcmdapi.Context) *clientcmdapi.Config {
+
+	var (
+		clusterNameSuffix string
+		userNameSuffix    string
+	)
+
+	isClusterNameExist, isUserNameExist := checkClusterAndUserName(oldConfig, ctx.Cluster, ctx.AuthInfo)
 	newConfig := clientcmdapi.NewConfig()
-	suffix := HashSufString(key)
-	userName := fmt.Sprintf("user-%v", suffix)
-	clusterName := fmt.Sprintf("cluster-%v", suffix)
+	suffix := HashSufString(name)
+
+	if isClusterNameExist {
+		clusterNameSuffix = "-" + suffix
+	}
+	if isUserNameExist {
+		userNameSuffix = "-" + suffix
+	}
+
+	userName := fmt.Sprintf("%v%v", ctx.AuthInfo, userNameSuffix)
+	clusterName := fmt.Sprintf("%v%v", ctx.Cluster, clusterNameSuffix)
 	newCtx := ctx.DeepCopy()
 	newConfig.AuthInfos[userName] = kc.config.AuthInfos[newCtx.AuthInfo]
 	newConfig.Clusters[clusterName] = kc.config.Clusters[newCtx.Cluster]
-	newConfig.Contexts[key] = newCtx
-	newConfig.Contexts[key].AuthInfo = userName
-	newConfig.Contexts[key].Cluster = clusterName
+	newConfig.Contexts[name] = newCtx
+	newConfig.Contexts[name].AuthInfo = userName
+	newConfig.Contexts[name].Cluster = clusterName
+
 	return newConfig
 }
 
