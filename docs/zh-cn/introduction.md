@@ -63,4 +63,4 @@ kubecm ns kube-system
 
 <script id="asciicast-389595" src="https://asciinema.org/a/389595.js" async></script>
 
-更多的信息, 请看 [CLI 参考](https://kubecm.cloud/zh-cn/cli/kubecm_add)
+更多的信息, 请看 [CLI 参考](./cli/kubecm_add.md)

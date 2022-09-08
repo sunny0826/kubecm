@@ -63,4 +63,4 @@ kubecm ns kube-system
 
 <script id="asciicast-389595" src="https://asciinema.org/a/389595.js" async></script>
 
-more commands, please see [CLI References](https://kubecm.cloud/en-us/cli/kubecm_add)
+more commands, please see [CLI References](./cli/kubecm_add.md)
