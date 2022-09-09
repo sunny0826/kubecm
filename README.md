@@ -79,6 +79,11 @@ Source binary:
 
 Feel free to open issues and pull requests. Any feedback is highly appreciated!
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=sunny0826/kubecm&type=Date)](https://star-history.com/#sunny0826/kubecm)
+
+
 ## Thanks
 
 - [JetBrains IDEs](https://www.jetbrains.com/?from=kubecm)
