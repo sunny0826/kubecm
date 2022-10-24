@@ -17,7 +17,7 @@ require (
 	github.com/rancher/norman v0.0.0-20200820172041-261460ee9088
 	github.com/rancher/rancher/pkg/client v0.0.0-20211110212758-cc2b8beb1473
 	github.com/savioxavier/termlink v1.2.1
-	github.com/spf13/cobra v1.5.0
+	github.com/spf13/cobra v1.6.0
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.518
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.518
 	k8s.io/api v0.25.3
@@ -65,7 +65,7 @@ require (
 	github.com/gookit/color v1.5.2 // indirect
 	github.com/gordonklaus/ineffassign v0.0.0-20180909121442-1003c8bd00dc // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/juju/ansiterm v0.0.0-20180109212912-720a0952cc2a // indirect
