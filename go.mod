@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/alibabacloud-go/cs-20151215/v2 v2.4.5
 	github.com/alibabacloud-go/darabonba-openapi v0.2.1
-	github.com/alibabacloud-go/tea v1.1.19
+	github.com/alibabacloud-go/tea v1.1.20
 	github.com/alibabacloud-go/tea-utils v1.4.3 // indirect
 	github.com/bndr/gotabulate v1.1.3-0.20170315142410-bc555436bfd5
 	github.com/cli/safeexec v1.0.0
