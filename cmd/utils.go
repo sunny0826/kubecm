@@ -177,8 +177,8 @@ func SelectUI(kubeItems []Needle, label string) int {
 // PromptUI output prompt ui
 func PromptUI(label string, name string) string {
 	validate := func(input string) error {
-		if len(input) < 3 {
-			return errors.New("context name must have more than 3 characters")
+		if len(input) < 1 {
+			return errors.New("context name must have more than 1 characters")
 		}
 		return nil
 	}
