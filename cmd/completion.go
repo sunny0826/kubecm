@@ -18,7 +18,7 @@ func (cc *CompletionCommand) Init() {
 		Short:     "Generate completion script",
 		Long:      longDetail(),
 		ValidArgs: []string{"bash", "zsh", "fish", "powershell"},
-		Args:      cobra.ExactValidArgs(1),
+		Args:      cobra.MatchAll(cobra.MinimumNArgs(1), cobra.OnlyValidArgs),
 		Aliases:   []string{"c"},
 		Run: func(cmd *cobra.Command, args []string) {
 			switch args[0] {
