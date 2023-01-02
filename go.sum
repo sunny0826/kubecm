@@ -1,3 +1,4 @@
+atomicgo.dev/assert v0.0.2 h1:FiKeMiZSgRrZsPo9qn/7vmr7mCsh5SZyXY4YGYiYwrg=
 atomicgo.dev/cursor v0.1.1 h1:0t9sxQomCTRh5ug+hAMCs59x/UmC9QL6Ci5uosINKD4=
 atomicgo.dev/cursor v0.1.1/go.mod h1:Lr4ZJB3U7DfPPOkbH7/6TOtJ4vFGHlgj1nc+n900IpU=
 atomicgo.dev/keyboard v0.2.8 h1:Di09BitwZgdTV1hPyX/b9Cqxi8HVuJQwWivnZUEqlj4=
@@ -54,7 +55,7 @@ github.com/MarvinJWendt/testza v0.2.10/go.mod h1:pd+VWsoGUiFtq+hRKSU1Bktnn+DMCSr
 github.com/MarvinJWendt/testza v0.2.12/go.mod h1:JOIegYyV7rX+7VZ9r77L/eH6CfJHHzXjB69adAhzZkI=
 github.com/MarvinJWendt/testza v0.3.0/go.mod h1:eFcL4I0idjtIx8P9C6KkAuLgATNKpX4/2oUqKc6bF2c=
 github.com/MarvinJWendt/testza v0.4.2/go.mod h1:mSdhXiKH8sg/gQehJ63bINcCKp7RtYewEjXsvsVUPbE=
-github.com/MarvinJWendt/testza v0.4.3 h1:u2XaM4IqGp9dsdUmML8/Z791fu4yjQYzOiufOtJwTII=
+github.com/MarvinJWendt/testza v0.5.1 h1:a9Fqx6vQrHQ4CyiaLhktfTTelwGotmFWy8MNhyaohw8=
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/PuerkitoBio/goquery v1.5.0/go.mod h1:qD2PgZ9lccMbQlc7eEOjaeRlFQON7xY8kdmcsrnKqMg=
@@ -409,7 +410,7 @@ github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+o
 github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
 github.com/klauspost/cpuid/v2 v2.0.10/go.mod h1:g2LTdtYhdyuGPqyWyv7qRAmj1WBqxuObKfj5c0PQa7c=
 github.com/klauspost/cpuid/v2 v2.0.12/go.mod h1:g2LTdtYhdyuGPqyWyv7qRAmj1WBqxuObKfj5c0PQa7c=
-github.com/klauspost/cpuid/v2 v2.1.0 h1:eyi1Ad2aNJMW95zcSbmGg7Cg6cq3ADwLpMAP96d8rF0=
+github.com/klauspost/cpuid/v2 v2.2.0 h1:4ZexSFt8agMNzNisrsilL6RClWDC5YJnLHNIfTy4iuc=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
 github.com/konsorten/go-windows-terminal-sequences v1.0.3 h1:CE8S1cTafDpPvMhIxNJKvHsGVBgn1xWYf1NbHQhywc8=
 github.com/konsorten/go-windows-terminal-sequences v1.0.3/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
@@ -447,8 +448,9 @@ github.com/mattn/go-isatty v0.0.12/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Ky
 github.com/mattn/go-isatty v0.0.14 h1:yVuAays6BHfxijgZPzw+3Zlu5yQgKGP2/hcQbHb7S9Y=
 github.com/mattn/go-isatty v0.0.14/go.mod h1:7GGIvUiUoEMVVmxf/4nioHXj79iQHKdU27kJ6hsGG94=
 github.com/mattn/go-runewidth v0.0.2/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
-github.com/mattn/go-runewidth v0.0.13 h1:lTGmDsbAYt5DmK6OnoV7EuIF1wEIFAcxld6ypU4OSgU=
 github.com/mattn/go-runewidth v0.0.13/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
+github.com/mattn/go-runewidth v0.0.14 h1:+xnbZSEeDbOIg5/mE6JF0w6n9duR1l3/WmbinWVwUuU=
+github.com/mattn/go-runewidth v0.0.14/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d h1:5PJl274Y63IEHC+7izoQE9x6ikvDFZS2mDVS3drnohI=
 github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d/go.mod h1:01TrycV0kFyexm33Z7vhZRXopbI8J3TDReVlkTgMUxE=
@@ -528,8 +530,8 @@ github.com/pterm/pterm v0.12.31/go.mod h1:32ZAWZVXD7ZfG0s8qqHXePte42kdz8ECtRyEej
 github.com/pterm/pterm v0.12.33/go.mod h1:x+h2uL+n7CP/rel9+bImHD5lF3nM9vJj80k9ybiiTTE=
 github.com/pterm/pterm v0.12.36/go.mod h1:NjiL09hFhT/vWjQHSj1athJpx6H8cjpHXNAK5bUw8T8=
 github.com/pterm/pterm v0.12.40/go.mod h1:ffwPLwlbXxP+rxT0GsgDTzS3y3rmpAO1NMjUkGTYf8s=
-github.com/pterm/pterm v0.12.49 h1:qeNm0wTWawy6WhKoY8ZKq6qTXFr0s2UtUyRW0yVztEg=
-github.com/pterm/pterm v0.12.49/go.mod h1:D4OBoWNqAfXkm5QLTjIgjNiMXPHemLJHnIreGUsWzWg=
+github.com/pterm/pterm v0.12.51 h1:iwhNG1FhQMgks+5kVyr/ClRk3WJCuL907nJN7RqmEpw=
+github.com/pterm/pterm v0.12.51/go.mod h1:79BLm4vos2z+eOoHnDG7ZWuYtLaSStyaspKjGmSoxc4=
 github.com/qri-io/starlib v0.4.2-0.20200213133954-ff2e8cd5ef8d/go.mod h1:7DPO4domFU579Ga6E61sB9VFNaniPVwJP5C4bBCu3wA=
 github.com/rancher/lasso v0.0.0-20200515155337-a34e1e26ad91/go.mod h1:G6Vv2aj6xB2YjTVagmu4NkhBvbE8nBcGykHRENH6arI=
 github.com/rancher/lasso v0.0.0-20200820172840-0e4cc0ef5cb0/go.mod h1:OhBBBO1pBwYp0hacWdnvSGOj+XE9yMLOLnaypIlic18=
