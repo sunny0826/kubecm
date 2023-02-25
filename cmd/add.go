@@ -113,7 +113,7 @@ func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config) (*cli
 	newConfig := clientcmdapi.NewConfig()
 	for name, ctx := range kc.config.Contexts {
 		var newName string
-		if len(kc.config.Contexts) > 1 {
+		if len(kc.config.Contexts) >= 1 {
 			newName = fmt.Sprintf("%s-%s", kc.fileName, HashSufString(name))
 		} else {
 			newName = kc.fileName
