@@ -86,7 +86,7 @@ func AddToLocal(newConfig *clientcmdapi.Config, path string, cover bool) error {
 		config:   newConfig,
 		fileName: getFileName(path),
 	}
-	/// merge context loop
+	// merge context loop
 	outConfig, err := kco.handleContexts(oldConfig)
 	if err != nil {
 		return err
