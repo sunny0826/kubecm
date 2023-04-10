@@ -1,12 +1,19 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"os/user"
 	"reflect"
+	"strings"
 	"testing"
+
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/fake"
 
 	apiequality "k8s.io/apimachinery/pkg/api/equality"
 
@@ -269,5 +276,30 @@ func Test_getFileName(t *testing.T) {
 				t.Errorf("getFileName() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestMoreInfo(t *testing.T) {
+	// Create a fake client with mock objects
+	var clientSet kubernetes.Interface = fake.NewSimpleClientset(
+		&corev1.Node{},
+		&corev1.Pod{ObjectMeta: metav1.ObjectMeta{Name: "test-pod", Namespace: "default"}},
+		&corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "test-namespace"}},
+	)
+
+	// Create a buffer to capture output from printKV
+	buf := bytes.Buffer{}
+
+	// Test the MoreInfo function with the fake client
+	err := MoreInfo(clientSet, &buf)
+	if err != nil {
+		t.Errorf("MoreInfo returned an error: %v", err)
+	}
+
+	// Check if the output contains expected values
+	expectedOutput := "[Summary] Namespace: 1 Node: 1 Pod: 1 "
+	str := strings.Replace(buf.String(), "\n", "", -1)
+	if str != expectedOutput {
+		t.Errorf("Expected output: %s, got: %s", expectedOutput, buf.String())
 	}
 }
