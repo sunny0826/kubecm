@@ -72,12 +72,12 @@ func Test_changeNamespace(t *testing.T) {
 	}
 }
 
-type testSelectNamesapcePrompt struct {
+type testSelectNamespacePrompt struct {
 	index int
 	err   error
 }
 
-func (t *testSelectNamesapcePrompt) Run() (int, string, error) {
+func (t *testSelectNamespacePrompt) Run() (int, string, error) {
 	return t.index, "", t.err
 }
 
@@ -97,7 +97,7 @@ func TestSelectNamespace(t *testing.T) {
 	}{
 		{
 			name: "Select First Namespace",
-			selectPrompt: &testSelectNamesapcePrompt{
+			selectPrompt: &testSelectNamespacePrompt{
 				index: 0,
 				err:   nil,
 			},
@@ -106,7 +106,7 @@ func TestSelectNamespace(t *testing.T) {
 		},
 		{
 			name: "Error Occurred",
-			selectPrompt: &testSelectNamesapcePrompt{
+			selectPrompt: &testSelectNamespacePrompt{
 				index: 0,
 				err:   errors.New("prompt error"),
 			},
@@ -115,7 +115,7 @@ func TestSelectNamespace(t *testing.T) {
 		},
 		{
 			name: "Select Exit",
-			selectPrompt: &testSelectNamesapcePrompt{
+			selectPrompt: &testSelectNamespacePrompt{
 				index: 3,
 				err:   nil,
 			},

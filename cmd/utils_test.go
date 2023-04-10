@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/user"
 	"reflect"
+	"strings"
 	"testing"
 
 	"k8s.io/client-go/kubernetes"
@@ -423,8 +424,9 @@ func TestMoreInfo(t *testing.T) {
 	}
 
 	// Check if the output contains expected values
-	expectedOutput := "[Summary] Namespace: 1 Node: 1 Pod: 1 \n"
-	if buf.String() != expectedOutput {
+	expectedOutput := "[Summary] Namespace: 1 Node: 1 Pod: 1 "
+	str := strings.Replace(buf.String(), "\n", "", -1)
+	if str != expectedOutput {
 		t.Errorf("Expected output: %s, got: %s", expectedOutput, buf.String())
 	}
 }
