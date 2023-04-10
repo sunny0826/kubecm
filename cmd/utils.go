@@ -50,6 +50,11 @@ type SelectRunner interface {
 	Run() (int, string, error)
 }
 
+// PromptRunner interface - For better unit testing
+type PromptRunner interface {
+	Run() (string, error)
+}
+
 // Copied from https://github.com/kubernetes/kubernetes
 // /blob/master/pkg/kubectl/util/hash/hash.go
 func hEncode(hex string) (string, error) {
@@ -206,12 +211,21 @@ func PromptUI(label string, name string) string {
 		Validate: validate,
 		Default:  name,
 	}
-	result, err := prompt.Run()
-
+	result, err := promptUIWithRunner(&prompt)
 	if err != nil {
-		log.Fatalf("Prompt failed %v\n", err)
+		log.Fatal(err)
 	}
 	return result
+}
+
+// promptUIWithRunner
+func promptUIWithRunner(runner PromptRunner) (string, error) {
+	result, err := runner.Run()
+
+	if err != nil {
+		return "", errors.New("Prompt failed")
+	}
+	return result, nil
 }
 
 // BoolUI output bool ui

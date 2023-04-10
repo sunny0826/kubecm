@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -356,6 +357,58 @@ func TestSelectUI(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, test.expectedIndex, index)
+			}
+		})
+	}
+}
+
+type testStringPrompt struct {
+	result string
+	err    error
+}
+
+func (t *testStringPrompt) Run() (string, error) {
+	return t.result, t.err
+}
+
+func TestPromptUI(t *testing.T) {
+	tests := []struct {
+		name      string
+		prompt    *testStringPrompt
+		label     string
+		expected  string
+		expectErr bool
+	}{
+		{
+			name: "Valid input",
+			prompt: &testStringPrompt{
+				result: "TestName",
+				err:    nil,
+			},
+			label:     "Enter name",
+			expected:  "TestName",
+			expectErr: false,
+		},
+		{
+			name: "Error occurred",
+			prompt: &testStringPrompt{
+				result: "",
+				err:    errors.New("Prompt failed"),
+			},
+			label:     "Enter name",
+			expected:  "",
+			expectErr: true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			str, err := promptUIWithRunner(test.prompt)
+			if test.expectErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, test.expected, str)
 			}
 		})
 	}
