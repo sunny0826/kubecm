@@ -238,7 +238,7 @@ func TestCheckValidContext(t *testing.T) {
 		want *clientcmdapi.Config
 	}{
 		// TODO: Add test cases.
-		{"check-root", args{clear: false, config: &wrongRootConfig1}, &appendConfigAlfa},
+		{"check-root", args{clear: false, config: &wrongRootConfig}, &appendConfigAlfa},
 		{"check-federal", args{clear: false, config: &wrongFederalConfig}, &appendRootConfigConflictAlfa},
 		{"clear-federal", args{clear: true, config: clearWrongConfig}, clearWrongWant},
 	}
