@@ -23,9 +23,9 @@ func Test_getLatestReleaseInfo(t *testing.T) {
 				repo: "sunny0826/kubectl-pod-lens",
 			},
 			want: &ReleaseInfo{
-				Version:     "v0.2.2",
-				URL:         "https://github.com/sunny0826/kubectl-pod-lens/releases/tag/v0.2.2",
-				PublishedAt: time.Date(2021, 8, 29, 10, 19, 42, 0, time.UTC),
+				Version:     "v0.3.1",
+				URL:         "https://github.com/sunny0826/kubectl-pod-lens/releases/tag/v0.3.1",
+				PublishedAt: time.Date(2023, 2, 10, 7, 51, 06, 0, time.UTC),
 			},
 		},
 		{
@@ -70,16 +70,16 @@ func TestCheckForUpdate(t *testing.T) {
 				currentVersion: "0.2.1",
 			},
 			want: &ReleaseInfo{
-				Version:     "v0.2.2",
-				URL:         "https://github.com/sunny0826/kubectl-pod-lens/releases/tag/v0.2.2",
-				PublishedAt: time.Date(2021, 8, 29, 10, 19, 42, 0, time.UTC),
+				Version:     "v0.3.1",
+				URL:         "https://github.com/sunny0826/kubectl-pod-lens/releases/tag/v0.3.1",
+				PublishedAt: time.Date(2023, 2, 10, 7, 51, 06, 0, time.UTC),
 			},
 		},
 		{
 			name: "do not need update",
 			args: args{
 				repo:           "sunny0826/kubectl-pod-lens",
-				currentVersion: "0.2.2",
+				currentVersion: "0.3.1",
 			},
 			want: nil,
 		},
