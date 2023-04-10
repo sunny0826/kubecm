@@ -45,6 +45,16 @@ type Namespaces struct {
 	Default bool
 }
 
+// SelectRunner interface - For better unit testing
+type SelectRunner interface {
+	Run() (int, string, error)
+}
+
+// PromptRunner interface - For better unit testing
+type PromptRunner interface {
+	Run() (string, error)
+}
+
 // Copied from https://github.com/kubernetes/kubernetes
 // /blob/master/pkg/kubectl/util/hash/hash.go
 func hEncode(hex string) (string, error) {
@@ -136,6 +146,15 @@ func PrintTable(config *clientcmdapi.Config) error {
 
 // SelectUI output select ui
 func SelectUI(kubeItems []Needle, label string) int {
+	s, err := selectUIRunner(kubeItems, label, nil)
+	if err != nil {
+		log.Fatalf("Prompt failed %v\n", err)
+	}
+	return s
+}
+
+// selectUIRunner
+func selectUIRunner(kubeItems []Needle, label string, runner SelectRunner) (int, error) {
 	templates := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
 		Active:   "\U0001F63C {{ .Name | red }}{{ .Center | red}}",
@@ -163,15 +182,18 @@ func SelectUI(kubeItems []Needle, label string) int {
 		Size:      uiSize,
 		Searcher:  searcher,
 	}
-	i, _, err := prompt.Run()
+	if runner == nil {
+		runner = &prompt
+	}
+	i, _, err := runner.Run()
 	if err != nil {
-		log.Fatalf("Prompt failed %v\n", err)
+		return 0, err
 	}
 	if kubeItems[i].Name == "<Exit>" {
 		fmt.Println("Exited.")
 		os.Exit(1)
 	}
-	return i
+	return i, err
 }
 
 // PromptUI output prompt ui
@@ -187,7 +209,13 @@ func PromptUI(label string, name string) string {
 		Validate: validate,
 		Default:  name,
 	}
-	result, err := prompt.Run()
+
+	return promptUIWithRunner(&prompt)
+}
+
+// promptUIWithRunner
+func promptUIWithRunner(runner PromptRunner) string {
+	result, err := runner.Run()
 
 	if err != nil {
 		log.Fatalf("Prompt failed %v\n", err)
@@ -247,7 +275,7 @@ func ClusterStatus(duration time.Duration) (*ClusterStatusCheck, error) {
 }
 
 // MoreInfo output more info
-func MoreInfo(clientSet *kubernetes.Clientset) error {
+func MoreInfo(clientSet kubernetes.Interface, writer io.Writer) error {
 	timeout := int64(2)
 	ctx := context.TODO()
 	nodesList, err := clientSet.CoreV1().Nodes().List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
@@ -267,7 +295,7 @@ func MoreInfo(clientSet *kubernetes.Clientset) error {
 	kv["Namespace"] = len(nsList.Items)
 	kv["Node"] = len(nodesList.Items)
 	kv["Pod"] = len(podsList.Items)
-	printKV(os.Stdout, "[Summary] ", kv)
+	printKV(writer, "[Summary] ", kv)
 	return nil
 }
 

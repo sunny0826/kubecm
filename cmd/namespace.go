@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/manifoldco/promptui"
+
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -77,6 +78,14 @@ func changeNamespace(args []string, namespaceList []Namespaces, currentContext s
 }
 
 func selectNamespace(namespaces []Namespaces) int {
+	ns, err := selectNamespaceWithRunner(namespaces, nil)
+	if err != nil {
+		log.Fatalf("Prompt failed %v\n", err)
+	}
+	return ns
+}
+
+func selectNamespaceWithRunner(namespaces []Namespaces, runner SelectRunner) (int, error) {
 	templates := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
 		Active:   "\U0001F6A9 {{if .Default}} {{ .Name | red }} * {{else}} {{ .Name | red }} {{end}}",
@@ -99,15 +108,18 @@ func selectNamespace(namespaces []Namespaces) int {
 		Size:      uiSize,
 		Searcher:  searcher,
 	}
-	i, _, err := prompt.Run()
+	if runner == nil {
+		runner = &prompt
+	}
+	i, _, err := runner.Run()
 	if err != nil {
-		log.Fatalf("Prompt failed %v\n", err)
+		return 0, err
 	}
 	if namespaces[i].Name == "<Exit>" {
 		fmt.Println("Exited.")
 		os.Exit(1)
 	}
-	return i
+	return i, err
 }
 
 func namespaceExample() string {

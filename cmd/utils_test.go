@@ -1,12 +1,23 @@
 package cmd
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/user"
 	"reflect"
 	"testing"
+
+	"k8s.io/client-go/kubernetes"
+
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes/fake"
+
+	"github.com/stretchr/testify/assert"
 
 	apiequality "k8s.io/apimachinery/pkg/api/equality"
 
@@ -269,5 +280,151 @@ func Test_getFileName(t *testing.T) {
 				t.Errorf("getFileName() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+type testSelectPrompt struct {
+	index int
+	err   error
+}
+
+func (t *testSelectPrompt) Run() (int, string, error) {
+	return t.index, "", t.err
+}
+
+func TestSelectUI(t *testing.T) {
+	kubeItems := []Needle{
+		{Name: "Needle1", Cluster: "Cluster1", User: "User1", Center: "Center1"},
+		{Name: "Needle2", Cluster: "Cluster2", User: "User2", Center: "Center2"},
+		{Name: "<Exit>", Cluster: "", User: "", Center: ""},
+	}
+
+	tests := []struct {
+		name          string
+		selectPrompt  SelectRunner
+		expectedIndex int
+		expectError   bool
+	}{
+		{
+			name: "Select Needle1",
+			selectPrompt: &testSelectPrompt{
+				index: 0,
+				err:   nil,
+			},
+			expectedIndex: 0,
+			expectError:   false,
+		},
+		{
+			name: "Select <Exit>",
+			selectPrompt: &testSelectPrompt{
+				index: 2,
+				err:   nil,
+			},
+			expectedIndex: 2,
+			expectError:   true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			index, err := selectUIRunner(kubeItems, "Select a needle", test.selectPrompt)
+			if test.expectError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, test.expectedIndex, index)
+			}
+		})
+	}
+}
+
+type testPrompt struct {
+	result string
+	err    error
+}
+
+func (t *testPrompt) Run() (string, error) {
+	return t.result, t.err
+}
+
+func TestPromptUI(t *testing.T) {
+	tests := []struct {
+		name        string
+		prompt      *testPrompt
+		label       string
+		defaultName string
+		expected    string
+		expectErr   bool
+	}{
+		{
+			name: "Valid input",
+			prompt: &testPrompt{
+				result: "TestName",
+				err:    nil,
+			},
+			label:       "Enter name",
+			defaultName: "DefaultName",
+			expected:    "TestName",
+			expectErr:   false,
+		},
+		{
+			name: "Error occurred",
+			prompt: &testPrompt{
+				result: "",
+				err:    errors.New("Prompt failed"),
+			},
+			label:       "Enter name",
+			defaultName: "DefaultName",
+			expected:    "",
+			expectErr:   true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// Capture log output
+			logOutput := captureLogOutput(func() {
+				_ = promptUIWithRunner(test.prompt)
+			})
+
+			if test.expectErr {
+				assert.Contains(t, logOutput, "Prompt failed")
+			} else {
+				assert.Equal(t, test.expected, test.prompt.result)
+			}
+		})
+	}
+}
+
+// captureLogOutput captures log output to a string
+func captureLogOutput(f func()) string {
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	f()
+	log.SetOutput(os.Stderr)
+	return buf.String()
+}
+
+func TestMoreInfo(t *testing.T) {
+	// Create a fake client with mock objects
+	var clientSet kubernetes.Interface = fake.NewSimpleClientset(
+		&corev1.Node{},
+		&corev1.Pod{ObjectMeta: metav1.ObjectMeta{Name: "test-pod", Namespace: "default"}},
+		&corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "test-namespace"}},
+	)
+
+	// Create a buffer to capture output from printKV
+	buf := bytes.Buffer{}
+
+	// Test the MoreInfo function with the fake client
+	err := MoreInfo(clientSet, &buf)
+	if err != nil {
+		t.Errorf("MoreInfo returned an error: %v", err)
+	}
+
+	// Check if the output contains expected values
+	expectedOutput := "[Summary] Namespace: 1 Node: 1 Pod: 1 \n"
+	if buf.String() != expectedOutput {
+		t.Errorf("Expected output: %s, got: %s", expectedOutput, buf.String())
 	}
 }
