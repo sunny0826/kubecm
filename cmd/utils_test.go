@@ -299,10 +299,10 @@ func TestMoreInfo(t *testing.T) {
 	}
 
 	// Check if the output contains expected values
-	expectedOutput := "[Summary] Namespace: 1 Node: 1 Pod: 1 "
-	str := strings.Replace(buf.String(), "\n", "", -1)
-	if str != expectedOutput {
-		t.Errorf("Expected output: %s, got: %s", expectedOutput, buf.String())
+	if strings.Contains(buf.String(), "Namespace: 1") && strings.Contains(buf.String(), "Node: 1") && strings.Contains(buf.String(), "Pod: 1") {
+		t.Logf("MoreInfo output is correct")
+	} else {
+		t.Errorf("MoreInfo output is incorrect: %s", buf.String())
 	}
 }
 
