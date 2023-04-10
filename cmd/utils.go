@@ -141,6 +141,18 @@ func PrintTable(config *clientcmdapi.Config) error {
 
 // SelectUI output select ui
 func SelectUI(kubeItems []Needle, label string) int {
+	s, err := selectUIRunner(kubeItems, label, nil)
+	if err != nil {
+		if err.Error() == "exit" {
+			os.Exit(0)
+		}
+		log.Fatalf("Prompt failed %v\n", err)
+	}
+	return s
+}
+
+// selectUIRunner
+func selectUIRunner(kubeItems []Needle, label string, runner SelectRunner) (int, error) {
 	templates := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
 		Active:   "\U0001F63C {{ .Name | red }}{{ .Center | red}}",
@@ -168,15 +180,17 @@ func SelectUI(kubeItems []Needle, label string) int {
 		Size:      uiSize,
 		Searcher:  searcher,
 	}
-	i, _, err := prompt.Run()
+	if runner == nil {
+		runner = &prompt
+	}
+	i, _, err := runner.Run()
 	if err != nil {
-		log.Fatalf("Prompt failed %v\n", err)
+		return 0, err
 	}
 	if kubeItems[i].Name == "<Exit>" {
-		fmt.Println("Exited.")
-		os.Exit(1)
+		return 0, errors.New("exit")
 	}
-	return i
+	return i, err
 }
 
 // PromptUI output prompt ui

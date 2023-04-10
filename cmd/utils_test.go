@@ -10,6 +10,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -301,5 +303,60 @@ func TestMoreInfo(t *testing.T) {
 	str := strings.Replace(buf.String(), "\n", "", -1)
 	if str != expectedOutput {
 		t.Errorf("Expected output: %s, got: %s", expectedOutput, buf.String())
+	}
+}
+
+type testSelectPrompt struct {
+	index int
+	err   error
+}
+
+func (t *testSelectPrompt) Run() (int, string, error) {
+	return t.index, "", t.err
+}
+
+func TestSelectUI(t *testing.T) {
+	kubeItems := []Needle{
+		{Name: "Needle1", Cluster: "Cluster1", User: "User1", Center: "Center1"},
+		{Name: "Needle2", Cluster: "Cluster2", User: "User2", Center: "Center2"},
+		{Name: "<Exit>", Cluster: "", User: "", Center: ""},
+	}
+
+	tests := []struct {
+		name          string
+		selectPrompt  SelectRunner
+		expectedIndex int
+		expectError   bool
+	}{
+		{
+			name: "Select Needle1",
+			selectPrompt: &testSelectPrompt{
+				index: 0,
+				err:   nil,
+			},
+			expectedIndex: 0,
+			expectError:   false,
+		},
+		{
+			name: "Select <Exit>",
+			selectPrompt: &testSelectPrompt{
+				index: 2,
+				err:   nil,
+			},
+			expectedIndex: 0,
+			expectError:   true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			index, err := selectUIRunner(kubeItems, "Select a needle", test.selectPrompt)
+			if test.expectError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, test.expectedIndex, index)
+			}
+		})
 	}
 }
