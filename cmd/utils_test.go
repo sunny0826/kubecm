@@ -393,7 +393,7 @@ func TestPromptUI(t *testing.T) {
 			name: "Error occurred",
 			prompt: &testStringPrompt{
 				result: "",
-				err:    errors.New("Prompt failed"),
+				err:    errors.New("prompt failed"),
 			},
 			label:     "Enter name",
 			expected:  "",

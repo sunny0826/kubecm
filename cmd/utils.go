@@ -223,7 +223,7 @@ func promptUIWithRunner(runner PromptRunner) (string, error) {
 	result, err := runner.Run()
 
 	if err != nil {
-		return "", errors.New("Prompt failed")
+		return "", errors.New("prompt failed")
 	}
 	return result, nil
 }
