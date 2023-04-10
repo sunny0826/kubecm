@@ -252,7 +252,7 @@ func ClusterStatus(duration time.Duration) (*ClusterStatusCheck, error) {
 }
 
 // MoreInfo output more info
-func MoreInfo(clientSet *kubernetes.Clientset) error {
+func MoreInfo(clientSet kubernetes.Interface, writer io.Writer) error {
 	timeout := int64(2)
 	ctx := context.TODO()
 	nodesList, err := clientSet.CoreV1().Nodes().List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
@@ -272,7 +272,7 @@ func MoreInfo(clientSet *kubernetes.Clientset) error {
 	kv["Namespace"] = len(nsList.Items)
 	kv["Node"] = len(nodesList.Items)
 	kv["Pod"] = len(podsList.Items)
-	printKV(os.Stdout, "[Summary] ", kv)
+	printKV(writer, "[Summary] ", kv)
 	return nil
 }
 
