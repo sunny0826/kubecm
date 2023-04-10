@@ -45,6 +45,11 @@ type Namespaces struct {
 	Default bool
 }
 
+// SelectRunner interface - For better unit testing
+type SelectRunner interface {
+	Run() (int, string, error)
+}
+
 // Copied from https://github.com/kubernetes/kubernetes
 // /blob/master/pkg/kubectl/util/hash/hash.go
 func hEncode(hex string) (string, error) {

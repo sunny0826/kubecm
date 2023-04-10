@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -64,6 +67,71 @@ func Test_changeNamespace(t *testing.T) {
 				t.Errorf("changeNamespace() error = %v, wantErr %v", err, tt.wantErr)
 			} else {
 				fmt.Printf("Catch ERROR: %v\n", err)
+			}
+		})
+	}
+}
+
+type testSelectNamespacePrompt struct {
+	index int
+	err   error
+}
+
+func (t *testSelectNamespacePrompt) Run() (int, string, error) {
+	return t.index, "", t.err
+}
+
+func TestSelectNamespace(t *testing.T) {
+	namespaces := []Namespaces{
+		{Name: "Namespace1", Default: false},
+		{Name: "Namespace2", Default: false},
+		{Name: "Namespace3", Default: true},
+		{Name: "<Exit>", Default: false},
+	}
+
+	tests := []struct {
+		name         string
+		selectPrompt SelectRunner
+		expected     int
+		expectErr    bool
+	}{
+		{
+			name: "Select First Namespace",
+			selectPrompt: &testSelectNamespacePrompt{
+				index: 0,
+				err:   nil,
+			},
+			expected:  0,
+			expectErr: false,
+		},
+		{
+			name: "Error Occurred",
+			selectPrompt: &testSelectNamespacePrompt{
+				index: 0,
+				err:   errors.New("prompt error"),
+			},
+			expected:  0,
+			expectErr: true,
+		},
+		{
+			name: "Select Exit",
+			selectPrompt: &testSelectNamespacePrompt{
+				index: 3,
+				err:   nil,
+			},
+			expected:  0,
+			expectErr: true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			selectedNamespace, err := selectNamespaceWithRunner(namespaces, test.selectPrompt)
+			if test.expectErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, test.expected, selectedNamespace)
 			}
 		})
 	}
