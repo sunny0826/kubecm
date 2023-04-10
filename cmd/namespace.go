@@ -80,6 +80,9 @@ func changeNamespace(args []string, namespaceList []Namespaces, currentContext s
 func selectNamespace(namespaces []Namespaces) int {
 	ns, err := selectNamespaceWithRunner(namespaces, nil)
 	if err != nil {
+		if err.Error() == "exit" {
+			os.Exit(0)
+		}
 		log.Fatalf("Prompt failed %v\n", err)
 	}
 	return ns
@@ -116,8 +119,7 @@ func selectNamespaceWithRunner(namespaces []Namespaces, runner SelectRunner) (in
 		return 0, err
 	}
 	if namespaces[i].Name == "<Exit>" {
-		fmt.Println("Exited.")
-		os.Exit(1)
+		return 0, errors.New("exit")
 	}
 	return i, err
 }

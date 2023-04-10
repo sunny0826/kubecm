@@ -148,6 +148,9 @@ func PrintTable(config *clientcmdapi.Config) error {
 func SelectUI(kubeItems []Needle, label string) int {
 	s, err := selectUIRunner(kubeItems, label, nil)
 	if err != nil {
+		if err.Error() == "exit" {
+			os.Exit(0)
+		}
 		log.Fatalf("Prompt failed %v\n", err)
 	}
 	return s
@@ -190,8 +193,7 @@ func selectUIRunner(kubeItems []Needle, label string, runner SelectRunner) (int,
 		return 0, err
 	}
 	if kubeItems[i].Name == "<Exit>" {
-		fmt.Println("Exited.")
-		os.Exit(1)
+		return 0, errors.New("exit")
 	}
 	return i, err
 }

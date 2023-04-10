@@ -119,8 +119,8 @@ func TestSelectNamespace(t *testing.T) {
 				index: 3,
 				err:   nil,
 			},
-			expected:  3,
-			expectErr: false,
+			expected:  0,
+			expectErr: true,
 		},
 	}
 

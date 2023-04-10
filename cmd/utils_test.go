@@ -321,7 +321,7 @@ func TestSelectUI(t *testing.T) {
 				index: 2,
 				err:   nil,
 			},
-			expectedIndex: 2,
+			expectedIndex: 0,
 			expectError:   true,
 		},
 	}
