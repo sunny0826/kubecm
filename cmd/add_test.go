@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"os"
 	"testing"
+
+	"k8s.io/client-go/tools/clientcmd"
 
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -23,6 +26,7 @@ var (
 			"federal-context":   {AuthInfo: "red-user", Cluster: "cow-cluster", Namespace: "hammer-ns"},
 			"not-exist-context": {AuthInfo: "not-exist", Cluster: "not-exist", Namespace: "not-exist-ns"},
 		},
+		CurrentContext: "root-context",
 	}
 	oldTestConfig = clientcmdapi.Config{
 		AuthInfos: map[string]*clientcmdapi.AuthInfo{
@@ -219,5 +223,60 @@ func TestKubeConfig_handleContexts(t *testing.T) {
 			//	t.Errorf("handleContexts() got = %v, want %v", got, tt.want)
 			//}
 		})
+	}
+}
+
+func TestAddToLocal(t *testing.T) {
+	localFile, err := os.CreateTemp("", "local-kubeconfig-*.yaml")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	cfgFile = "test"
+	// Create a new temporary file
+	tempFile, err := os.CreateTemp("", "temp-kubeconfig-*.yaml")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tempFile.Name())
+	defer os.Remove(localFile.Name())
+
+	// Write an initial empty config to the temp file
+	emptyConfig := clientcmdapi.NewConfig()
+	err = clientcmd.WriteToFile(*emptyConfig, tempFile.Name())
+	if err != nil {
+		t.Fatalf("Failed to write empty config to temp file: %v", err)
+	}
+	tempFile.Close()
+
+	err = clientcmd.WriteToFile(addTestConfig, localFile.Name())
+	if err != nil {
+		t.Fatalf("Failed to write empty config to temp file: %v", err)
+	}
+	localFile.Close()
+
+	cfgFile = localFile.Name()
+
+	// Mock configuration
+	newConfig := &clientcmdapi.Config{
+		Clusters:       map[string]*clientcmdapi.Cluster{"test-cluster": {Server: "https://test-cluster"}},
+		AuthInfos:      map[string]*clientcmdapi.AuthInfo{"test-authinfo": {Token: "black-token"}},
+		Contexts:       map[string]*clientcmdapi.Context{"test-context": {AuthInfo: "test-authinfo", Cluster: "test-cluster", Namespace: "hammer-ns"}},
+		CurrentContext: "test-context",
+	}
+
+	// Test AddToLocal function
+	err = AddToLocal(newConfig, tempFile.Name(), "", true)
+	if err != nil {
+		t.Fatalf("Failed to add to local: %v", err)
+	}
+
+	// Read the file and check if the new configuration is added
+	loadedConfig, err := clientcmd.LoadFromFile(localFile.Name())
+	if err != nil {
+		t.Fatalf("Failed to load config from file: %v", err)
+	}
+
+	if _, ok := loadedConfig.Contexts["test-context"]; !ok {
+		t.Fatalf("Failed to find 'test-context' in the loaded config")
 	}
 }
