@@ -252,7 +252,6 @@ func TestAddToLocal(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to write empty config to temp file: %v", err)
 	}
-	localFile.Chmod(0600)
 	localFile.Close()
 
 	cfgFile = localFile.Name()
