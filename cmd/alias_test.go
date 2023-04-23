@@ -1,14 +1,16 @@
 package cmd
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 )
 
 func Test_updateFile(t *testing.T) {
-	testFile, _ := ioutil.TempFile("", "")
-	defer os.Remove(testFile.Name())
+	temp, err := os.CreateTemp("", "")
+	if err != nil {
+		return
+	}
+	defer os.Remove(temp.Name())
 	type args struct {
 		cxt  string
 		path string
@@ -23,7 +25,7 @@ func Test_updateFile(t *testing.T) {
 			name: "test",
 			args: args{
 				cxt:  "test",
-				path: testFile.Name(),
+				path: temp.Name(),
 			},
 		},
 	}
@@ -44,7 +46,7 @@ func Test_updateFile(t *testing.T) {
 }
 
 func Test_writeAppend(t *testing.T) {
-	bashFile, _ := ioutil.TempFile("", ".bash")
+	bashFile, _ := os.CreateTemp("", ".bash")
 	defer os.Remove(bashFile.Name())
 	type args struct {
 		context string

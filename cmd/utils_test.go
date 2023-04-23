@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"reflect"
@@ -257,10 +256,10 @@ func checkConfig(want, got *clientcmdapi.Config, t *testing.T) {
 }
 
 func Test_getFileName(t *testing.T) {
-	tempDir, _ := ioutil.TempDir("", "kubecm-get-file-")
-	defer os.RemoveAll(tempDir)
-	tempFilePath := fmt.Sprintf("%s/%s", tempDir, "testPath")
-	_ = ioutil.WriteFile(tempFilePath, []byte{}, 0666)
+	temp, _ := os.CreateTemp("", "kubecm-get-file-")
+	defer os.RemoveAll(temp.Name())
+	tempFilePath := fmt.Sprintf("%s/%s", temp.Name(), "testPath")
+	_ = os.WriteFile(tempFilePath, []byte{}, 0666)
 
 	type args struct {
 		path string

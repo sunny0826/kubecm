@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -29,23 +28,23 @@ var (
 )
 
 func Test_listFile(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", t.Name())
+	temp, err := os.CreateTemp("", t.Name())
 	if err != nil {
 		t.Fatalf("TempDir %s: %v", t.Name(), err)
 	}
-	defer os.RemoveAll(tempDir)
-	filename1 := filepath.Join(tempDir, "config1")
-	filename2 := filepath.Join(tempDir, "config2")
-	dsStore := filepath.Join(tempDir, ".DS_Store")
-	err = ioutil.WriteFile(filename1, []byte("shmorp"), 0444)
+	defer os.RemoveAll(temp.Name())
+	filename1 := filepath.Join(temp.Name(), "config1")
+	filename2 := filepath.Join(temp.Name(), "config2")
+	dsStore := filepath.Join(temp.Name(), ".DS_Store")
+	err = os.WriteFile(filename1, []byte("shmorp"), 0444)
 	if err != nil {
 		t.Fatalf("WriteFile %s: %v", filename1, err)
 	}
-	err = ioutil.WriteFile(filename2, []byte("florp"), 0444)
+	err = os.WriteFile(filename2, []byte("florp"), 0444)
 	if err != nil {
 		t.Fatalf("WriteFile %s: %v", filename2, err)
 	}
-	err = ioutil.WriteFile(dsStore, []byte("xxxx"), 0444)
+	err = os.WriteFile(dsStore, []byte("xxxx"), 0444)
 	if err != nil {
 		t.Fatalf("WriteFile %s: %v", filename2, err)
 	}
@@ -59,7 +58,7 @@ func Test_listFile(t *testing.T) {
 		want []string
 	}{
 		// TODO: Add test cases.
-		{"testDir", args{folder: tempDir}, []string{filename1, filename2}},
+		{"testDir", args{folder: temp.Name()}, []string{filename1, filename2}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -71,19 +70,22 @@ func Test_listFile(t *testing.T) {
 }
 
 func Test_loadKubeConfig(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", t.Name())
+	temp, err := os.CreateTemp("", t.Name())
+	if err != nil {
+		return
+	}
 	if err != nil {
 		t.Fatalf("TempDir %s: %v", t.Name(), err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer os.RemoveAll(temp.Name())
 
-	merge1 := filepath.Join(tempDir, "merge1")
+	merge1 := filepath.Join(temp.Name(), "merge1")
 	err = clientcmd.WriteToFile(mergeTestConfig, merge1)
 	if err != nil {
 		t.Fatalf("WriteFile %s: %v", merge1, err)
 	}
-	mergeFail := filepath.Join(tempDir, "config2")
-	err = ioutil.WriteFile(mergeFail, []byte("florp"), 0444)
+	mergeFail := filepath.Join(temp.Name(), "config2")
+	err = os.WriteFile(mergeFail, []byte("florp"), 0444)
 	if err != nil {
 		t.Fatalf("WriteFile %s: %v", mergeFail, err)
 	}

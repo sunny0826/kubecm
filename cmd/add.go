@@ -3,7 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"strconv"
 
@@ -49,7 +49,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 
 	if file == "-" {
 		// from stdin
-		contents, err := ioutil.ReadAll(os.Stdin)
+		contents, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			return err
 		}

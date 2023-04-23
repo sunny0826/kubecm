@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 
@@ -89,7 +88,7 @@ func loadKubeConfig(yaml string) (*clientcmdapi.Config, error) {
 }
 
 func listFile(folder string) []string {
-	files, _ := ioutil.ReadDir(folder)
+	files, _ := os.ReadDir(folder)
 	var fileList []string
 	for _, file := range files {
 		if file.Name() == ".DS_Store" {

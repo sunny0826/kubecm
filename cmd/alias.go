@@ -3,7 +3,6 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,6 +33,7 @@ func (al *AliasCommand) Init() {
 	_ = al.command.MarkFlagRequired("out")
 }
 
+// SourceCmd source command
 const SourceCmd = "[[ ! -f ~/.kubecm ]] || source ~/.kubecm"
 
 func (al *AliasCommand) runAlias(command *cobra.Command, args []string) error {
@@ -79,7 +79,7 @@ alias %s='kubectl --context %s'`
 }
 
 func updateFile(cxt, path string) error {
-	err := ioutil.WriteFile(path, []byte(cxt), 0644)
+	err := os.WriteFile(path, []byte(cxt), 0644)
 	if err != nil {
 		return err
 	}

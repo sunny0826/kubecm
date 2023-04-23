@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -9,8 +8,8 @@ import (
 )
 
 func Test_clearContext(t *testing.T) {
-	trueFile, _ := ioutil.TempFile("", "")
-	falseFile, _ := ioutil.TempFile("", "")
+	trueFile, _ := os.CreateTemp("", "")
+	falseFile, _ := os.CreateTemp("", "")
 	defer os.Remove(trueFile.Name())
 	defer os.Remove(falseFile.Name())
 	_ = clientcmd.WriteToFile(appendMergeConfig, trueFile.Name())
