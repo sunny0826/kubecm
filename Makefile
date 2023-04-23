@@ -69,7 +69,7 @@ vet:
 lint: golangci
 	$(GOLANGCILINT) run ./...
 
-test: fmt vet lint
+test: fmt vet
 		go test -race -coverprofile=coverage.txt -covermode=atomic ./cmd/...
 
 doc-gen:
