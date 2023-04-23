@@ -21,5 +21,6 @@ mergeDir
 config.yaml
 kubecm.config
 coverage.txt
+example.yaml
 
 merge/

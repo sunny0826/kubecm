@@ -48,6 +48,7 @@ kubecm cloud list --provider alibabacloud --cluster_id=xxxxxx
       --config string       path of kubeconfig (default "/Users/guoxudong/.kube/config")
       --provider string     public cloud
       --region_id string    cloud region id
+  -m, --mac-notify      enable to display Mac notification banner
       --ui-size int         number of list items to show in menu at once (default 4)
 ```
 

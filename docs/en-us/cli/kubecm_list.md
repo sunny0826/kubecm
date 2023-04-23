@@ -34,6 +34,7 @@ kubecm ls kind k3s
 
 ```
       --config string   path of kubeconfig (default "/Users/guoxudong/.kube/config")
+  -m, --mac-notify      enable to display Mac notification banner
       --ui-size int     number of list items to show in menu at once (default 4)
 ```
 

@@ -59,7 +59,7 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 			config:   loadConfig,
 			fileName: getFileName(yaml),
 		}
-		outConfigs, err = kco.handleContexts(outConfigs)
+		outConfigs, err = kco.handleContexts(outConfigs, "")
 		if err != nil {
 			return err
 		}
