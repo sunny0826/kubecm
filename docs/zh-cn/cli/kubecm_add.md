@@ -10,6 +10,10 @@
 kubecm add [flags]
 ```
 
+>注意：如果 `-c` 被设置，且添加的 kubeconfig 文件中有**超过一个** context，会出现如下情况：
+>- 如果设置了 `--context-name`，则 context 会以 `<context-name-0>`, `<context-name-1>` 的形式产生
+>- 如果没有设置 `--context-name`，则会以 `<file-name-{hash}>` 的方式展示，其中 `{hash}` 是文件名的 MD5 哈希值
+
 ### 示例
 
 ```

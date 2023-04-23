@@ -206,6 +206,10 @@ func (kc *KubeConfigOption) handleContext(oldConfig *clientcmdapi.Config,
 
 func addExample() string {
 	return `
+Note: If -c is set and more than one context is added to the kubeconfig file, the following will occur:
+- If --context-name is set, the context will be generated as <context-name-0>, <context-name-1> ...
+- If --context-name is not set, it will be generated as <file-name-{hash}> where {hash} is the MD5 hash of the file name.
+
 # Merge test.yaml with $HOME/.kube/config
 kubecm add -f test.yaml 
 # Merge test.yaml with $HOME/.kube/config and rename context name
