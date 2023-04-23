@@ -81,7 +81,7 @@ endif
 doc-run:
 	docsify serve docs
 
-GOLANGCILINT_VERSION ?= v1.46.2
+GOLANGCILINT_VERSION ?= v1.52.2
 HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 HOSTARCH := $(shell uname -m)
 ifeq ($(HOSTARCH),x86_64)
