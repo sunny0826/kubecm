@@ -28,14 +28,14 @@ var (
 )
 
 func Test_listFile(t *testing.T) {
-	temp, err := os.CreateTemp("", t.Name())
+	temp, err := os.MkdirTemp("", t.Name())
 	if err != nil {
 		t.Fatalf("TempDir %s: %v", t.Name(), err)
 	}
-	defer os.RemoveAll(temp.Name())
-	filename1 := filepath.Join(temp.Name(), "config1")
-	filename2 := filepath.Join(temp.Name(), "config2")
-	dsStore := filepath.Join(temp.Name(), ".DS_Store")
+	defer os.RemoveAll(temp)
+	filename1 := filepath.Join(temp, "config1")
+	filename2 := filepath.Join(temp, "config2")
+	dsStore := filepath.Join(temp, ".DS_Store")
 	err = os.WriteFile(filename1, []byte("shmorp"), 0444)
 	if err != nil {
 		t.Fatalf("WriteFile %s: %v", filename1, err)
@@ -58,7 +58,7 @@ func Test_listFile(t *testing.T) {
 		want []string
 	}{
 		// TODO: Add test cases.
-		{"testDir", args{folder: temp.Name()}, []string{filename1, filename2}},
+		{"testDir", args{folder: temp}, []string{filename1, filename2}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -70,21 +70,21 @@ func Test_listFile(t *testing.T) {
 }
 
 func Test_loadKubeConfig(t *testing.T) {
-	temp, err := os.CreateTemp("", t.Name())
+	temp, err := os.MkdirTemp("", t.Name())
 	if err != nil {
 		return
 	}
 	if err != nil {
 		t.Fatalf("TempDir %s: %v", t.Name(), err)
 	}
-	defer os.RemoveAll(temp.Name())
+	defer os.RemoveAll(temp)
 
-	merge1 := filepath.Join(temp.Name(), "merge1")
+	merge1 := filepath.Join(temp, "merge1")
 	err = clientcmd.WriteToFile(mergeTestConfig, merge1)
 	if err != nil {
 		t.Fatalf("WriteFile %s: %v", merge1, err)
 	}
-	mergeFail := filepath.Join(temp.Name(), "config2")
+	mergeFail := filepath.Join(temp, "config2")
 	err = os.WriteFile(mergeFail, []byte("florp"), 0444)
 	if err != nil {
 		t.Fatalf("WriteFile %s: %v", mergeFail, err)
