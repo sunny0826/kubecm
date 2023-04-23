@@ -13,16 +13,19 @@ on:
       - '**.go'
       - '**.yaml'
       - '**.mod'
-
+permissions:
+  contents: read
+  # Optional: allow read access to pull request. Use with `only-new-issues` option.
+  # pull-requests: read
 jobs:
   test:
     name: test
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go 1.18
+      - name: Set up Go 1.19
         uses: actions/setup-go@v4
         with:
-          go-version: 1.18
+          go-version: 1.19
         id: go
 
       - name: Check out code into the Go module directory
@@ -30,6 +33,11 @@ jobs:
 
       - name: Run test
         run: make test
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.52.2
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v3.1.2

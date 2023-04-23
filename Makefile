@@ -69,7 +69,7 @@ vet:
 lint: golangci
 	$(GOLANGCILINT) run ./...
 
-test: fmt vet lint
+test: fmt vet
 		go test -race -coverprofile=coverage.txt -covermode=atomic ./cmd/...
 
 doc-gen:
@@ -81,7 +81,7 @@ endif
 doc-run:
 	docsify serve docs
 
-GOLANGCILINT_VERSION ?= v1.46.2
+GOLANGCILINT_VERSION ?= v1.52.2
 HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 HOSTARCH := $(shell uname -m)
 ifeq ($(HOSTARCH),x86_64)

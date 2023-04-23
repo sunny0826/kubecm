@@ -43,7 +43,7 @@ type Cli struct {
 	rootCmd *cobra.Command
 }
 
-//NewCli returns the cli instance used to register and execute command
+// NewCli returns the cli instance used to register and execute command
 func NewCli() *Cli {
 	cli := &Cli{
 		rootCmd: &cobra.Command{
