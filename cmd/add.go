@@ -36,6 +36,7 @@ func (ac *AddCommand) Init() {
 		Example: addExample(),
 	}
 	ac.command.Flags().StringP("file", "f", "", "Path to merge kubeconfig files")
+	ac.command.Flags().String("context-name", "", "override context name when add kubeconfig context")
 	ac.command.PersistentFlags().BoolP("cover", "c", false, "Overwrite local kubeconfig files")
 	_ = ac.command.MarkFlagRequired("file")
 }
@@ -43,6 +44,7 @@ func (ac *AddCommand) Init() {
 func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 	file, _ := ac.command.Flags().GetString("file")
 	cover, _ := ac.command.Flags().GetBool("cover")
+	contextName, _ := ac.command.Flags().GetString("context-name")
 
 	var newConfig *clientcmdapi.Config
 	var err error
@@ -69,7 +71,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	err = AddToLocal(newConfig, file, cover)
+	err = AddToLocal(newConfig, file, contextName, cover)
 	if err != nil {
 		return err
 	}
@@ -77,7 +79,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 }
 
 // AddToLocal add kubeConfig to local
-func AddToLocal(newConfig *clientcmdapi.Config, path string, cover bool) error {
+func AddToLocal(newConfig *clientcmdapi.Config, path, newName string, cover bool) error {
 	oldConfig, err := clientcmd.LoadFromFile(cfgFile)
 	if err != nil {
 		return err
@@ -87,7 +89,7 @@ func AddToLocal(newConfig *clientcmdapi.Config, path string, cover bool) error {
 		fileName: getFileName(path),
 	}
 	// merge context loop
-	outConfig, err := kco.handleContexts(oldConfig)
+	outConfig, err := kco.handleContexts(oldConfig, newName)
 	if err != nil {
 		return err
 	}
@@ -109,15 +111,23 @@ func AddToLocal(newConfig *clientcmdapi.Config, path string, cover bool) error {
 	return nil
 }
 
-func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config) (*clientcmdapi.Config, error) {
+func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config, contextName string) (*clientcmdapi.Config, error) {
 	newConfig := clientcmdapi.NewConfig()
+	var index int
+	var newName string
 	for name, ctx := range kc.config.Contexts {
-		var newName string
 		if len(kc.config.Contexts) > 1 {
-			newName = fmt.Sprintf("%s-%s", kc.fileName, HashSufString(name))
-		} else {
+			if contextName == "" {
+				newName = fmt.Sprintf("%s-%s", kc.fileName, HashSufString(name))
+			} else {
+				newName = fmt.Sprintf("%s-%d", contextName, index)
+			}
+		} else if contextName == "" {
 			newName = name
+		} else {
+			newName = contextName
 		}
+
 		if checkContextName(newName, oldConfig) {
 			nameConfirm := BoolUI(fmt.Sprintf("「%s」 Name already exists, do you want to rename it. (If you select `False`, this context will not be merged)", newName))
 			if nameConfirm == "True" {
@@ -132,6 +142,7 @@ func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config) (*cli
 		itemConfig := kc.handleContext(oldConfig, newName, ctx)
 		newConfig = appendConfig(newConfig, itemConfig)
 		fmt.Printf("Add Context: %s \n", newName)
+		index++
 	}
 	outConfig := appendConfig(oldConfig, newConfig)
 	return outConfig, nil
@@ -197,6 +208,8 @@ func addExample() string {
 	return `
 # Merge test.yaml with $HOME/.kube/config
 kubecm add -f test.yaml 
+# Merge test.yaml with $HOME/.kube/config and rename context name
+kubecm add -cf test.yaml --context-name test
 # Add kubeconfig from stdin
 cat /etc/kubernetes/admin.conf |  kubecm add -f -
 `

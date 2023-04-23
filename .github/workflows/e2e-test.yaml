@@ -67,8 +67,8 @@ jobs:
           echo "********************************************************************************"
           echo "Running kubecm add..."
           echo "********************************************************************************"
-          bin/kubecm add -f 2nd-kind -c
-          bin/kubecm add -f 3rd-kind -c
+          bin/kubecm add -cf 2nd-kind
+          bin/kubecm add -cf 3rd-kind --context-name 3rd
           echo "********************************************************************************"
           echo "Running kubecm merge multiple kubeconfig..."
           echo "********************************************************************************"
