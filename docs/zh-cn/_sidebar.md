@@ -14,4 +14,5 @@
     * [switch](/zh-cn/cli/kubecm_switch.md)
     * [clear](/en-us/cli/kubecm_clear.md)
     * [version](/zh-cn/cli/kubecm_version.md)
+    * [export](/zh-cn/cli/kubecm_export.md)
 * [贡献](/zh-cn/contribute.md)
