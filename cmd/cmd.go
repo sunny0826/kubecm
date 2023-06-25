@@ -20,6 +20,7 @@ func NewBaseCommand() *BaseCommand {
 		&ClearCommand{},      // clear command
 		&CreateCommand{},     // create command
 		&CloudCommand{},      // cloud command
+		&ExportCommand{},     // export command
 	)
 
 	return baseCmd

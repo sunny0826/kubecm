@@ -11,3 +11,4 @@
     * [kubecm rename](/en-us/cli/kubecm_rename.md)
     * [kubecm switch](/en-us/cli/kubecm_switch.md)
     * [kubecm version](/en-us/cli/kubecm_version.md)
+    * [kubecm export](/en-us/cli/kubecm_export.md)
