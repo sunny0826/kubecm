@@ -183,26 +183,66 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 				return err
 			}
 		}
+	case 3:
+		fmt.Println("⛅  Selected: AWS")
+		accessKeyID, accessKeySecret := checkEnvForSecret(3)
+		aws := cloud.AWS{
+			AccessKeyID:     accessKeyID,
+			AccessKeySecret: accessKeySecret,
+		}
+		if regionID == "" {
+			regionList, err := cloud.GetRegionID()
+			if err != nil {
+				return err
+			}
+			regionNum := selectRegion(regionList, "Select Region ID")
+			aws.RegionID = regionList[regionNum]
+		} else {
+			aws.RegionID = regionID
+		}
+		if clusterID == "" {
+			clusters, err := aws.ListCluster()
+			if err != nil {
+				return err
+			}
+			if len(clusters) == 0 {
+				return errors.New("no clusters found")
+			}
+			clusterNum := selectCluster(clusters, "Select Cluster")
+			clusterID = clusters[clusterNum].ID
+		}
+		newConfig, err := aws.GetKubeConfigObj(clusterID)
+		if err != nil {
+			return err
+		}
+		return AddToLocal(newConfig, fmt.Sprintf("aws-%s", clusterID), "", cover)
 	}
 	return nil
 }
 
 func cloudAddExample() string {
 	return `
-# Supports Ali Cloud and Tencent Cloud
+# Supports AWS, Ali Cloud, Tencent Cloud and Rancher
 # The AK/AS of the cloud platform will be retrieved directly 
 # if it exists in the environment variable, 
 # otherwise a prompt box will appear asking for it.
 
 # Set env AliCloud secret key
-export ACCESS_KEY_ID=xxx
-export ACCESS_KEY_SECRET=xxx
+export ACCESS_KEY_ID=YOUR_AKID
+export ACCESS_KEY_SECRET=YOUR_SECRET_KEY
+
 # Set env Tencent secret key
-export TENCENTCLOUD_SECRET_ID=xxx
-export TENCENTCLOUD_SECRET_KEY=xxx
+export TENCENTCLOUD_SECRET_ID=YOUR_SECRET_ID
+export TENCENTCLOUD_SECRET_KEY=YOUR_SECRET_KEY
+
 # Set env Rancher secret key
 export RANCHER_SERVER_URL=https://xxx
-export RANCHER_API_KEY=xxx
+export RANCHER_API_KEY=YOUR_API_KEY
+
+# Set env AWS secret key
+export AWS_ACCESS_KEY_ID=YOUR_AKID
+export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
+
 # Interaction: select kubeconfig from the cloud
 kubecm cloud add
 # Add kubeconfig from cloud
