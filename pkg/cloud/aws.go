@@ -1,6 +1,7 @@
 package cloud
 
 import (
+	"encoding/base64"
 	"fmt"
 
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -18,8 +19,7 @@ import (
 type AWS struct {
 	AccessKeyID     string
 	AccessKeySecret string
-	//SessionToken    string
-	RegionID string
+	RegionID        string
 }
 
 // getSession get session of aws cloud
@@ -28,11 +28,6 @@ func (a *AWS) getSession() (*session.Session, error) {
 		Region:      aws.String(a.RegionID),
 		Credentials: credentials.NewStaticCredentials(a.AccessKeyID, a.AccessKeySecret, ""),
 	})
-	//get, err := sess.Config.Credentials.Get()
-	//if err != nil {
-	//	return nil, err
-	//}
-	//fmt.Println(get)
 	return sess, err
 }
 
@@ -104,6 +99,7 @@ func (a *AWS) GetKubeConfigObj(clusterID string) (*clientcmdapi.Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	svc := eks.New(sess)
 	input := &eks.DescribeClusterInput{
 		Name: &clusterID,
@@ -113,53 +109,44 @@ func (a *AWS) GetKubeConfigObj(clusterID string) (*clientcmdapi.Config, error) {
 		return nil, err
 	}
 
-	kubeconfig := clientcmdapi.NewConfig()
-	clusterConfig := &clientcmdapi.Cluster{
-		Server:                   *cluster.Cluster.Endpoint,
-		CertificateAuthorityData: []byte(*cluster.Cluster.CertificateAuthority.Data),
+	decodePem, err := base64.StdEncoding.DecodeString(*cluster.Cluster.CertificateAuthority.Data)
+	if err != nil {
+		return nil, err
 	}
-	kubeconfig.Clusters[*cluster.Cluster.Name] = clusterConfig
-	authConfig := &clientcmdapi.AuthInfo{
-		Exec: &clientcmdapi.ExecConfig{
-			APIVersion: "client.authentication.k8s.io/v1alpha1",
-			Command:    "aws",
-			Args: []string{
-				"eks",
-				"get-token",
-				"--cluster-name",
-				*cluster.Cluster.Name,
-				"--region",
-				a.RegionID,
-				"--output",
-				"json",
+
+	kubeconfig := &clientcmdapi.Config{
+		Clusters: map[string]*clientcmdapi.Cluster{
+			*cluster.Cluster.Name: {
+				Server:                   *cluster.Cluster.Endpoint,
+				CertificateAuthorityData: decodePem,
 			},
 		},
+		AuthInfos: map[string]*clientcmdapi.AuthInfo{
+			*cluster.Cluster.Name: {
+				Exec: &clientcmdapi.ExecConfig{
+					APIVersion: "client.authentication.k8s.io/v1beta1",
+					Command:    "aws",
+					Args: []string{
+						"eks",
+						"get-token",
+						"--cluster-name",
+						*cluster.Cluster.Name,
+						"--region",
+						a.RegionID,
+						"--output",
+						"json",
+					},
+				},
+			},
+		},
+		Contexts: map[string]*clientcmdapi.Context{
+			*cluster.Cluster.Name: {
+				Cluster:  *cluster.Cluster.Name,
+				AuthInfo: *cluster.Cluster.Name,
+			},
+		},
+		CurrentContext: *cluster.Cluster.Name,
 	}
-	kubeconfig.AuthInfos[*cluster.Cluster.Name] = authConfig
-	contextConfig := &clientcmdapi.Context{
-		Cluster:  *cluster.Cluster.Name,
-		AuthInfo: *cluster.Cluster.Name,
-	}
-	kubeconfig.Contexts[*cluster.Cluster.Name] = contextConfig
-	kubeconfig.CurrentContext = *cluster.Cluster.Name
 
 	return kubeconfig, nil
 }
-
-// UpdateEKSKubeconfig add kubeconfig to local
-//func (a *AWS) UpdateEKSKubeconfig(clusterName string) error {
-//	sess, err := a.getSession()
-//	if err != nil {
-//		return err
-//	}
-//	svc := eks.New(sess)
-//	input := &eks.UpdateClusterConfigInput{
-//		Name: &clusterName,
-//	}
-//	up, err := svc.UpdateClusterConfig(input)
-//	if err != nil {
-//		return err
-//	}
-//	fmt.Println(up)
-//	return nil
-//}
