@@ -44,6 +44,12 @@ var Clouds = []CloudInfo{
 		HomePage: "https://rancher.com",
 		Service:  "Rancher",
 	},
+	{
+		Name:     "AWS",
+		Alias:    []string{"aws", "eks"},
+		HomePage: "https://console.aws.amazon.com/eks/home",
+		Service:  "EKS",
+	},
 }
 
 // Init CloudCommand
@@ -66,8 +72,8 @@ func getClusters(provider, regionID string, num int) ([]cloud.ClusterInfo, error
 	switch num {
 	case -1:
 		var allAlias []string
-		for _, cloud := range Clouds {
-			allAlias = append(allAlias, cloud.Alias...)
+		for _, cloudInfo := range Clouds {
+			allAlias = append(allAlias, cloudInfo.Alias...)
 		}
 		return nil, fmt.Errorf("'%s' is not supported, supported cloud alias are %v", provider, allAlias)
 	case 0:
@@ -111,6 +117,27 @@ func getClusters(provider, regionID string, num int) ([]cloud.ClusterInfo, error
 		if err != nil {
 			return nil, err
 		}
+	case 3:
+		fmt.Println("⛅  Selected: AWS")
+		accessKeyID, accessKeySecret := checkEnvForSecret(3)
+		aws := cloud.AWS{
+			AccessKeyID:     accessKeyID,
+			AccessKeySecret: accessKeySecret,
+		}
+		if regionID == "" {
+			regionList, err := cloud.GetRegionID()
+			if err != nil {
+				return nil, err
+			}
+			regionNum := selectRegion(regionList, "Select Region ID")
+			aws.RegionID = regionList[regionNum]
+		} else {
+			aws.RegionID = regionID
+		}
+		clusters, err = aws.ListCluster()
+		if err != nil {
+			return nil, err
+		}
 	}
 	return clusters, err
 }
@@ -141,6 +168,14 @@ func checkEnvForSecret(num int) (string, string) {
 			apiKey = PromptUI("Rancher API key", "")
 		}
 		return serverURL, apiKey
+	case 3:
+		accessKeyID, id := os.LookupEnv("AWS_ACCESS_KEY_ID")
+		accessKeySecret, key := os.LookupEnv("AWS_SECRET_ACCESS_KEY")
+		if !id || !key {
+			accessKeyID = PromptUI("AWS Access Key ID", "")
+			accessKeySecret = PromptUI("AWS Access Key Secret", "")
+		}
+		return accessKeyID, accessKeySecret
 	}
 	return "", ""
 }

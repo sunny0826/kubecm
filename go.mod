@@ -26,7 +26,10 @@ require (
 	k8s.io/utils v0.0.0-20230209194617-a36077c30491 // indirect
 )
 
-require github.com/stretchr/testify v1.8.4
+require (
+	github.com/aws/aws-sdk-go v1.44.292
+	github.com/stretchr/testify v1.8.4
+)
 
 require (
 	atomicgo.dev/cursor v0.1.1 // indirect
@@ -61,6 +64,7 @@ require (
 	github.com/gordonklaus/ineffassign v0.0.0-20180909121442-1003c8bd00dc // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/juju/ansiterm v0.0.0-20180109212912-720a0952cc2a // indirect
