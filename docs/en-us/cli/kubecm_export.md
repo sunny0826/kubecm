@@ -13,17 +13,19 @@ kubecm export [flags]
 ### Examples
 
 ```
+
 # Export context to myconfig.yaml file
 kubecm export -f myconfig.yaml my-context1
 # Export multiple contexts to myconfig.yaml file
 kubecm export -f myconfig.yaml my-context1 my-context2
+
 ```
 
 ### Options
 
 ```
-  -f, --file string   Path to export kubeconfig files 
-  -h, --help   help for export
+  -f, --file string   Path to export kubeconfig files
+  -h, --help          help for export
 ```
 
 ### Options inherited from parent commands
