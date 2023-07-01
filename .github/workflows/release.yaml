@@ -36,6 +36,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Bump formulae
         uses: dawidd6/action-homebrew-bump-formula@v3
+        continue-on-error: true
         with:
           token: ${{ secrets.HOMEBREW_TOKEN }}
           formula: kubecm
