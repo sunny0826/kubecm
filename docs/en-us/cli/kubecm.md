@@ -15,7 +15,7 @@ KubeConfig Manager.
 [92m██  ██  ██    ██ ██   ██ ██      ██      ██  ██  ██ [0m
 [92m██   ██  ██████  ██████  ███████  ██████ ██      ██[0m
 [92m[0m
-[44;97m[44;97m Tips [0m[0m [96m[96mFind more information at: [95mhttps://kubecm.cloud[0m[96m[0m[0m
+[44;97m[44;97m Tips [0m[0m [96m[96mFind more information at: [3;32mkubecm.cloud (https://kubecm.cloud)[m[0m[0m
 
 
 ### Options
@@ -36,6 +36,7 @@ KubeConfig Manager.
 * [kubecm completion](kubecm_completion.md)	 - Generate completion script
 * [kubecm create](kubecm_create.md)	 - Create new KubeConfig(experiment)
 * [kubecm delete](kubecm_delete.md)	 - Delete the specified context from the kubeconfig
+* [kubecm export](kubecm_export.md)	 - Export the specified context from the kubeconfig
 * [kubecm list](kubecm_list.md)	 - List KubeConfig
 * [kubecm merge](kubecm_merge.md)	 - Merge multiple kubeconfig files into one
 * [kubecm namespace](kubecm_namespace.md)	 - Switch or change namespace interactively
