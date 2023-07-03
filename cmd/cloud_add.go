@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/mgutz/ansi"
+
 	"github.com/spf13/cobra"
 	"github.com/sunny0826/kubecm/pkg/cloud"
 	"k8s.io/client-go/tools/clientcmd"
@@ -215,7 +217,13 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 		if err != nil {
 			return err
 		}
-		return AddToLocal(newConfig, fmt.Sprintf("aws-%s", clusterID), "", cover)
+		err = AddToLocal(newConfig, fmt.Sprintf("aws-%s", clusterID), "", cover)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%s: %s\n",
+			ansi.Color("Note", "blue"),
+			ansi.Color(" please install the AWS CLI before normal use.", "white+h"))
 	}
 	return nil
 }
@@ -240,6 +248,7 @@ export RANCHER_SERVER_URL=https://xxx
 export RANCHER_API_KEY=YOUR_API_KEY
 
 # Set env AWS secret key
+# Note: Please install the AWS CLI before normal use.
 export AWS_ACCESS_KEY_ID=YOUR_AKID
 export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
 
