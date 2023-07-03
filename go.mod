@@ -27,7 +27,7 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.44.292
+	github.com/aws/aws-sdk-go v1.44.294
 	github.com/stretchr/testify v1.8.4
 )
 
