@@ -257,6 +257,9 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 				return err
 			}
 			newConfig, err := clientcmd.Load(kubeConfig)
+			if err != nil {
+				return err
+			}
 			return AddToLocal(newConfig, fmt.Sprintf("azure-%s", clusterID), "", cover)
 		}
 
