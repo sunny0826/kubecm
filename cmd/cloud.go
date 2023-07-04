@@ -50,6 +50,12 @@ var Clouds = []CloudInfo{
 		HomePage: "https://console.aws.amazon.com/eks/home",
 		Service:  "EKS",
 	},
+	{
+		Name:     "Azure",
+		Alias:    []string{"azure", "aks"},
+		HomePage: "https://portal.azure.com",
+		Service:  "AKS",
+	},
 }
 
 // Init CloudCommand
@@ -138,6 +144,28 @@ func getClusters(provider, regionID string, num int) ([]cloud.ClusterInfo, error
 		if err != nil {
 			return nil, err
 		}
+	case 4:
+		fmt.Println("⛅  Selected: Azure")
+		clientID, clientSecret := checkEnvForSecret(4)
+		SubscriptionID, sub := os.LookupEnv("AZURE_SUBSCRIPTION_ID")
+		ObjectID, obj := os.LookupEnv("AZURE_OBJECT_ID")
+		TenantID, ten := os.LookupEnv("AZURE_TENANT_ID")
+		if !sub || !obj || !ten {
+			SubscriptionID = PromptUI("Azure Subscription ID", "")
+			ObjectID = PromptUI("Azure Object ID", "")
+			TenantID = PromptUI("Azure Tenant ID", "")
+		}
+		azure := cloud.Azure{
+			ClientID:       clientID,
+			ClientSecret:   clientSecret,
+			SubscriptionID: SubscriptionID,
+			ObjectID:       ObjectID,
+			TenantID:       TenantID,
+		}
+		clusters, err = azure.ListCluster()
+		if err != nil {
+			return nil, err
+		}
 	}
 	return clusters, err
 }
@@ -174,6 +202,14 @@ func checkEnvForSecret(num int) (string, string) {
 		if !id || !key {
 			accessKeyID = PromptUI("AWS Access Key ID", "")
 			accessKeySecret = PromptUI("AWS Access Key Secret", "")
+		}
+		return accessKeyID, accessKeySecret
+	case 4:
+		accessKeyID, id := os.LookupEnv("AZURE_CLIENT_ID")
+		accessKeySecret, key := os.LookupEnv("AZURE_CLIENT_SECRET")
+		if !id || !key {
+			accessKeyID = PromptUI("Azure Client ID", "")
+			accessKeySecret = PromptUI("Azure Client Secret", "")
 		}
 		return accessKeyID, accessKeySecret
 	}

@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/mgutz/ansi"
 
@@ -224,6 +225,44 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 		fmt.Printf("%s: %s\n",
 			ansi.Color("Note", "blue"),
 			ansi.Color(" please install the AWS CLI before normal use.", "white+h"))
+	case 4:
+		fmt.Println("⛅  Selected: Azure")
+		clientID, clientSecret := checkEnvForSecret(4)
+		SubscriptionID, sub := os.LookupEnv("AZURE_SUBSCRIPTION_ID")
+		ObjectID, obj := os.LookupEnv("AZURE_OBJECT_ID")
+		TenantID, ten := os.LookupEnv("AZURE_TENANT_ID")
+		if !sub || !obj || !ten {
+			SubscriptionID = PromptUI("Azure Subscription ID", "")
+			ObjectID = PromptUI("Azure Object ID", "")
+			TenantID = PromptUI("Azure Tenant ID", "")
+		}
+		azure := cloud.Azure{
+			ClientID:       clientID,
+			ClientSecret:   clientSecret,
+			SubscriptionID: SubscriptionID,
+			ObjectID:       ObjectID,
+			TenantID:       TenantID,
+		}
+		if clusterID == "" {
+			clusters, err := azure.ListCluster()
+			if err != nil {
+				return err
+			}
+			if len(clusters) == 0 {
+				return errors.New("no clusters found")
+			}
+			clusterNum := selectCluster(clusters, "Select Cluster")
+			kubeConfig, err := azure.GetKubeConfig(clusters[clusterNum].Name, clusters[clusterNum].ID)
+			if err != nil {
+				return err
+			}
+			newConfig, err := clientcmd.Load(kubeConfig)
+			if err != nil {
+				return err
+			}
+			return AddToLocal(newConfig, fmt.Sprintf("azure-%s", clusterID), "", cover)
+		}
+
 	}
 	return nil
 }
@@ -251,6 +290,13 @@ export RANCHER_API_KEY=YOUR_API_KEY
 # Note: Please install the AWS CLI before normal use.
 export AWS_ACCESS_KEY_ID=YOUR_AKID
 export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
+
+# Set env Azure secret key
+export AZURE_SUBSCRIPTION_ID=YOUR_SUBSCRIPTION_ID
+export AZURE_CLIENT_ID=YOUR_CLIENT_ID
+export AZURE_CLIENT_SECRET=YOUR_CLIENT_SECRET
+export AZURE_TENANT_ID=YOUR_TENANT_ID
+export AZURE_OBJECT_ID=YOUR_OBJECT_ID
 
 # Interaction: select kubeconfig from the cloud
 kubecm cloud add
