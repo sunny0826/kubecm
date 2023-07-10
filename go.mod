@@ -18,8 +18,8 @@ require (
 	github.com/rancher/rancher/pkg/client v0.0.0-20211110212758-cc2b8beb1473
 	github.com/savioxavier/termlink v1.3.0
 	github.com/spf13/cobra v1.7.0
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.639
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.639
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.697
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.697
 	k8s.io/api v0.27.1
 	k8s.io/apimachinery v0.27.1
 	k8s.io/client-go v0.27.1
@@ -28,6 +28,7 @@ require (
 
 require (
 	github.com/Azure/azure-sdk-for-go v68.0.0+incompatible
+	github.com/Azure/go-autorest/autorest v0.11.24
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.12
 	github.com/aws/aws-sdk-go v1.44.292
 	github.com/stretchr/testify v1.8.4
@@ -38,7 +39,6 @@ require (
 	atomicgo.dev/keyboard v0.2.9 // indirect
 	atomicgo.dev/schedule v0.0.2 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
-	github.com/Azure/go-autorest/autorest v0.11.24 // indirect
 	github.com/Azure/go-autorest/autorest/adal v0.9.18 // indirect
 	github.com/Azure/go-autorest/autorest/azure/cli v0.4.5 // indirect
 	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
