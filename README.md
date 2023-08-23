@@ -77,7 +77,7 @@ Source binary:
 
 ## Contribute
 
-Feel free to open issues and pull requests. Any feedback is highly appreciated!
+Feel free to open issues and pull requests. Any feedback is highly appreciated! I'd be grateful if you can give me some feedback.
 
 ## Star History
 
