@@ -72,7 +72,7 @@ For fish users, execute:
   # shell for this setup to take effect.):
   kubecm completion fish > ~/.config/fish/completions/kubecm.fish
 
-PowerShell:
+For PowerShell users, execute:
 
   # To load completions for the current session, execute once:
   kubecm completion powershell | Out-String | Invoke-Expression
