@@ -45,7 +45,7 @@ kubecm cloud list --provider alibabacloud --cluster_id=xxxxxx
 
 ```
       --cluster_id string   kubernetes cluster id
-      --config string       path of kubeconfig (default "/Users/user/.kube/config")
+      --config string       path of kubeconfig (default "/Users/guoxudong/.kube/config")
   -m, --mac-notify          enable to display Mac notification banner
       --provider string     public cloud
       --region_id string    cloud region id
