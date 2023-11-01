@@ -15,15 +15,16 @@ KubeConfig Manager.
 [92m██  ██  ██    ██ ██   ██ ██      ██      ██  ██  ██ [0m
 [92m██   ██  ██████  ██████  ███████  ██████ ██      ██[0m
 [92m[0m
-[44;97m[44;97m Tips [0m[0m [96m[96mFind more information at: [3;32mkubecm.cloud (https://kubecm.cloud)[m[0m[0m
+[44;97m[44;97m Tips [0m[0m [96m[96mFind more information at: ]8;;https://kubecm.cloud[3;32mkubecm.cloud]8;;[0m[96m[0m[0m
 
 
 ### Options
 
 ```
-      --config string   path of kubeconfig (default "/Users/guoxudong/.kube/config")
+      --config string   path of kubeconfig (default "/Users/user/.kube/config")
   -h, --help            help for kubecm
   -m, --mac-notify      enable to display Mac notification banner
+  -s, --silence-table   enable/disable output of context table on successful config update
       --ui-size int     number of list items to show in menu at once (default 4)
 ```
 
