@@ -23,7 +23,7 @@ func (sc *SwitchCommand) Init() {
 		Long: `
 Switch Kube Context interactively
 `,
-		Aliases: []string{"s"},
+		Aliases: []string{"s", "sw"},
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 1 {
 				return errors.New("no support for more than 1 parameter")
