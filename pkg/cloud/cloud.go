@@ -10,6 +10,7 @@ type Cluster interface {
 // ClusterInfo ack cluster info
 type ClusterInfo struct {
 	Name       string
+	Account    string
 	ID         string
 	RegionID   string
 	K8sVersion string
