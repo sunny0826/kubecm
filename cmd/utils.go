@@ -312,10 +312,14 @@ func WriteConfig(cover bool, file string, outConfig *clientcmdapi.Config) error 
 			return err
 		}
 		fmt.Printf("「%s」 write successful!\n", file)
-		err = PrintTable(outConfig)
-		if err != nil {
-			return err
+
+		if !silenceTable {
+			err = PrintTable(outConfig)
+			if err != nil {
+				return err
+			}
 		}
+
 	} else {
 		err := clientcmd.WriteToFile(*outConfig, "kubecm.config")
 		if err != nil {

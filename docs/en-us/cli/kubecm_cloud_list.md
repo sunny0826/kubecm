@@ -49,6 +49,7 @@ kubecm cloud list --provider alibabacloud --cluster_id=xxxxxx
   -m, --mac-notify          enable to display Mac notification banner
       --provider string     public cloud
       --region_id string    cloud region id
+  -s, --silence-table       enable/disable output of context table on successful config update
       --ui-size int         number of list items to show in menu at once (default 4)
 ```
 
