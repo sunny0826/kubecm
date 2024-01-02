@@ -18,8 +18,8 @@ require (
 	github.com/rancher/rancher/pkg/client v0.0.0-20211110212758-cc2b8beb1473
 	github.com/savioxavier/termlink v1.3.0
 	github.com/spf13/cobra v1.8.0
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.825
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.820
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.830
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.830
 	k8s.io/api v0.29.0
 	k8s.io/apimachinery v0.29.0
 	k8s.io/client-go v0.29.0
