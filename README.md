@@ -1,7 +1,4 @@
 <p align="center">
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-18-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
     <img src="docs/static/kubecm.png" title="KubeCM" alt="Kubecm" height="200" />
 </p>
 
@@ -12,6 +9,7 @@
 [![GitHub release](https://img.shields.io/github/release/sunny0826/kubecm)](https://github.com/sunny0826/kubecm/releases)
 [![codecov](https://codecov.io/gh/sunny0826/kubecm/branch/master/graph/badge.svg?token=KGTLBQ8HYZ)](https://codecov.io/gh/sunny0826/kubecm)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6065/badge)](https://bestpractices.coreinfrastructure.org/projects/6065)
+[![All Contributors](https://img.shields.io/badge/all_contributors-18-orange.svg?style=flat-square)](#contributors-)
 
 ```text
                                                  
@@ -53,15 +51,16 @@ Flags:
 Use "kubecm [command] --help" for more information about a command.
 ```
 
-## Documentation
+## Documentation 📃
 
 For full documentation, please visit the KubeCM website: [https://kubecm.cloud](https://kubecm.cloud)
 
-## Demo
+## Demo 🎬
 
 [![asciicast](https://asciinema.org/a/389595.svg)](https://asciinema.org/a/389595)
 
-## Install
+## Install 🚀
+
 Using [Krew](https://krew.sigs.k8s.io/):
 
 ```bash
@@ -78,9 +77,17 @@ Source binary:
 
 [Download the binary](https://github.com/sunny0826/kubecm/releases)
 
-## Contribute
+## Contribute 🤝
 
 Feel free to open issues and pull requests. Any feedback is highly appreciated! I'd be grateful if you can give me some feedback.
+
+## Star History 📈
+
+[![Star History Chart](https://api.star-history.com/svg?repos=sunny0826/kubecm&type=Date)](https://star-history.com/#sunny0826/kubecm)
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -128,11 +135,9 @@ Feel free to open issues and pull requests. Any feedback is highly appreciated! 
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-## Star History
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
-[![Star History Chart](https://api.star-history.com/svg?repos=sunny0826/kubecm&type=Date)](https://star-history.com/#sunny0826/kubecm)
-
-## Thanks
+## Acknowledgement 🍻
 
 - [JetBrains IDEs](https://www.jetbrains.com/?from=kubecm)
 
@@ -141,16 +146,3 @@ Feel free to open issues and pull requests. Any feedback is highly appreciated! 
     <img src="docs/static/jetbrains.svg" width="128" alt="JetBrains logo">
   </a>
 </p>
-
-## Contributors ✨
-
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
