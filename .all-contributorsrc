@@ -146,6 +146,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "Mario-F",
+      "name": "Mario Fritschen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16899663?v=4",
+      "profile": "https://blog.fritschen.net/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
