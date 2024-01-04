@@ -83,6 +83,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "cr7258",
+      "name": "Se7en",
+      "avatar_url": "https://avatars.githubusercontent.com/u/40051120?v=4",
+      "profile": "https://se7enshare.netlify.app/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
