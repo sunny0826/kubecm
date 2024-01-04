@@ -1,4 +1,7 @@
 <p align="center">
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
     <img src="docs/static/kubecm.png" title="KubeCM" alt="Kubecm" height="200" />
 </p>
 
@@ -79,10 +82,34 @@ Source binary:
 
 Feel free to open issues and pull requests. Any feedback is highly appreciated! I'd be grateful if you can give me some feedback.
 
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://guoxudong.io/"><img src="https://avatars.githubusercontent.com/u/24563928?v=4?s=100" width="100px;" alt="Xudong Guo"/><br /><sub><b>Xudong Guo</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=sunny0826" title="Code">💻</a> <a href="https://github.com/sunny0826/kubecm/commits?author=sunny0826" title="Documentation">📖</a> <a href="#maintenance-sunny0826" title="Maintenance">🚧</a></td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td align="center" size="13px" colspan="7">
+        <img src="https://raw.githubusercontent.com/all-contributors/all-contributors-cli/1b8533af435da9854653492b1327a23a4dbd0a10/assets/logo-small.svg">
+          <a href="https://all-contributors.js.org/docs/en/bot/usage">Add your contributions</a>
+        </img>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=sunny0826/kubecm&type=Date)](https://star-history.com/#sunny0826/kubecm)
-
 
 ## Thanks
 
@@ -93,3 +120,16 @@ Feel free to open issues and pull requests. Any feedback is highly appreciated! 
     <img src="docs/static/jetbrains.svg" width="128" alt="JetBrains logo">
   </a>
 </p>
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
