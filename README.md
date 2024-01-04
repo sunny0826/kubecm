@@ -1,6 +1,6 @@
 <p align="center">
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
     <img src="docs/static/kubecm.png" title="KubeCM" alt="Kubecm" height="200" />
 </p>
@@ -89,6 +89,7 @@ Feel free to open issues and pull requests. Any feedback is highly appreciated! 
   <tbody>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://guoxudong.io/"><img src="https://avatars.githubusercontent.com/u/24563928?v=4?s=100" width="100px;" alt="Xudong Guo"/><br /><sub><b>Xudong Guo</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=sunny0826" title="Code">💻</a> <a href="https://github.com/sunny0826/kubecm/commits?author=sunny0826" title="Documentation">📖</a> <a href="#maintenance-sunny0826" title="Maintenance">🚧</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/astraw99"><img src="https://avatars.githubusercontent.com/u/25424734?v=4?s=100" width="100px;" alt="Cheng Wang"/><br /><sub><b>Cheng Wang</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=astraw99" title="Code">💻</a></td>
     </tr>
   </tbody>
   <tfoot>
