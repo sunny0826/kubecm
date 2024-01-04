@@ -110,6 +110,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "suzuki-shunsuke",
+      "name": "Shunsuke Suzuki",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13323303?v=4",
+      "profile": "https://suzuki-shunsuke.github.io/profile/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
