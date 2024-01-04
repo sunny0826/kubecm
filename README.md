@@ -1,6 +1,6 @@
 <p align="center">
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
     <img src="docs/static/kubecm.png" title="KubeCM" alt="Kubecm" height="200" />
 </p>
@@ -92,6 +92,7 @@ Feel free to open issues and pull requests. Any feedback is highly appreciated! 
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/astraw99"><img src="https://avatars.githubusercontent.com/u/25424734?v=4?s=100" width="100px;" alt="Cheng Wang"/><br /><sub><b>Cheng Wang</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=astraw99" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://nolebase.ayaka.io/"><img src="https://avatars.githubusercontent.com/u/11081491?v=4?s=100" width="100px;" alt="Neko Ayaka"/><br /><sub><b>Neko Ayaka</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=nekomeowww" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/l1b0k"><img src="https://avatars.githubusercontent.com/u/4043362?v=4?s=100" width="100px;" alt="l1b0k"/><br /><sub><b>l1b0k</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=l1b0k" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://t.me/littlepoint"><img src="https://avatars.githubusercontent.com/u/7611700?v=4?s=100" width="100px;" alt="Zhizhen He"/><br /><sub><b>Zhizhen He</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=hezhizhen" title="Code">💻</a></td>
     </tr>
   </tbody>
   <tfoot>
