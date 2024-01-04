@@ -1,6 +1,6 @@
 <p align="center">
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-14-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-15-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
     <img src="docs/static/kubecm.png" title="KubeCM" alt="Kubecm" height="200" />
 </p>
@@ -104,6 +104,9 @@ Feel free to open issues and pull requests. Any feedback is highly appreciated! 
       <td align="center" valign="top" width="14.28%"><a href="https://suzuki-shunsuke.github.io/profile/"><img src="https://avatars.githubusercontent.com/u/13323303?v=4?s=100" width="100px;" alt="Shunsuke Suzuki"/><br /><sub><b>Shunsuke Suzuki</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=suzuki-shunsuke" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://seanly.opsbox.cloud/"><img src="https://avatars.githubusercontent.com/u/232069?v=4?s=100" width="100px;" alt="YS Liu"/><br /><sub><b>YS Liu</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=seanly" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://guyzsarun.github.io/"><img src="https://avatars.githubusercontent.com/u/48861591?v=4?s=100" width="100px;" alt="Sarun Nuntaviriyakul"/><br /><sub><b>Sarun Nuntaviriyakul</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=guyzsarun" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/MaxAnderson95"><img src="https://avatars.githubusercontent.com/u/11574185?v=4?s=100" width="100px;" alt="Max Anderson"/><br /><sub><b>Max Anderson</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=MaxAnderson95" title="Code">💻</a></td>
     </tr>
   </tbody>
   <tfoot>
