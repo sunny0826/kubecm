@@ -1,6 +1,6 @@
 <p align="center">
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-16-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-17-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
     <img src="docs/static/kubecm.png" title="KubeCM" alt="Kubecm" height="200" />
 </p>
@@ -108,6 +108,7 @@ Feel free to open issues and pull requests. Any feedback is highly appreciated! 
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/MaxAnderson95"><img src="https://avatars.githubusercontent.com/u/11574185?v=4?s=100" width="100px;" alt="Max Anderson"/><br /><sub><b>Max Anderson</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=MaxAnderson95" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://blog.fritschen.net/"><img src="https://avatars.githubusercontent.com/u/16899663?v=4?s=100" width="100px;" alt="Mario Fritschen"/><br /><sub><b>Mario Fritschen</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=Mario-F" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jsfaint"><img src="https://avatars.githubusercontent.com/u/571829?v=4?s=100" width="100px;" alt="Jia Sui"/><br /><sub><b>Jia Sui</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=jsfaint" title="Code">💻</a></td>
     </tr>
   </tbody>
   <tfoot>
