@@ -65,8 +65,13 @@ func deleteContext(ctxs []string, config *clientcmdapi.Config) error {
 	for _, ctx := range ctxs {
 		if _, ok := config.Contexts[ctx]; ok {
 			delContext := config.Contexts[ctx]
-			delete(config.AuthInfos, delContext.AuthInfo)
-			delete(config.Clusters, delContext.Cluster)
+			isClusterNameExist, isUserNameExist := checkClusterAndUserNameExceptContextToDelete(config, config.Contexts[ctx])
+			if !isUserNameExist {
+				delete(config.AuthInfos, delContext.AuthInfo)
+			}
+			if !isClusterNameExist {
+				delete(config.Clusters, delContext.Cluster)
+			}
 			delete(config.Contexts, ctx)
 			fmt.Printf("Context Delete:「%s」\n", ctx)
 		} else {
@@ -78,6 +83,24 @@ func deleteContext(ctxs []string, config *clientcmdapi.Config) error {
 		return errors.New("nothing deleted！")
 	}
 	return nil
+}
+
+func checkClusterAndUserNameExceptContextToDelete(oldConfig *clientcmdapi.Config, contextToDelete *clientcmdapi.Context) (bool, bool) {
+	var (
+		isClusterNameExist bool
+		isUserNameExist    bool
+	)
+
+	for _, ctx := range oldConfig.Contexts {
+		if ctx.Cluster == contextToDelete.Cluster && ctx != contextToDelete {
+			isClusterNameExist = true
+		}
+		if ctx.AuthInfo == contextToDelete.AuthInfo && ctx != contextToDelete {
+			isUserNameExist = true
+		}
+	}
+
+	return isClusterNameExist, isUserNameExist
 }
 
 func selectDeleteContext(config *clientcmdapi.Config) (string, string, error) {
