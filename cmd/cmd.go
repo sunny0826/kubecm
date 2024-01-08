@@ -21,6 +21,7 @@ func NewBaseCommand() *BaseCommand {
 		&CreateCommand{},     // create command
 		&CloudCommand{},      // cloud command
 		&ExportCommand{},     // export command
+		&DocsCommand{},       // docs command
 	)
 
 	return baseCmd

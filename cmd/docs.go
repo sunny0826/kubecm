@@ -26,13 +26,20 @@ func (dc *DocsCommand) Init() {
 }
 
 func (dc *DocsCommand) runDocs(cmd *cobra.Command, args []string) error {
-	url := fmt.Sprintf("%s#/en-us/cli/kubecm_%s", DOCS, cmd.Parent().Use)
+	var url string
+	if cmd.Parent().Use == "kubecm" {
+		url = DOCS
+	} else {
+		url = fmt.Sprintf("%s#/en-us/cli/kubecm_%s", DOCS, cmd.Parent().Use)
+	}
 	fmt.Printf("Opened %s in your browser.\n", url)
 	return browser.OpenURL(url)
 }
 
 func docsExample() string {
 	return `
+# Open kubecm website
+kubecm docs
 # Open add command document page
 kubecm add docs
 `
