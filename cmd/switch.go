@@ -35,6 +35,7 @@ Switch Kube Context interactively
 		},
 		Example: switchExample(),
 	}
+	sc.AddCommands(&DocsCommand{})
 }
 
 func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error {

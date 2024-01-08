@@ -31,6 +31,7 @@ func (al *AliasCommand) Init() {
 	al.command.DisableFlagsInUseLine = true
 	al.command.Flags().StringP("out", "o", "", "output to ~/.zshrc or ~/.bash_profile")
 	_ = al.command.MarkFlagRequired("out")
+	al.AddCommands(&DocsCommand{})
 }
 
 // SourceCmd source command

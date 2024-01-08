@@ -39,6 +39,7 @@ func (ac *AddCommand) Init() {
 	ac.command.Flags().String("context-name", "", "override context name when add kubeconfig context")
 	ac.command.PersistentFlags().BoolP("cover", "c", false, "Overwrite local kubeconfig files")
 	_ = ac.command.MarkFlagRequired("file")
+	ac.AddCommands(&DocsCommand{})
 }
 
 func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {

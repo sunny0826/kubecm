@@ -31,6 +31,7 @@ func (mc *MergeCommand) Init() {
 	mc.command.Flags().StringP("folder", "f", "", "KubeConfig folder")
 	mc.command.Flags().BoolP("assumeyes", "y", false, "skip interactive file overwrite confirmation")
 	//_ = mc.command.MarkFlagRequired("folder")
+	mc.AddCommands(&DocsCommand{})
 }
 
 func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {

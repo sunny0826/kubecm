@@ -26,6 +26,7 @@ func (cl *ClearCommand) Init() {
 		Example: clearExample(),
 	}
 	cl.command.DisableFlagsInUseLine = true
+	cl.AddCommands(&DocsCommand{})
 }
 
 func (cl *ClearCommand) runClear(cmd *cobra.Command, args []string) error {
