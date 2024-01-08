@@ -99,7 +99,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/20454870?v=4",
       "profile": "https://github.com/yardenshoham",
       "contributions": [
-        "code"
+        "code",
+        "test"
       ]
     },
     {
@@ -176,5 +177,6 @@
     }
   ],
   "contributorsPerLine": 7,
-  "linkToUsage": true
+  "linkToUsage": true,
+  "commitType": "docs"
 }
