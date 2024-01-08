@@ -70,6 +70,7 @@ func (cc *CloudCommand) Init() {
 	cc.command.PersistentFlags().String("region_id", "", "cloud region id")
 	cc.AddCommands(&CloudAddCommand{})
 	cc.AddCommands(&CloudListCommand{})
+	cc.AddCommands(&DocsCommand{})
 }
 
 func getClusters(provider, regionID string, num int) ([]cloud.ClusterInfo, error) {

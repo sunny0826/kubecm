@@ -27,6 +27,7 @@ func (ec *ExportCommand) Init() {
 	}
 	ec.command.Flags().StringP("file", "f", "", "Path to export kubeconfig files")
 	_ = ec.command.MarkFlagRequired("file")
+	ec.AddCommands(&DocsCommand{})
 }
 
 func (ec *ExportCommand) runExport(args []string) error {

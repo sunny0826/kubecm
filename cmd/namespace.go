@@ -33,6 +33,7 @@ Switch or change namespace interactively
 		},
 		Example: namespaceExample(),
 	}
+	nc.AddCommands(&DocsCommand{})
 }
 
 func (nc *NamespaceCommand) runNamespace(command *cobra.Command, args []string) error {

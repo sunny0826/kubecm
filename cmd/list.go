@@ -29,6 +29,7 @@ func (lc *ListCommand) Init() {
 		Example: listExample(),
 	}
 	lc.command.DisableFlagsInUseLine = true
+	lc.AddCommands(&DocsCommand{})
 }
 
 func (lc *ListCommand) runList(command *cobra.Command, args []string) error {

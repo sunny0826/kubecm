@@ -26,6 +26,7 @@ func (rc *RenameCommand) Init() {
 		},
 		Example: renameExample(),
 	}
+	rc.AddCommands(&DocsCommand{})
 }
 
 func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error {

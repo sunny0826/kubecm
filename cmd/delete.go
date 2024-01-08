@@ -26,7 +26,7 @@ func (dc *DeleteCommand) Init() {
 		},
 		Example: deleteExample(),
 	}
-
+	dc.AddCommands(&DocsCommand{})
 }
 
 func (dc *DeleteCommand) runDelete(command *cobra.Command, args []string) error {
