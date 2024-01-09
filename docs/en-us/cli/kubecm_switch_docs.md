@@ -1,30 +1,30 @@
-## kubecm clear
+## kubecm switch docs
 
-Clear lapsed context, cluster and user
+Open document website
 
 ### Synopsis
 
-Clear lapsed context, cluster and user
+Open document website in your browser
 
 ```
-kubecm clear
+kubecm switch docs [flags]
 ```
 
 ### Examples
 
 ```
 
-# Clear lapsed context, cluster and user (default is /Users/guoxd/.kube/config)
-kubecm clear
-# Customised clear lapsed files
-kubecm clear config.yaml test.yaml
+# Open kubecm website
+kubecm docs
+# Open add command document page
+kubecm add docs
 
 ```
 
 ### Options
 
 ```
-  -h, --help   help for clear
+  -h, --help   help for docs
 ```
 
 ### Options inherited from parent commands
@@ -38,6 +38,5 @@ kubecm clear config.yaml test.yaml
 
 ### SEE ALSO
 
-* [kubecm](kubecm.md)	 - KubeConfig Manager.
-* [kubecm clear docs](kubecm_clear_docs.md)	 - Open document website
+* [kubecm switch](kubecm_switch.md)	 - Switch Kube Context interactively
 
