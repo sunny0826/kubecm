@@ -1,36 +1,37 @@
-## kubecm clear
+## kubecm add docs
 
-Clear lapsed context, cluster and user
+Open document website
 
 ### Synopsis
 
-Clear lapsed context, cluster and user
+Open document website in your browser
 
 ```
-kubecm clear
+kubecm add docs [flags]
 ```
 
 ### Examples
 
 ```
 
-# Clear lapsed context, cluster and user (default is /Users/guoxd/.kube/config)
-kubecm clear
-# Customised clear lapsed files
-kubecm clear config.yaml test.yaml
+# Open kubecm website
+kubecm docs
+# Open add command document page
+kubecm add docs
 
 ```
 
 ### Options
 
 ```
-  -h, --help   help for clear
+  -h, --help   help for docs
 ```
 
 ### Options inherited from parent commands
 
 ```
       --config string   path of kubeconfig (default "/Users/guoxd/.kube/config")
+  -c, --cover           Overwrite local kubeconfig files
   -m, --mac-notify      enable to display Mac notification banner
   -s, --silence-table   enable/disable output of context table on successful config update
   -u, --ui-size int     number of list items to show in menu at once (default 4)
@@ -38,6 +39,5 @@ kubecm clear config.yaml test.yaml
 
 ### SEE ALSO
 
-* [kubecm](kubecm.md)	 - KubeConfig Manager.
-* [kubecm clear docs](kubecm_clear_docs.md)	 - Open document website
+* [kubecm add](kubecm_add.md)	 - Add KubeConfig to $HOME/.kube/config
 

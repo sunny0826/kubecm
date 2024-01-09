@@ -12,8 +12,6 @@ Switch Kube Context interactively
 kubecm switch [flags]
 ```
 
-![switch](../../static/switch.gif)
-
 ### Examples
 
 ```
@@ -34,13 +32,14 @@ kubecm switch dev
 ### Options inherited from parent commands
 
 ```
-      --config string   path of kubeconfig (default "/Users/guoxudong/.kube/config")
+      --config string   path of kubeconfig (default "/Users/guoxd/.kube/config")
   -m, --mac-notify      enable to display Mac notification banner
   -s, --silence-table   enable/disable output of context table on successful config update
-      --ui-size int     number of list items to show in menu at once (default 4)
+  -u, --ui-size int     number of list items to show in menu at once (default 4)
 ```
 
 ### SEE ALSO
 
 * [kubecm](kubecm.md)	 - KubeConfig Manager.
+* [kubecm switch docs](kubecm_switch_docs.md)	 - Open document website
 

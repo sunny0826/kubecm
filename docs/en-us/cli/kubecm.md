@@ -15,17 +15,17 @@ KubeConfig Manager.
 [92m██  ██  ██    ██ ██   ██ ██      ██      ██  ██  ██ [0m
 [92m██   ██  ██████  ██████  ███████  ██████ ██      ██[0m
 [92m[0m
-[44;97m[44;97m Tips [0m[0m [96m[96mFind more information at: ]8;;https://kubecm.cloud[3;32mkubecm.cloud]8;;[0m[96m[0m[0m
+[44;97m[44;97m Tips [0m[0m [96m[96mFind more information at: [3;32mkubecm.cloud (https://kubecm.cloud)[0m[96m[0m[0m
 
 
 ### Options
 
 ```
-      --config string   path of kubeconfig (default "/Users/guoxudong/.kube/config")
+      --config string   path of kubeconfig (default "/Users/guoxd/.kube/config")
   -h, --help            help for kubecm
   -m, --mac-notify      enable to display Mac notification banner
   -s, --silence-table   enable/disable output of context table on successful config update
-      --ui-size int     number of list items to show in menu at once (default 4)
+  -u, --ui-size int     number of list items to show in menu at once (default 4)
 ```
 
 ### SEE ALSO
@@ -34,13 +34,12 @@ KubeConfig Manager.
 * [kubecm alias](kubecm_alias.md)	 - Generate alias for all contexts
 * [kubecm clear](kubecm_clear.md)	 - Clear lapsed context, cluster and user
 * [kubecm cloud](kubecm_cloud.md)	 - Manage kubeconfig from cloud
-* [kubecm completion](kubecm_completion.md)	 - Generate completion script
 * [kubecm create](kubecm_create.md)	 - Create new KubeConfig(experiment)
 * [kubecm delete](kubecm_delete.md)	 - Delete the specified context from the kubeconfig
+* [kubecm docs](kubecm_docs.md)	 - Open document website
 * [kubecm export](kubecm_export.md)	 - Export the specified context from the kubeconfig
 * [kubecm list](kubecm_list.md)	 - List KubeConfig
 * [kubecm merge](kubecm_merge.md)	 - Merge multiple kubeconfig files into one
-* [kubecm namespace](kubecm_namespace.md)	 - Switch or change namespace interactively
 * [kubecm rename](kubecm_rename.md)	 - Rename the contexts of kubeconfig
 * [kubecm switch](kubecm_switch.md)	 - Switch Kube Context interactively
 * [kubecm version](kubecm_version.md)	 - Print version info
