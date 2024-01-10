@@ -127,6 +127,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://blog.fritschen.net/"><img src="https://avatars.githubusercontent.com/u/16899663?v=4?s=100" width="100px;" alt="Mario Fritschen"/><br /><sub><b>Mario Fritschen</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=Mario-F" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/jsfaint"><img src="https://avatars.githubusercontent.com/u/571829?v=4?s=100" width="100px;" alt="Jia Sui"/><br /><sub><b>Jia Sui</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=jsfaint" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/AdamRussak"><img src="https://avatars.githubusercontent.com/u/31593022?v=4?s=100" width="100px;" alt="AdamRussak"/><br /><sub><b>AdamRussak</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=AdamRussak" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://chenrui.dev"><img src="https://avatars.githubusercontent.com/u/1580956?v=4?s=100" width="100px;" alt="Rui Chen"/><br /><sub><b>Rui Chen</b></sub></a><br /><a href="#infra-chenrui333" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
     </tr>
   </tbody>
   <tfoot>
