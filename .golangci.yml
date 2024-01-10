@@ -14,7 +14,7 @@ linters:
     - govet
     - ineffassign
     - typecheck
-    - varcheck
+    # - varcheck # deprecated - https://github.com/golangci/golangci-lint/issues/1841
     - stylecheck
     - tagliatelle
   disable:
