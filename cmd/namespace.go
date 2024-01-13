@@ -41,6 +41,10 @@ func (nc *NamespaceCommand) runNamespace(command *cobra.Command, args []string) 
 	if err != nil {
 		return err
 	}
+	if len(config.Contexts) == 0 {
+		return fmt.Errorf("no valid context found")
+	}
+
 	currentContext := config.CurrentContext
 	contNs := config.Contexts[currentContext].Namespace
 	namespaceList, err := GetNamespaceList(contNs)
