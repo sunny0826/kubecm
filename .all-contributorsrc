@@ -185,6 +185,16 @@
       "contributions": [
         "infra"
       ]
+    },
+    {
+      "login": "burmanm",
+      "name": "Michael Burman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/562574?v=4",
+      "profile": "https://github.com/burmanm",
+      "contributions": [
+        "bug",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
