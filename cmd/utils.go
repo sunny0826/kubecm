@@ -354,41 +354,6 @@ func ExitOption(kubeItems []Needle) ([]Needle, error) {
 	return kubeItems, nil
 }
 
-// GetNamespaceList return namespace list
-func GetNamespaceList(cont string) ([]Namespaces, error) {
-	var nss []Namespaces
-	config, err := clientcmd.BuildConfigFromFlags("", cfgFile)
-	if err != nil {
-		return nil, fmt.Errorf(err.Error())
-	}
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return nil, fmt.Errorf(err.Error())
-	}
-	ctx := context.TODO()
-	namespaceList, err := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
-	if err != nil {
-		return nil, fmt.Errorf(err.Error())
-	}
-	for _, specItem := range namespaceList.Items {
-		switch cont {
-		case "":
-			if specItem.Name == "default" {
-				nss = append(nss, Namespaces{Name: specItem.Name, Default: true})
-			} else {
-				nss = append(nss, Namespaces{Name: specItem.Name, Default: false})
-			}
-		default:
-			if specItem.Name == cont {
-				nss = append(nss, Namespaces{Name: specItem.Name, Default: true})
-			} else {
-				nss = append(nss, Namespaces{Name: specItem.Name, Default: false})
-			}
-		}
-	}
-	return nss, nil
-}
-
 func printService(out io.Writer, name, link string) {
 	ct.ChangeColor(ct.Green, false, ct.None, false)
 	fmt.Fprint(out, name)

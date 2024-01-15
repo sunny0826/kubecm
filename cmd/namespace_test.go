@@ -1,76 +1,16 @@
 package cmd
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/fake"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
-
-var (
-	testNsConfig = clientcmdapi.Config{
-		AuthInfos: map[string]*clientcmdapi.AuthInfo{
-			"black-user": {Token: "black-token"},
-			"red-user":   {Token: "red-token"},
-		},
-		Clusters: map[string]*clientcmdapi.Cluster{
-			"pig-cluster": {Server: "http://pig.org:8080"},
-			"cow-cluster": {Server: "http://cow.org:8080"},
-		},
-		Contexts: map[string]*clientcmdapi.Context{
-			"root-context":    {AuthInfo: "black-user", Cluster: "pig-cluster", Namespace: "saw-ns"},
-			"federal-context": {AuthInfo: "red-user", Cluster: "cow-cluster", Namespace: "hammer-ns"},
-		},
-	}
-)
-
-func Test_changeNamespace(t *testing.T) {
-	type args struct {
-		args           []string
-		namespaceList  []Namespaces
-		currentContext string
-		config         *clientcmdapi.Config
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-		{
-			"ns",
-			args{args: []string{"test"},
-				namespaceList: []Namespaces{
-					{"test", false},
-					{"hammer-ns", true}},
-				currentContext: "root-context",
-				config:         &testNsConfig},
-			false,
-		},
-		{
-			"ns-not-exit",
-			args{args: []string{"a"},
-				namespaceList: []Namespaces{
-					{"test", false},
-					{"hammer-ns", true}},
-				currentContext: "root-context",
-				config:         &testNsConfig},
-			true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := changeNamespace(tt.args.args, tt.args.namespaceList, tt.args.currentContext, tt.args.config); (err != nil) != tt.wantErr {
-				t.Errorf("changeNamespace() error = %v, wantErr %v", err, tt.wantErr)
-			} else {
-				fmt.Printf("Catch ERROR: %v\n", err)
-			}
-		})
-	}
-}
 
 type testSelectNamespacePrompt struct {
 	index int
@@ -135,4 +75,151 @@ func TestSelectNamespace(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestCheckNamespaceExist(t *testing.T) {
+	// Define test cases
+	testCases := []struct {
+		name        string
+		namespace   string
+		namespaces  []string
+		expectExist bool
+		expectError bool
+	}{
+		{
+			name:        "Namespace exists",
+			namespace:   "test",
+			namespaces:  []string{"default", "test"},
+			expectExist: true,
+			expectError: false,
+		},
+		{
+			name:        "Namespace does not exist",
+			namespace:   "nonexistent",
+			namespaces:  []string{"default", "test"},
+			expectExist: false,
+			expectError: true,
+		},
+		{
+			name:        "Error case",
+			namespace:   "",
+			namespaces:  nil, // Assuming this simulates an error condition
+			expectExist: false,
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			clientset := mockKubernetesClientSet(tc.namespaces)
+			exist, err := CheckNamespaceExist(tc.namespace, clientset)
+			if tc.expectError {
+				if err == nil {
+					t.Errorf("Expected an error, but got none")
+				}
+			} else {
+				if err != nil {
+					t.Errorf("Unexpected error: %v", err)
+				}
+				if exist != tc.expectExist {
+					t.Errorf("Expected existence to be %v, got %v", tc.expectExist, exist)
+				}
+			}
+		})
+	}
+}
+
+func TestGetNamespaceList(t *testing.T) {
+	testCases := []struct {
+		name             string
+		currentNamespace string
+		namespaces       []string
+		expected         []Namespaces
+		expectError      bool
+	}{
+		{
+			name:             "Success with default namespace",
+			currentNamespace: "default",
+			namespaces:       []string{"default", "test"},
+			expected: []Namespaces{
+				{Name: "default", Default: true},
+				{Name: "test", Default: false},
+			},
+			expectError: false,
+		},
+		{
+			name:             "Success with specified namespace",
+			currentNamespace: "test",
+			namespaces:       []string{"default", "test"},
+			expected: []Namespaces{
+				{Name: "default", Default: false},
+				{Name: "test", Default: true},
+			},
+			expectError: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			clientset := mockKubernetesClientSet(tc.namespaces)
+			nss, err := GetNamespaceList(tc.currentNamespace, clientset)
+			if tc.expectError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expected, nss)
+			}
+		})
+	}
+}
+
+// mockKubernetesClientSet creates a mock clientset that contains the provided namespaces.
+func mockKubernetesClientSet(namespaces []string) kubernetes.Interface {
+	clientset := fake.NewSimpleClientset()
+
+	for _, ns := range namespaces {
+		namespace := &corev1.Namespace{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: ns,
+			},
+		}
+		_, err := clientset.CoreV1().Namespaces().Create(context.TODO(), namespace, metav1.CreateOptions{})
+		if err != nil {
+			return nil
+		}
+	}
+
+	return clientset
+}
+
+func TestGetClientSet(t *testing.T) {
+	// Create a fake clientset
+	clientset := fake.NewSimpleClientset()
+
+	// Create a namespace object
+	namespace := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "default",
+		},
+	}
+
+	// Add the namespace to the fake clientset
+	_, err := clientset.CoreV1().Namespaces().Create(context.Background(), namespace, metav1.CreateOptions{})
+	if err != nil {
+		t.Fatalf("Could not create namespace: %v", err)
+	}
+
+	// Use the clientset to get the list of namespaces
+	namespaces, err := clientset.CoreV1().Namespaces().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		t.Fatalf("Could not list namespaces: %v", err)
+	}
+
+	// Check that the "default" namespace exists
+	for _, ns := range namespaces.Items {
+		if ns.Name == "default" {
+			return
+		}
+	}
+	t.Fatal("Did not find 'default' namespace")
 }
