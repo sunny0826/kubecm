@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	"log"
 	"os"
 	"strings"
@@ -10,7 +13,6 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 // NamespaceCommand namespace cmd struct
@@ -46,21 +48,31 @@ func (nc *NamespaceCommand) runNamespace(command *cobra.Command, args []string) 
 	}
 
 	currentContext := config.CurrentContext
-	contNs := config.Contexts[currentContext].Namespace
-	namespaceList, err := GetNamespaceList(contNs)
+	currentNamespace := config.Contexts[currentContext].Namespace
+	clientset, err := GetClientSet(cfgFile)
 	if err != nil {
 		return err
 	}
 
 	if len(args) == 0 {
+		namespaceList, err := GetNamespaceList(currentNamespace, clientset)
+		if err != nil {
+			return err
+		}
 		// exit option
 		namespaceList = append(namespaceList, Namespaces{Name: "<Exit>", Default: false})
 		num := selectNamespace(namespaceList)
 		config.Contexts[currentContext].Namespace = namespaceList[num].Name
 	} else {
-		err := changeNamespace(args, namespaceList, currentContext, config)
+		exist, err := CheckNamespaceExist(args[0], clientset)
 		if err != nil {
-			return err
+			return errors.New("Can not find namespace: " + args[0])
+		}
+		if exist {
+			config.Contexts[currentContext].Namespace = args[0]
+			fmt.Printf("Namespace: 「%s」 is selected.\n", args[0])
+		} else {
+			return errors.New("Can not find namespace: " + args[0])
 		}
 	}
 	err = WriteConfig(true, cfgFile, config)
@@ -68,17 +80,6 @@ func (nc *NamespaceCommand) runNamespace(command *cobra.Command, args []string) 
 		return err
 	}
 	return MacNotifier(fmt.Sprintf("Switch to the [%s] namespace\n", config.Contexts[currentContext].Namespace))
-}
-
-func changeNamespace(args []string, namespaceList []Namespaces, currentContext string, config *clientcmdapi.Config) error {
-	for _, ns := range namespaceList {
-		if ns.Name == args[0] {
-			config.Contexts[currentContext].Namespace = args[0]
-			fmt.Printf("Namespace: 「%s」 is selected.\n", args[0])
-			return nil
-		}
-	}
-	return errors.New("Can not find namespace: " + args[0])
 }
 
 func selectNamespace(namespaces []Namespaces) int {
@@ -126,6 +127,53 @@ func selectNamespaceWithRunner(namespaces []Namespaces, runner SelectRunner) (in
 		return 0, errors.New("exit")
 	}
 	return i, err
+}
+
+// GetClientSet return clientset
+func GetClientSet(configFile string) (kubernetes.Interface, error) {
+	config, err := clientcmd.BuildConfigFromFlags("", configFile)
+	if err != nil {
+		return nil, fmt.Errorf(err.Error())
+	}
+	return kubernetes.NewForConfig(config)
+}
+
+// GetNamespaceList return namespace list
+func GetNamespaceList(currentNamespace string, clientset kubernetes.Interface) ([]Namespaces, error) {
+	var nss []Namespaces
+	namespaceList, err := clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf(err.Error())
+	}
+	for _, specItem := range namespaceList.Items {
+		switch currentNamespace {
+		case "":
+			if specItem.Name == "default" {
+				nss = append(nss, Namespaces{Name: specItem.Name, Default: true})
+			} else {
+				nss = append(nss, Namespaces{Name: specItem.Name, Default: false})
+			}
+		default:
+			if specItem.Name == currentNamespace {
+				nss = append(nss, Namespaces{Name: specItem.Name, Default: true})
+			} else {
+				nss = append(nss, Namespaces{Name: specItem.Name, Default: false})
+			}
+		}
+	}
+	return nss, nil
+}
+
+// CheckNamespaceExist check namespace exist
+func CheckNamespaceExist(namespace string, clientset kubernetes.Interface) (bool, error) {
+	ns, err := clientset.CoreV1().Namespaces().Get(context.TODO(), namespace, metav1.GetOptions{})
+	if err != nil {
+		return false, fmt.Errorf(err.Error())
+	}
+	if ns.Name == namespace {
+		return true, nil
+	}
+	return false, errors.New("namespace not found")
 }
 
 func namespaceExample() string {
