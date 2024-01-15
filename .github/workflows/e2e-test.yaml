@@ -97,6 +97,8 @@ jobs:
           echo "********************************************************************************"
           echo "Running kubecm list from env KUBECONFIG..."
           echo "********************************************************************************"
+          echo "default config"
+          bin/kubecm ls
+          echo "set env"
           export KUBECONFIG="$PWD/multi.config"
           bin/kubecm s kind-3rd-kind
-          bin/kubecm list
