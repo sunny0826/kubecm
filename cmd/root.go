@@ -61,9 +61,13 @@ func NewCli() *Cli {
 }
 
 func (cli *Cli) setFlags() {
-	kubeconfig := flag.String("kubeconfig", filepath.Join(homeDir(), ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	// get env KUBECONFIG
+	kubeconfig := os.Getenv("KUBECONFIG")
+	if kubeconfig == "" {
+		kubeconfig = filepath.Join(homeDir(), ".kube", "config")
+	}
 	flags := cli.rootCmd.PersistentFlags()
-	flags.StringVar(&cfgFile, "config", *kubeconfig, "path of kubeconfig")
+	flags.StringVar(&cfgFile, "config", kubeconfig, "path of kubeconfig")
 	flags.IntVarP(&uiSize, "ui-size", "u", 4, "number of list items to show in menu at once")
 	flags.BoolVarP(&silenceTable, "silence-table", "s", false, "enable/disable output of context table on successful config update")
 	flags.BoolVarP(&macNotify, "mac-notify", "m", false, "enable to display Mac notification banner")

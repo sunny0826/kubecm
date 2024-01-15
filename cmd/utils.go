@@ -447,7 +447,8 @@ func CheckAndTransformFilePath(path string) (string, error) {
 	if strings.HasPrefix(path, "~/") {
 		path = filepath.Join(homeDir(), path[2:])
 	}
-	_, err := os.Stat(path) //os.Stat获取文件信息
+	// read files info
+	_, err := os.Stat(path)
 	if err != nil {
 		return "", err
 	}
