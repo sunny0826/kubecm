@@ -94,9 +94,9 @@ jobs:
           echo "Running kubecm global flag --config..."
           echo "********************************************************************************"
           bin/kubecm s kind-2nd-kind --config merge.config
-          bin/kubecm list --config merge.config
           echo "********************************************************************************"
           echo "Running kubecm list from env KUBECONFIG..."
           echo "********************************************************************************"
           export KUBECONFIG="$PWD/multi.config"
+          bin/kubecm s kind-3rd-kind
           bin/kubecm list
