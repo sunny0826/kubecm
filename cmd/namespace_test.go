@@ -183,7 +183,10 @@ func mockKubernetesClientSet(namespaces []string) kubernetes.Interface {
 				Name: ns,
 			},
 		}
-		clientset.CoreV1().Namespaces().Create(context.TODO(), namespace, metav1.CreateOptions{})
+		_, err := clientset.CoreV1().Namespaces().Create(context.TODO(), namespace, metav1.CreateOptions{})
+		if err != nil {
+			return nil
+		}
 	}
 
 	return clientset
