@@ -5,6 +5,8 @@ Create new KubeConfig(experiment)
 ### Synopsis
 
 Create new KubeConfig(experiment)
+Warning: This command is experimental and this feature is only supported in kubernates v1.24 and later.
+
 
 ```
 kubecm create [flags]
@@ -17,7 +19,7 @@ kubecm create [flags]
 # Create new KubeConfig(experiment)
 kubecm create
 # Create new KubeConfig(experiment) with flags
-kubecm create --user test -n default --cluster-role view --context-name kind-kind
+kubecm create --user test --namespace default --cluster-role view --context-name kind-kind
 
 ```
 

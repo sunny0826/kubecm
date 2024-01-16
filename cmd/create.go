@@ -40,7 +40,9 @@ func (ce *CreateCommand) Init() {
 	ce.command = &cobra.Command{
 		Use:   "create",
 		Short: "Create new KubeConfig(experiment)",
-		Long:  "Create new KubeConfig(experiment)",
+		Long: `Create new KubeConfig(experiment)
+Warning: This command is experimental and this feature is only supported in kubernates v1.24 and later.
+`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return ce.runCreate(cmd, args)
 		},
@@ -60,6 +62,8 @@ func (ce *CreateCommand) runCreate(cmd *cobra.Command, args []string) error {
 	clusterRole, _ := ce.command.Flags().GetString("cluster-role")
 	contextName, _ := ce.command.Flags().GetString("context-name")
 	clean, _ := ce.command.Flags().GetBool("print-clean-up")
+
+	printYellow(os.Stdout, "WARNING: This feature is only supported in kubernates v1.24 and later.\n")
 
 	config, err := clientcmd.LoadFromFile(cfgFile)
 	if err != nil {
@@ -211,7 +215,7 @@ func (co *CreateOptions) approveCSR() error {
 func (co *CreateOptions) createKubeConfig(privateKey *rsa.PrivateKey) error {
 	var csr *certificatesv1.CertificateSigningRequest
 	var err error
-	for i := 0; i < 5; i++ { // Retry up to 3 times
+	for i := 0; i < 3; i++ { // Retry up to 3 times
 		csr, err = co.clientSet.CertificatesV1().CertificateSigningRequests().Get(context.TODO(), co.userName, metav1.GetOptions{})
 		if err != nil {
 			return err
@@ -221,9 +225,9 @@ func (co *CreateOptions) createKubeConfig(privateKey *rsa.PrivateKey) error {
 			break
 		}
 
-		fmt.Printf("Waiting for CSR to be signed...  %v\n", i)
+		//fmt.Printf("Waiting for CSR to be signed...  %v\n", i)
 		// Sleep for a second before retrying
-		time.Sleep(2 * time.Second)
+		time.Sleep(1 * time.Second)
 	}
 
 	certData := csr.Status.Certificate
