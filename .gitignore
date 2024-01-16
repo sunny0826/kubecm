@@ -24,3 +24,5 @@ coverage.txt
 example.yaml
 
 merge/
+
+*-kubeconfig.yaml

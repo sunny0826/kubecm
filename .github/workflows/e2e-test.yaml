@@ -106,3 +106,9 @@ jobs:
           echo "set env"
           export KUBECONFIG="$PWD/multi.config"
           bin/kubecm s kind-3rd-kind
+          echo "********************************************************************************"
+          echo "Running kubecm create..."
+          echo "********************************************************************************"
+          bin/kubecm ls
+          bin/kubecm create --user e2e --namespace default --cluster-role view --context-name kind-3rd-kind
+          kubectl get all --kubeconfig e2e-kubeconfig.yaml
