@@ -2,18 +2,23 @@ package cmd
 
 import (
 	"context"
-	"encoding/base64"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"crypto/x509/pkix"
+	"encoding/pem"
 	"fmt"
-	"os"
-
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	certificatesv1 "k8s.io/api/certificates/v1"
 	coreV1 "k8s.io/api/core/v1"
 	rbacV1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"os"
+	"time"
 )
 
 // CreateCommand clean command struct
@@ -23,9 +28,8 @@ type CreateCommand struct {
 
 type CreateOptions struct {
 	config      *clientcmdapi.Config
-	clientSet   *kubernetes.Clientset
+	clientSet   kubernetes.Interface
 	role        string
-	token       string
 	contextName string
 	userName    string
 	namespace   string
@@ -36,59 +40,232 @@ func (ce *CreateCommand) Init() {
 	ce.command = &cobra.Command{
 		Use:   "create",
 		Short: "Create new KubeConfig(experiment)",
-		Long:  "Create new KubeConfig(experiment)",
+		Long: `Create new KubeConfig(experiment)
+
+WARNING: This command is experimental and this feature is only supported in kubernates v1.24 and later.
+`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return ce.runCreate(cmd, args)
 		},
 		Example: createExample(),
 	}
-	ce.command.DisableFlagsInUseLine = true
+	//ce.command.DisableFlagsInUseLine = true
+	ce.command.Flags().String("user", "", "user name for kubeconfig")
+	ce.command.Flags().StringP("namespace", "n", "", "namespace for user")
+	ce.command.Flags().String("cluster-role", "", "cluster role for user")
+	ce.command.Flags().String("context-name", "", "context name for kubeconfig")
+	ce.command.Flags().Bool("print-clean-up", false, "print clean up command")
 }
 
 func (ce *CreateCommand) runCreate(cmd *cobra.Command, args []string) error {
+	userName, _ := ce.command.Flags().GetString("user")
+	namespace, _ := ce.command.Flags().GetString("namespace")
+	clusterRole, _ := ce.command.Flags().GetString("cluster-role")
+	contextName, _ := ce.command.Flags().GetString("context-name")
+	clean, _ := ce.command.Flags().GetBool("print-clean-up")
+
+	printYellow(os.Stdout, "WARNING: This feature is only supported in kubernates v1.24 and later.\n")
+
 	config, err := clientcmd.LoadFromFile(cfgFile)
 	if err != nil {
 		return err
 	}
-	userName := PromptUI("user name", "")
+	if userName == "" {
+		userName = PromptUI("user name", "")
+	}
 	co := CreateOptions{
 		config:   config,
 		userName: userName,
 	}
-	err = co.chooseContext()
+	if contextName == "" {
+		err = co.chooseContext()
+		if err != nil {
+			return err
+		}
+	} else {
+		co.contextName = contextName
+		co.config.CurrentContext = contextName
+		set, err := GetClientSet(cfgFile)
+		if err != nil {
+			return err
+		}
+		co.clientSet = set
+	}
+	if namespace == "" {
+		err = co.chooseNamespace()
+		if err != nil {
+			return err
+		}
+	} else {
+		co.namespace = namespace
+	}
+
+	// create CSR
+	_, privateKey, err := co.createCSR()
 	if err != nil {
 		return err
 	}
-	err = co.chooseNamespace()
+
+	// approve CSR
+	err = co.approveCSR()
 	if err != nil {
 		return err
 	}
-	err = co.createServiceAccounts()
-	if err != nil {
-		return err
+
+	if clusterRole == "" {
+		// select ClusterRole
+		err = co.selectClusterRole()
+		if err != nil {
+			return err
+		}
+	} else {
+		co.role = clusterRole
 	}
-	err = co.selectClusterRole()
-	if err != nil {
-		return err
-	}
+
+	// create RoleBinding
 	err = co.createRoleBinding()
 	if err != nil {
 		return err
 	}
-	err = co.getToken()
-	if err != nil {
-		return err
+
+	if clean {
+		printCleanCmd(co.userName, co.role)
 	}
-	newConfig := co.putOutKubeConfig()
-	fileName := fmt.Sprintf("%s.kubeconfig", co.userName)
-	err = clientcmd.WriteToFile(*newConfig, fileName)
-	if err != nil {
-		return err
-	}
-	printString(os.Stdout, "kubeconfig: "+fileName+" create success\n")
-	return nil
+
+	// create new kubeconfig
+	return co.createKubeConfig(privateKey)
 }
 
+// createCSR create CSR
+func (co *CreateOptions) createCSR() ([]byte, *rsa.PrivateKey, error) {
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	template := x509.CertificateRequest{
+		Subject: pkix.Name{
+			CommonName:   co.userName,
+			Organization: []string{"kubecm"},
+		},
+		SignatureAlgorithm: x509.SHA256WithRSA,
+		PublicKeyAlgorithm: x509.RSA,
+	}
+
+	csrBytes, err := x509.CreateCertificateRequest(rand.Reader, &template, privateKey)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	pemCSR := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE REQUEST", Bytes: csrBytes})
+
+	csr := &certificatesv1.CertificateSigningRequest{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: co.userName,
+		},
+		Spec: certificatesv1.CertificateSigningRequestSpec{
+			Request:    pemCSR,
+			Usages:     []certificatesv1.KeyUsage{certificatesv1.UsageDigitalSignature, certificatesv1.UsageKeyEncipherment, certificatesv1.UsageClientAuth},
+			SignerName: certificatesv1.KubeAPIServerClientSignerName,
+		},
+	}
+
+	csr, err = co.clientSet.CertificatesV1().CertificateSigningRequests().Create(context.TODO(), csr, metav1.CreateOptions{})
+	if err != nil {
+		return nil, nil, err
+	}
+	printString(os.Stdout, "CSR: "+csr.Name+" create success\n")
+	return pemCSR, privateKey, err
+}
+
+// approveCSR approve CSR
+func (co *CreateOptions) approveCSR() error {
+	csr, err := co.clientSet.CertificatesV1().CertificateSigningRequests().Get(context.TODO(), co.userName, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	// ensure CSR is not approved
+	for _, condition := range csr.Status.Conditions {
+		if condition.Type == certificatesv1.CertificateApproved {
+			printString(os.Stdout, "CSR: "+csr.Name+" has been approved\n")
+			return nil
+		}
+	}
+
+	// update to reflect approval status
+	approvalCondition := certificatesv1.CertificateSigningRequestCondition{
+		Type:           certificatesv1.CertificateApproved,
+		Status:         coreV1.ConditionTrue, // Set Status == True
+		Reason:         "ApprovedByAdmin",
+		Message:        "This CSR was approved by admin.",
+		LastUpdateTime: metav1.Now(),
+	}
+
+	csr.Status.Conditions = append(csr.Status.Conditions, approvalCondition)
+
+	_, err = co.clientSet.CertificatesV1().CertificateSigningRequests().UpdateApproval(context.TODO(), co.userName, csr, metav1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
+	printString(os.Stdout, "CSR: "+csr.Name+" has been approved\n")
+	return err
+}
+
+// createKubeConfig create kubeconfig
+func (co *CreateOptions) createKubeConfig(privateKey *rsa.PrivateKey) error {
+	var csr *certificatesv1.CertificateSigningRequest
+	var err error
+	for i := 0; i < 3; i++ { // Retry up to 3 times
+		csr, err = co.clientSet.CertificatesV1().CertificateSigningRequests().Get(context.TODO(), co.userName, metav1.GetOptions{})
+		if err != nil {
+			return err
+		}
+
+		if len(csr.Status.Certificate) != 0 {
+			break
+		}
+
+		//fmt.Printf("Waiting for CSR to be signed...  %v\n", i)
+		// Sleep for a second before retrying
+		time.Sleep(1 * time.Second)
+	}
+
+	certData := csr.Status.Certificate
+	if len(certData) == 0 {
+		return fmt.Errorf("certificate data is empty")
+	}
+
+	cluster := co.config.Clusters[co.contextName]
+	if cluster == nil {
+		return fmt.Errorf("cluster configuration not found")
+	}
+
+	newKubeConfig := clientcmdapi.NewConfig()
+	newKubeConfig.Clusters[co.contextName] = &clientcmdapi.Cluster{
+		Server:                   cluster.Server,
+		CertificateAuthorityData: cluster.CertificateAuthorityData,
+	}
+	newKubeConfig.AuthInfos[co.userName] = &clientcmdapi.AuthInfo{
+		ClientCertificateData: certData,
+		ClientKeyData:         pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(privateKey)}),
+	}
+	newKubeConfig.Contexts[co.userName] = &clientcmdapi.Context{
+		Cluster:  co.contextName,
+		AuthInfo: co.userName,
+	}
+	newKubeConfig.CurrentContext = co.userName
+
+	// write to file
+	err = clientcmd.WriteToFile(*newKubeConfig, co.userName+"-kubeconfig.yaml")
+	if err != nil {
+		return err
+	}
+	printString(os.Stdout, "kubeconfig: "+co.userName+" create success\n")
+	return err
+}
+
+// chooseContext choose context
 func (co *CreateOptions) chooseContext() error {
 	var kubeItems []Needle
 	current := co.config.CurrentContext
@@ -115,6 +292,7 @@ func (co *CreateOptions) chooseContext() error {
 	return nil
 }
 
+// chooseNamespace choose namespace
 func (co *CreateOptions) chooseNamespace() error {
 	var nss []Namespaces
 	ctx := context.TODO()
@@ -130,28 +308,7 @@ func (co *CreateOptions) chooseNamespace() error {
 	return nil
 }
 
-func (co *CreateOptions) createServiceAccounts() error {
-	saName := co.userName
-	userServiceAccount, err := co.clientSet.CoreV1().ServiceAccounts(co.namespace).Get(context.TODO(), saName, metav1.GetOptions{})
-	if err != nil {
-		saObj := &coreV1.ServiceAccount{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: saName,
-			},
-		}
-		userServiceAccount, err = co.clientSet.CoreV1().ServiceAccounts(co.namespace).Create(context.TODO(), saObj, metav1.CreateOptions{})
-		if err != nil {
-			return err
-		}
-		printString(os.Stdout, "ServiceAccount")
-		fmt.Printf(" : %s create success\n", userServiceAccount.Name)
-	} else {
-		printYellow(os.Stdout, "ServiceAccount")
-		fmt.Printf(" : %s already exists\n", userServiceAccount.Name)
-	}
-	return nil
-}
-
+// selectClusterRole select cluster role
 func (co *CreateOptions) selectClusterRole() error {
 	clusterRoleList := []string{
 		"view", "edit", "admin", "cluster-admin", "custom",
@@ -186,6 +343,7 @@ func (co *CreateOptions) selectClusterRole() error {
 	return nil
 }
 
+// createRoleBinding create role binding
 func (co *CreateOptions) createRoleBinding() error {
 	rb := &rbacV1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
@@ -194,9 +352,9 @@ func (co *CreateOptions) createRoleBinding() error {
 		},
 		Subjects: []rbacV1.Subject{
 			{
-				Kind:      "ServiceAccount",
-				Name:      co.userName,
-				Namespace: co.namespace,
+				Kind:     "User",
+				Name:     co.userName,
+				APIGroup: "rbac.authorization.k8s.io",
 			},
 		},
 		RoleRef: rbacV1.RoleRef{
@@ -214,40 +372,20 @@ func (co *CreateOptions) createRoleBinding() error {
 	return nil
 }
 
-func (co *CreateOptions) getToken() error {
-	sa, err := co.clientSet.CoreV1().ServiceAccounts(co.namespace).Get(context.TODO(), co.userName, metav1.GetOptions{})
-	if err != nil {
-		return err
-	}
-	secretName := sa.Secrets[0].Name
-	secretToken, _ := co.clientSet.CoreV1().Secrets(co.namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
-	sEnc := base64.StdEncoding.EncodeToString(secretToken.Data["token"])
-	sDec, err := base64.StdEncoding.DecodeString(sEnc)
-	if err != nil {
-		return err
-	}
-	co.token = string(sDec)
-	return nil
-}
+func printCleanCmd(user, role string) {
+	fmt.Print(`
+# Clean up commands
+kubectl delete certificatesigningrequests.certificates.k8s.io ` + user + `
+kubectl delete rolebinding ` + user + `-` + role + `
 
-func (co *CreateOptions) putOutKubeConfig() *clientcmdapi.Config {
-	coContext := co.config.Contexts[co.contextName]
-	coCluster := co.config.Clusters[coContext.Cluster]
-	coAuthInfo := clientcmdapi.NewAuthInfo()
-	coAuthInfo.Token = co.token
-	coContext.AuthInfo = co.userName
-
-	newConfig := clientcmdapi.NewConfig()
-	newConfig.Clusters[coContext.Cluster] = coCluster
-	newConfig.AuthInfos[coContext.AuthInfo] = coAuthInfo
-	newConfig.Contexts[co.userName] = coContext
-	newConfig.CurrentContext = co.userName
-	return newConfig
+`)
 }
 
 func createExample() string {
 	return `
 # Create new KubeConfig(experiment)
 kubecm create
+# Create new KubeConfig(experiment) with flags
+kubecm create --user test --namespace default --cluster-role view --context-name kind-kind
 `
 }

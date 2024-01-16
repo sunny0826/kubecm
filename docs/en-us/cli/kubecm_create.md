@@ -6,8 +6,11 @@ Create new KubeConfig(experiment)
 
 Create new KubeConfig(experiment)
 
+WARNING: This command is experimental and this feature is only supported in kubernates v1.24 and later.
+
+
 ```
-kubecm create
+kubecm create [flags]
 ```
 
 ### Examples
@@ -16,13 +19,20 @@ kubecm create
 
 # Create new KubeConfig(experiment)
 kubecm create
+# Create new KubeConfig(experiment) with flags
+kubecm create --user test --namespace default --cluster-role view --context-name kind-kind
 
 ```
 
 ### Options
 
 ```
-  -h, --help   help for create
+      --cluster-role string   cluster role for user
+      --context-name string   context name for kubeconfig
+  -h, --help                  help for create
+  -n, --namespace string      namespace for user
+      --print-clean-up        print clean up command
+      --user string           user name for kubeconfig
 ```
 
 ### Options inherited from parent commands
