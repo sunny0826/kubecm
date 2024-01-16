@@ -211,7 +211,7 @@ func (co *CreateOptions) approveCSR() error {
 func (co *CreateOptions) createKubeConfig(privateKey *rsa.PrivateKey) error {
 	var csr *certificatesv1.CertificateSigningRequest
 	var err error
-	for i := 0; i < 10; i++ { // Retry up to 3 times
+	for i := 0; i < 5; i++ { // Retry up to 3 times
 		csr, err = co.clientSet.CertificatesV1().CertificateSigningRequests().Get(context.TODO(), co.userName, metav1.GetOptions{})
 		if err != nil {
 			return err
@@ -223,7 +223,7 @@ func (co *CreateOptions) createKubeConfig(privateKey *rsa.PrivateKey) error {
 
 		fmt.Printf("Waiting for CSR to be signed...  %v\n", i)
 		// Sleep for a second before retrying
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 
 	certData := csr.Status.Certificate
