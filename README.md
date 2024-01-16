@@ -9,55 +9,7 @@
 [![GitHub release](https://img.shields.io/github/release/sunny0826/kubecm)](https://github.com/sunny0826/kubecm/releases)
 [![codecov](https://codecov.io/gh/sunny0826/kubecm/branch/master/graph/badge.svg?token=KGTLBQ8HYZ)](https://codecov.io/gh/sunny0826/kubecm)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6065/badge)](https://bestpractices.coreinfrastructure.org/projects/6065)
-[![All Contributors](https://img.shields.io/badge/all_contributors-18-orange.svg?style=flat-square)](#contributors-)
-
-```text
-                                                 
-        Manage your kubeconfig more easily.        
-                                                   
-
-██   ██ ██    ██ ██████  ███████  ██████ ███    ███ 
-██  ██  ██    ██ ██   ██ ██      ██      ████  ████ 
-█████   ██    ██ ██████  █████   ██      ██ ████ ██ 
-██  ██  ██    ██ ██   ██ ██      ██      ██  ██  ██ 
-██   ██  ██████  ██████  ███████  ██████ ██      ██
-
- Tips  Find more information at: https://kubecm.cloud
-
-Usage:
-  kubecm [command]
-
-Available Commands:
-  add         Add KubeConfig to $HOME/.kube/config
-  alias       Generate alias for all contexts
-  clear       Clear lapsed context, cluster and user
-  cloud       Manage kubeconfig from cloud
-  completion  Generate completion script
-  create      Create new KubeConfig(experiment)
-  delete      Delete the specified context from the kubeconfig
-  help        Help about any command
-  list        List KubeConfig
-  merge       Merge multiple kubeconfig files into one
-  namespace   Switch or change namespace interactively
-  rename      Rename the contexts of kubeconfig
-  switch      Switch Kube Context interactively
-  version     Print version info
-
-Flags:
-      --config string   path of kubeconfig (default "$HOME/.kube/config")
-  -h, --help            help for kubecm
-      --ui-size int     number of list items to show in menu at once (default 4)
-
-Use "kubecm [command] --help" for more information about a command.
-```
-
-## Documentation 📃
-
-For full documentation, please visit the KubeCM website: [https://kubecm.cloud](https://kubecm.cloud)
-
-## Demo 🎬
-
-[![asciicast](https://asciinema.org/a/389595.svg)](https://asciinema.org/a/389595)
+[![All Contributors](https://img.shields.io/github/all-contributors/sunny0826/kubecm?color=ee8449&style=flat-square)](#contributors)
 
 ## Install 🚀
 
@@ -76,6 +28,23 @@ brew install kubecm
 Source binary:
 
 [Download the binary](https://github.com/sunny0826/kubecm/releases)
+
+## Highlights 💫
+
+- **Context Management**: Switch between Kubernetes **clusters** and **namespaces** in a single command.
+- **Merge-Kubeconfig**: Merge multiple kubeconfig files into one.
+- **Interactive Mode**: Interactively select the context you want to switch to.
+- **Multi-Platform**: Support Linux, macOS, and Windows.
+- **Auto-Completion**: Support auto-completion for Bash, Zsh, and Fish.
+
+## Documentation 📃
+
+For full documentation, please visit the KubeCM website: [https://kubecm.cloud](https://kubecm.cloud)
+
+## Demo 🎬
+
+[![asciicast](https://asciinema.org/a/389595.svg)](https://asciinema.org/a/389595)
+
 
 ## Contribute 🤝
 
