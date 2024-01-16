@@ -5,7 +5,8 @@ Create new KubeConfig(experiment)
 ### Synopsis
 
 Create new KubeConfig(experiment)
-Warning: This command is experimental and this feature is only supported in kubernates v1.24 and later.
+
+WARNING: This command is experimental and this feature is only supported in kubernates v1.24 and later.
 
 
 ```

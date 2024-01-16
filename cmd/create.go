@@ -41,7 +41,8 @@ func (ce *CreateCommand) Init() {
 		Use:   "create",
 		Short: "Create new KubeConfig(experiment)",
 		Long: `Create new KubeConfig(experiment)
-Warning: This command is experimental and this feature is only supported in kubernates v1.24 and later.
+
+WARNING: This command is experimental and this feature is only supported in kubernates v1.24 and later.
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return ce.runCreate(cmd, args)
