@@ -15,7 +15,7 @@ require (
 	github.com/imdario/mergo v0.3.15
 	github.com/manifoldco/promptui v0.3.2
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
-	github.com/pterm/pterm v0.12.74
+	github.com/pterm/pterm v0.12.75
 	github.com/rancher/norman v0.0.0-20200820172041-261460ee9088
 	github.com/rancher/rancher/pkg/client v0.0.0-20211110212758-cc2b8beb1473
 	github.com/savioxavier/termlink v1.3.0
@@ -109,8 +109,8 @@ require (
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/oauth2 v0.10.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
-	golang.org/x/term v0.15.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/term v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.16.1 // indirect
