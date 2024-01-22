@@ -41,3 +41,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           content-filepath: ./issue_metrics.md
           assignees: sunny0826
+          labels: |
+            monthly report
