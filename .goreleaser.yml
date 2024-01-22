@@ -29,19 +29,19 @@ changelog:
   use: github
   groups:
     - title: Features
-      regexp: "^.*feat[(\\w)]*:+.*$"
+      regexp: "^.*?feat(\([[:word:]]+\))??!?:.+$"
       order: 0
     - title: 'Bug fixes'
-      regexp: "^.*fix[(\\w)]*:+.*$"
+      regexp: "^.*?fix(\([[:word:]]+\))??!?:.+$"
       order: 1
     - title: Docs
-      regexp: "^.*docs[(\\w)]*:+.*$"
+      regexp: "^.*?docs(\([[:word:]]+\))??!?:.+$"
       order: 2
     - title: Test
-      regexp: "^.*test[(\\w)]*:+.*$"
+      regexp: "^.*?test(\([[:word:]]+\))??!?:.+$"
       order: 3
     - title: Dependabot
-      regexp: "^.*chore(deps)[(\\w)]*:+.*$"
+      regexp: "^.*?chore(\([[:word:]]+\))??!?:.+$"
       order: 4
     - title: Others
       order: 999
