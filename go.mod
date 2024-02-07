@@ -15,7 +15,7 @@ require (
 	github.com/imdario/mergo v0.3.15
 	github.com/manifoldco/promptui v0.3.2
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
-	github.com/pterm/pterm v0.12.76
+	github.com/pterm/pterm v0.12.78
 	github.com/rancher/norman v0.0.0-20200820172041-261460ee9088
 	github.com/rancher/rancher/pkg/client v0.0.0-20211110212758-cc2b8beb1473
 	github.com/savioxavier/termlink v1.3.0
