@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/mgutz/ansi"
 
@@ -227,32 +228,50 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			ansi.Color(" please install the AWS CLI before normal use.", "white+h"))
 	case 4:
 		fmt.Println("⛅  Selected: Azure")
-		clientID, clientSecret := checkEnvForSecret(4)
-		SubscriptionID, sub := os.LookupEnv("AZURE_SUBSCRIPTION_ID")
-		ObjectID, obj := os.LookupEnv("AZURE_OBJECT_ID")
-		TenantID, ten := os.LookupEnv("AZURE_TENANT_ID")
-		if !sub || !obj || !ten {
-			SubscriptionID = PromptUI("Azure Subscription ID", "")
-			ObjectID = PromptUI("Azure Object ID", "")
-			TenantID = PromptUI("Azure Tenant ID", "")
-		}
+		authModes := []string{"Default (SDK Auth)", "Service Principal"}
+		authMode := selectOption(nil, authModes, "Select Auth Type")
 		azure := cloud.Azure{
-			ClientID:       clientID,
-			ClientSecret:   clientSecret,
-			SubscriptionID: SubscriptionID,
-			ObjectID:       ObjectID,
-			TenantID:       TenantID,
+			AuthMode:       cloud.AzureAuth(authMode),
+			TenantID:       os.Getenv("AZURE_TENANT_ID"),
+			SubscriptionID: os.Getenv("AZURE_SUBSCRIPTION_ID"),
 		}
-		if clusterID == "" {
-			clusters, err := azure.ListCluster()
-			if err != nil {
-				return err
+
+		if azure.TenantID == "" {
+			azure.TenantID = PromptUI("Azure Tenant ID", "")
+		}
+
+		if azure.AuthMode == cloud.AuthModeServicePrincipal {
+			azure.ClientID, azure.ClientSecret = checkEnvForSecret(4)
+			azure.ObjectID = os.Getenv("AZURE_OBJECT_ID")
+
+			if azure.ObjectID == "" {
+				azure.ObjectID = PromptUI("Azure Object ID", "")
 			}
-			if len(clusters) == 0 {
-				return errors.New("no clusters found")
+		}
+
+		if clusterID != "" {
+			clusterIDParts := strings.Split(clusterID, "/")
+			if len(clusterIDParts) != 9 {
+				return fmt.Errorf("invalid id %s", clusterID)
 			}
-			clusterNum := selectCluster(clusters, "Select Cluster")
-			kubeConfig, err := azure.GetKubeConfig(clusters[clusterNum].Name, clusters[clusterNum].ID)
+			azure.SubscriptionID = clusterIDParts[2]
+			resourceGroup := clusterIDParts[4]
+			clusterName := clusterIDParts[8]
+
+			var (
+				kubeConfig []byte
+				err        error
+			)
+			kubeConfigType := selectOption(nil, []string{"User Config", "Admin Config"}, "Select Config Type")
+			switch kubeConfigType {
+			case 0:
+				kubeConfig, err = azure.GetKubeConfig(clusterName, resourceGroup)
+			case 1:
+				kubeConfig, err = azure.GetAdminKubeConfig(clusterName, resourceGroup)
+			default:
+				return fmt.Errorf("invalid config type %d", kubeConfigType)
+			}
+
 			if err != nil {
 				return err
 			}
@@ -262,6 +281,58 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			}
 			return AddToLocal(newConfig, fmt.Sprintf("azure-%s", clusterID), "", cover)
 		}
+
+		subscriptionList, err := azure.ListSubscriptions()
+		if err != nil {
+			return err
+		}
+
+		var clusters []cloud.ClusterInfo
+
+		for _, subscription := range subscriptionList {
+			if azure.SubscriptionID != "" && azure.SubscriptionID != subscription.ID {
+				continue
+			}
+
+			subscriptionClusters, err := azure.ListCluster(subscription)
+			if err != nil {
+				return err
+			}
+			clusters = append(clusters, subscriptionClusters...)
+		}
+
+		if len(clusters) == 0 {
+			return errors.New("no clusters found")
+		}
+
+		clusterNum := selectCluster(clusters, "Select Cluster")
+		cluster := clusters[clusterNum]
+
+		if azure.SubscriptionID == "" {
+			azure.SubscriptionID = strings.Split(cluster.ID, "/")[2]
+		}
+
+		resourceGroup := strings.Split(cluster.ID, "/")[4]
+
+		var kubeConfig []byte
+		kubeConfigType := selectOption(nil, []string{"User Config", "Admin Config"}, "Select Config Type")
+		switch kubeConfigType {
+		case 0:
+			kubeConfig, err = azure.GetKubeConfig(cluster.Name, resourceGroup)
+		case 1:
+			kubeConfig, err = azure.GetAdminKubeConfig(cluster.Name, resourceGroup)
+		default:
+			return fmt.Errorf("invalid config type %d", kubeConfigType)
+		}
+
+		if err != nil {
+			return err
+		}
+		newConfig, err := clientcmd.Load(kubeConfig)
+		if err != nil {
+			return err
+		}
+		return AddToLocal(newConfig, fmt.Sprintf("azure-%s", clusterID), "", cover)
 
 	}
 	return nil

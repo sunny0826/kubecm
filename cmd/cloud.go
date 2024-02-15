@@ -147,27 +147,45 @@ func getClusters(provider, regionID string, num int) ([]cloud.ClusterInfo, error
 		}
 	case 4:
 		fmt.Println("⛅  Selected: Azure")
-		clientID, clientSecret := checkEnvForSecret(4)
-		SubscriptionID, sub := os.LookupEnv("AZURE_SUBSCRIPTION_ID")
-		ObjectID, obj := os.LookupEnv("AZURE_OBJECT_ID")
-		TenantID, ten := os.LookupEnv("AZURE_TENANT_ID")
-		if !sub || !obj || !ten {
-			SubscriptionID = PromptUI("Azure Subscription ID", "")
-			ObjectID = PromptUI("Azure Object ID", "")
-			TenantID = PromptUI("Azure Tenant ID", "")
-		}
+		authModes := []string{"Default (SDK Auth)", "Service Principal"}
+		authMode := selectOption(nil, authModes, "Select Auth Type")
 		azure := cloud.Azure{
-			ClientID:       clientID,
-			ClientSecret:   clientSecret,
-			SubscriptionID: SubscriptionID,
-			ObjectID:       ObjectID,
-			TenantID:       TenantID,
+			AuthMode:       cloud.AzureAuth(authMode),
+			TenantID:       os.Getenv("AZURE_TENANT_ID"),
+			SubscriptionID: os.Getenv("AZURE_SUBSCRIPTION_ID"),
 		}
-		clusters, err = azure.ListCluster()
+
+		if azure.TenantID == "" {
+			azure.TenantID = PromptUI("Azure Tenant ID", "")
+		}
+
+		if azure.AuthMode == cloud.AuthModeServicePrincipal {
+			azure.ClientID, azure.ClientSecret = checkEnvForSecret(4)
+			azure.ObjectID = os.Getenv("AZURE_OBJECT_ID")
+
+			if azure.ObjectID == "" {
+				azure.ObjectID = PromptUI("Azure Object ID", "")
+			}
+		}
+
+		subscriptionList, err := azure.ListSubscriptions()
 		if err != nil {
 			return nil, err
 		}
+
+		for _, subscription := range subscriptionList {
+			if azure.SubscriptionID != "" && azure.SubscriptionID != subscription.ID {
+				continue
+			}
+
+			subscriptionClusters, err := azure.ListCluster(subscription)
+			if err != nil {
+				return nil, err
+			}
+			clusters = append(clusters, subscriptionClusters...)
+		}
 	}
+
 	return clusters, err
 }
 
@@ -262,6 +280,9 @@ func selectCluster(clouds []cloud.ClusterInfo, label string) int {
 		Details: `
 --------- Info ----------
 {{ "Name:" | faint }}	{{ .Name }}
+{{- with .Account }}
+{{ "Account:" | faint }}	{{ . }}
+{{- end }}
 {{ "RegionID:" | faint }}	{{ .RegionID }}
 {{ "Version:" | faint }}	{{ .K8sVersion }}
 {{ "ID:" | faint }}	{{ .ID }}`,
@@ -286,15 +307,28 @@ func selectRegion(regionList []string, label string) int {
 		Inactive: "  {{ . | cyan }}",
 		Selected: "\U0001F30D Selected: {{ . | green }}",
 	}
+
+	return selectOption(templates, regionList, label)
+}
+
+func selectOption(templates *promptui.SelectTemplates, options []string, label string) int {
+	if templates == nil {
+		templates = &promptui.SelectTemplates{
+			Label:    "{{ . }}",
+			Inactive: "  {{ . | cyan }}",
+			Selected: "\U0001F30D Selected: {{ . | green }}",
+		}
+	}
+
 	searcher := func(input string, index int) bool {
-		pepper := regionList[index]
+		pepper := options[index]
 		name := strings.Replace(strings.ToLower(pepper), " ", "", -1)
 		input = strings.Replace(strings.ToLower(input), " ", "", -1)
 		return strings.Contains(name, input)
 	}
 	prompt := promptui.Select{
 		Label:     label,
-		Items:     regionList,
+		Items:     options,
 		Templates: templates,
 		Size:      uiSize,
 		Searcher:  searcher,

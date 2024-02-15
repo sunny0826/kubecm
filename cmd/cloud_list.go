@@ -50,13 +50,13 @@ func (cl *CloudListCommand) runCloudList(cmd *cobra.Command, args []string) erro
 func printListTable(clusters []cloud.ClusterInfo) error {
 	var table [][]string
 	for _, k := range clusters {
-		conTmp := []string{k.ID, k.Name, k.RegionID, k.K8sVersion, k.ConsoleURL}
+		conTmp := []string{k.ID, k.Account, k.Name, k.RegionID, k.K8sVersion, k.ConsoleURL}
 		table = append(table, conTmp)
 	}
 
 	if table != nil {
 		tabulate := gotabulate.Create(table)
-		tabulate.SetHeaders([]string{"ID", "NAME", "REGION ID", "VERSION", "CONSOLE URL"})
+		tabulate.SetHeaders([]string{"ID", "ACCOUNT", "NAME", "REGION ID", "VERSION", "CONSOLE URL"})
 		// Turn On String Wrapping
 		tabulate.SetWrapStrings(false)
 		// Render the table

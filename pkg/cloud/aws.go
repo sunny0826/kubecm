@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"github.com/aws/aws-sdk-go/service/sts"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -37,7 +38,7 @@ func GetRegionID() ([]string, error) {
 	var regionList []string
 	for _, p := range partitions {
 		for id := range p.Regions() {
-			//fmt.Printf("%s\n", id)
+			// fmt.Printf("%s\n", id)
 			regionList = append(regionList, id)
 		}
 	}
@@ -75,6 +76,13 @@ func (a *AWS) getClusterInfo(clusterName string) (clusterInfo ClusterInfo, err e
 	if err != nil {
 		return ClusterInfo{}, err
 	}
+
+	svcSts := sts.New(sess)
+	callerIdentity, err := svcSts.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+	if err != nil {
+		return ClusterInfo{}, err
+	}
+
 	svc := eks.New(sess)
 	input := &eks.DescribeClusterInput{
 		Name: &clusterName,
@@ -85,6 +93,7 @@ func (a *AWS) getClusterInfo(clusterName string) (clusterInfo ClusterInfo, err e
 	}
 	return ClusterInfo{
 		ID:         *cluster.Cluster.Name,
+		Account:    *callerIdentity.Account,
 		Name:       *cluster.Cluster.Name,
 		RegionID:   a.RegionID,
 		K8sVersion: *cluster.Cluster.Version,
