@@ -100,6 +100,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/AdamRussak"><img src="https://avatars.githubusercontent.com/u/31593022?v=4?s=100" width="100px;" alt="AdamRussak"/><br /><sub><b>AdamRussak</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=AdamRussak" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://chenrui.dev"><img src="https://avatars.githubusercontent.com/u/1580956?v=4?s=100" width="100px;" alt="Rui Chen"/><br /><sub><b>Rui Chen</b></sub></a><br /><a href="#infra-chenrui333" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/burmanm"><img src="https://avatars.githubusercontent.com/u/562574?v=4?s=100" width="100px;" alt="Michael Burman"/><br /><sub><b>Michael Burman</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/issues?q=author%3Aburmanm" title="Bug reports">🐛</a> <a href="https://github.com/sunny0826/kubecm/commits?author=burmanm" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jkroepke"><img src="https://avatars.githubusercontent.com/u/1560587?v=4?s=100" width="100px;" alt="Jan-Otto Kröpke"/><br /><sub><b>Jan-Otto Kröpke</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=jkroepke" title="Code">💻</a></td>
     </tr>
   </tbody>
   <tfoot>
