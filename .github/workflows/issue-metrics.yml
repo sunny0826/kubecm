@@ -29,7 +29,7 @@ jobs:
           echo "last_month=$first_day..$last_day" >> "$GITHUB_ENV"
 
       - name: Run issue-metrics tool
-        uses: github/issue-metrics@v2
+        uses: github/issue-metrics@v3
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SEARCH_QUERY: 'repo:sunny0826/kubecm is:issue created:${{ env.last_month }} -reason:"not planned"'
