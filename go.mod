@@ -1,8 +1,6 @@
 module github.com/sunny0826/kubecm
 
-go 1.21
-
-toolchain go1.21.5
+go 1.21.5
 
 require (
 	github.com/alibabacloud-go/cs-20151215/v2 v2.4.5
