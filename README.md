@@ -2,10 +2,10 @@
     <img src="docs/static/kubecm.png" title="KubeCM" alt="Kubecm" height="200" />
 </p>
 
-![Go version](https://img.shields.io/github/go-mod/go-version/sunny0826/kubecm)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/sunny0826/kubecm?logo=go)
 ![Go](https://github.com/sunny0826/kubecm/workflows/Go/badge.svg?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sunny0826/kubecm)](https://goreportcard.com/report/github.com/sunny0826/kubecm)
-![GitHub](https://img.shields.io/github/license/sunny0826/kubecm.svg)
+![GitHub License](https://img.shields.io/github/license/sunny0826/kubecm?logo=apache)
 [![GitHub release](https://img.shields.io/github/release/sunny0826/kubecm)](https://github.com/sunny0826/kubecm/releases)
 [![codecov](https://codecov.io/gh/sunny0826/kubecm/branch/master/graph/badge.svg?token=KGTLBQ8HYZ)](https://codecov.io/gh/sunny0826/kubecm)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6065/badge)](https://bestpractices.coreinfrastructure.org/projects/6065)
@@ -13,7 +13,10 @@
 
 ![demo](docs/static/Interaction.gif)
 
-## Install 🚀
+## 🚀 Install
+
+[![homebrew downloads](https://img.shields.io/homebrew/installs/dy/kubecm?style=for-the-badge&logo=homebrew&label=homebrew)](https://formulae.brew.sh/formula/kubecm)
+[![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/sunny0826/kubecm/total?style=for-the-badge&logo=github&label=github%20download)](https://github.com/sunny0826/kubecm/releases)
 
 Using [Krew](https://krew.sigs.k8s.io/):
 
@@ -31,7 +34,7 @@ Source binary:
 
 [Download the binary](https://github.com/sunny0826/kubecm/releases)
 
-## Highlights 💫
+## 💫 Highlights
 
 - **Context Management**: Switch between Kubernetes **clusters** and **namespaces** in a single command.
 - **Merge-Kubeconfig**: Merge multiple kubeconfig files into one.
@@ -39,16 +42,16 @@ Source binary:
 - **Multi-Platform**: Support Linux, macOS, and Windows.
 - **Auto-Completion**: Support auto-completion for Bash, Zsh, and Fish.
 
-## Documentation 📃
+## 📝 Documentation
 
 For full documentation, please visit the KubeCM website: [https://kubecm.cloud](https://kubecm.cloud)
 
-## Demo 🎬
+## 🎬 Demo 
 
 [![asciicast](https://asciinema.org/a/389595.svg)](https://asciinema.org/a/389595)
 
 
-## Contribute 🤝
+## 🤝 Contribute
 
 We love your input! We want to make contributing to this project as easy and transparent as possible, whether it's:
 
@@ -62,11 +65,11 @@ Feel free to open [issue](https://github.com/sunny0826/kubecm/issues/new) and [p
 
 Be sure to follow our [Community Guidelines](https://kubecm.cloud/en-us/contribute) when submitting your PR and interacting with other folks in this repository.
 
-## Star History 📈
+## 📈 Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=sunny0826/kubecm&type=Date)](https://star-history.com/#sunny0826/kubecm)
 
-## Contributors ✨
+## ✨ Contributors
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
@@ -121,7 +124,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
-## Acknowledgement 🍻
+## 🍻 Acknowledgement
 
 - [JetBrains IDEs](https://www.jetbrains.com/?from=kubecm)
 
@@ -130,3 +133,4 @@ This project follows the [all-contributors](https://github.com/all-contributors/
     <img src="docs/static/jetbrains.svg" width="128" alt="JetBrains logo">
   </a>
 </p>
+
