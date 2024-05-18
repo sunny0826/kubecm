@@ -213,7 +213,7 @@ func TestKubeConfig_handleContexts(t *testing.T) {
 				config:   tt.fields.config,
 				fileName: tt.fields.fileName,
 			}
-			got, err := kc.handleContexts(tt.args.oldConfig, tt.args.newName)
+			got, err := kc.handleContexts(tt.args.oldConfig, tt.args.newName, false)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("handleContexts() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -265,7 +265,7 @@ func TestAddToLocal(t *testing.T) {
 	}
 
 	// Test AddToLocal function
-	err = AddToLocal(newConfig, tempFile.Name(), "", true)
+	err = AddToLocal(newConfig, tempFile.Name(), "", true, false)
 	if err != nil {
 		t.Fatalf("Failed to add to local: %v", err)
 	}

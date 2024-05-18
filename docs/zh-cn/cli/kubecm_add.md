@@ -35,6 +35,7 @@ cat /etc/kubernetes/admin.conf |  kubecm add -f -
   -f, --file string   Path to merge kubeconfig files
   
   -h, --help          help for add
+  --select-context    select the context to be added
 ```
 
 ### 全局选项
