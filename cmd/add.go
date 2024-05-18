@@ -104,7 +104,7 @@ func AddToLocal(newConfig *clientcmdapi.Config, path, newName string, cover bool
 	}
 
 	if reflect.DeepEqual(oldConfig, outConfig) {
-		fmt.Println("No context to import. Skipping write kubeconfig.")
+		fmt.Println("No context to add.")
 		return nil
 	}
 
@@ -139,7 +139,7 @@ func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config, conte
 		}
 
 		if selectContext {
-			importContext := BoolUI(fmt.Sprintf("Do you want to import context「%s」? (If you select `False`, this context will not be merged)", newName))
+			importContext := BoolUI(fmt.Sprintf("Do you want to add context「%s」? (If you select `False`, this context will not be merged)", newName))
 			if importContext == "False" {
 				continue
 			}

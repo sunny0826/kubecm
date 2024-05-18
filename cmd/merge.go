@@ -70,7 +70,7 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 	}
 
 	if len(outConfigs.Contexts) == 0 {
-		fmt.Println("No context to import. Skipping write kubeconfig.")
+		fmt.Println("No context to merge.")
 		return nil
 	}
 
