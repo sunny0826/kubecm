@@ -34,6 +34,7 @@ cat /etc/kubernetes/admin.conf |  kubecm add -f -
   -c, --cover                 Overwrite local kubeconfig files
   -f, --file string           Path to merge kubeconfig files
   -h, --help                  help for add
+      --select-context        select the context to be added
 ```
 
 ### Options inherited from parent commands

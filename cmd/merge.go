@@ -30,6 +30,7 @@ func (mc *MergeCommand) Init() {
 	}
 	mc.command.Flags().StringP("folder", "f", "", "KubeConfig folder")
 	mc.command.Flags().BoolP("assumeyes", "y", false, "skip interactive file overwrite confirmation")
+	mc.command.PersistentFlags().Bool("select-context", false, "select the context to be merged")
 	//_ = mc.command.MarkFlagRequired("folder")
 	mc.AddCommands(&DocsCommand{})
 }
@@ -37,6 +38,8 @@ func (mc *MergeCommand) Init() {
 func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 	files := args
 	folder, _ := mc.command.Flags().GetString("folder")
+	selectContext, _ := mc.command.Flags().GetBool("select-context")
+
 	if folder != "" {
 		folder, err := CheckAndTransformFilePath(folder)
 		if err != nil {
@@ -60,11 +63,17 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 			config:   loadConfig,
 			fileName: getFileName(yaml),
 		}
-		outConfigs, err = kco.handleContexts(outConfigs, "")
+		outConfigs, err = kco.handleContexts(outConfigs, "", selectContext)
 		if err != nil {
 			return err
 		}
 	}
+
+	if len(outConfigs.Contexts) == 0 {
+		fmt.Println("No context to merge.")
+		return nil
+	}
+
 	confirm, _ := mc.command.Flags().GetBool("assumeyes")
 	if !confirm {
 		cover := BoolUI(fmt.Sprintf("Are you sure you want to overwrite the 「%s」 file?", cfgFile))

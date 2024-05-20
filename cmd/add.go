@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"strconv"
 
 	"github.com/spf13/cobra"
@@ -38,6 +39,7 @@ func (ac *AddCommand) Init() {
 	ac.command.Flags().StringP("file", "f", "", "Path to merge kubeconfig files")
 	ac.command.Flags().String("context-name", "", "override context name when add kubeconfig context")
 	ac.command.PersistentFlags().BoolP("cover", "c", false, "Overwrite local kubeconfig files")
+	ac.command.PersistentFlags().Bool("select-context", false, "select the context to be added")
 	_ = ac.command.MarkFlagRequired("file")
 	ac.AddCommands(&DocsCommand{})
 }
@@ -46,6 +48,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 	file, _ := ac.command.Flags().GetString("file")
 	cover, _ := ac.command.Flags().GetBool("cover")
 	contextName, _ := ac.command.Flags().GetString("context-name")
+	selectContext, _ := ac.command.Flags().GetBool("select-context")
 
 	var newConfig *clientcmdapi.Config
 	var err error
@@ -72,7 +75,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	err = AddToLocal(newConfig, file, contextName, cover)
+	err = AddToLocal(newConfig, file, contextName, cover, selectContext)
 	if err != nil {
 		return err
 	}
@@ -80,7 +83,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 }
 
 // AddToLocal add kubeConfig to local
-func AddToLocal(newConfig *clientcmdapi.Config, path, newName string, cover bool) error {
+func AddToLocal(newConfig *clientcmdapi.Config, path, newName string, cover bool, selectContext bool) error {
 	oldConfig, err := clientcmd.LoadFromFile(cfgFile)
 	if err != nil {
 		return err
@@ -90,7 +93,7 @@ func AddToLocal(newConfig *clientcmdapi.Config, path, newName string, cover bool
 		fileName: getFileName(path),
 	}
 	// merge context loop
-	outConfig, err := kco.handleContexts(oldConfig, newName)
+	outConfig, err := kco.handleContexts(oldConfig, newName, selectContext)
 	if err != nil {
 		return err
 	}
@@ -99,6 +102,12 @@ func AddToLocal(newConfig *clientcmdapi.Config, path, newName string, cover bool
 			outConfig.CurrentContext = k
 		}
 	}
+
+	if reflect.DeepEqual(oldConfig, outConfig) {
+		fmt.Println("No context to add.")
+		return nil
+	}
+
 	if !cover {
 		cover, err = strconv.ParseBool(BoolUI(fmt.Sprintf("Does it overwrite File 「%s」?", cfgFile)))
 		if err != nil {
@@ -112,7 +121,7 @@ func AddToLocal(newConfig *clientcmdapi.Config, path, newName string, cover bool
 	return nil
 }
 
-func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config, contextName string) (*clientcmdapi.Config, error) {
+func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config, contextName string, selectContext bool) (*clientcmdapi.Config, error) {
 	newConfig := clientcmdapi.NewConfig()
 	var index int
 	var newName string
@@ -129,8 +138,15 @@ func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config, conte
 			newName = contextName
 		}
 
+		if selectContext {
+			importContext := BoolUI(fmt.Sprintf("Do you want to add context「%s」? (If you select `False`, this context will not be merged)", newName))
+			if importContext == "False" {
+				continue
+			}
+		}
+
 		if checkContextName(newName, oldConfig) {
-			nameConfirm := BoolUI(fmt.Sprintf("「%s」 Name already exists, do you want to rename it. (If you select `False`, this context will not be merged)", newName))
+			nameConfirm := BoolUI(fmt.Sprintf("「%s」 Name already exists, do you want to rename it? (If you select `False`, this context will not be merged)", newName))
 			if nameConfirm == "True" {
 				newName = PromptUI("Rename", newName)
 				if newName == kc.fileName {

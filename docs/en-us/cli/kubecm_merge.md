@@ -29,6 +29,7 @@ kubecm merge -f dir --config kubecm.config
   -y, --assumeyes       skip interactive file overwrite confirmation
   -f, --folder string   KubeConfig folder
   -h, --help            help for merge
+      --select-context  select the context to be merged
 ```
 
 ### Options inherited from parent commands
