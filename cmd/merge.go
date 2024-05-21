@@ -30,7 +30,9 @@ func (mc *MergeCommand) Init() {
 	}
 	mc.command.Flags().StringP("folder", "f", "", "KubeConfig folder")
 	mc.command.Flags().BoolP("assumeyes", "y", false, "skip interactive file overwrite confirmation")
-	mc.command.PersistentFlags().Bool("select-context", false, "select the context to be merged")
+	mc.command.Flags().String("context-prefix", "", "add a prefix before context name")
+	mc.command.Flags().Bool("select-context", false, "select the context to be merged")
+	mc.command.Flags().StringSlice("context-template", []string{"context"}, "define the attributes used for composing the context name, available values: filename, user, cluster, context, namespace")
 	//_ = mc.command.MarkFlagRequired("folder")
 	mc.AddCommands(&DocsCommand{})
 }
@@ -38,10 +40,17 @@ func (mc *MergeCommand) Init() {
 func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 	files := args
 	folder, _ := mc.command.Flags().GetString("folder")
+	contextPrefix, _ := mc.command.Flags().GetString("context-prefix")
 	selectContext, _ := mc.command.Flags().GetBool("select-context")
+	contextTemplate, _ := mc.command.Flags().GetStringSlice("context-template")
+
+	err := validateContextTemplate(contextTemplate)
+	if err != nil {
+		return err
+	}
 
 	if folder != "" {
-		folder, err := CheckAndTransformFilePath(folder)
+		folder, err = CheckAndTransformFilePath(folder)
 		if err != nil {
 			return err
 		}
@@ -63,7 +72,7 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 			config:   loadConfig,
 			fileName: getFileName(yaml),
 		}
-		outConfigs, err = kco.handleContexts(outConfigs, "", selectContext)
+		outConfigs, err = kco.handleContexts(outConfigs, contextPrefix, selectContext, contextTemplate)
 		if err != nil {
 			return err
 		}
@@ -79,7 +88,7 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 		cover := BoolUI(fmt.Sprintf("Are you sure you want to overwrite the 「%s」 file?", cfgFile))
 		confirm, _ = strconv.ParseBool(cover)
 	}
-	err := WriteConfig(confirm, cfgFile, outConfigs)
+	err = WriteConfig(confirm, cfgFile, outConfigs)
 	if err != nil {
 		return err
 	}
@@ -121,5 +130,13 @@ kubecm merge 1st.yaml 2nd.yaml 3rd.yaml
 kubecm merge -f dir
 # Merge KubeConfig in the dir directory to the specified file.
 kubecm merge -f dir --config kubecm.config
+# Merge test.yaml with $HOME/.kube/config and add a prefix before context name
+kubecm merge test.yaml --context-prefix test
+# Merge test.yaml with $HOME/.kube/config and define the attributes used for composing the context name
+kubecm merge test.yaml --context-template user,cluster
+# Merge test.yaml with $HOME/.kube/config, define the attributes used for composing the context name and add a prefix before context name
+kubecm merge test.yaml --context-template user,cluster --context-prefix demo
+# Merge test.yaml with $HOME/.kube/config and select the context to be added in interactive mode
+kubecm merge test.yaml --select-context
 `
 }

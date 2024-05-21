@@ -7,6 +7,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
@@ -36,10 +37,11 @@ func (ac *AddCommand) Init() {
 		},
 		Example: addExample(),
 	}
-	ac.command.Flags().StringP("file", "f", "", "Path to merge kubeconfig files")
-	ac.command.Flags().String("context-name", "", "override context name when add kubeconfig context")
-	ac.command.PersistentFlags().BoolP("cover", "c", false, "Overwrite local kubeconfig files")
-	ac.command.PersistentFlags().Bool("select-context", false, "select the context to be added")
+	ac.command.Flags().StringP("file", "f", "", "path to merge kubeconfig files")
+	ac.command.Flags().String("context-prefix", "", "add a prefix before context name")
+	ac.command.PersistentFlags().BoolP("cover", "c", false, "overwrite local kubeconfig files")
+	ac.command.Flags().Bool("select-context", false, "select the context to be added")
+	ac.command.Flags().StringSlice("context-template", []string{"context"}, "define the attributes used for composing the context name, available values: filename, user, cluster, context, namespace")
 	_ = ac.command.MarkFlagRequired("file")
 	ac.AddCommands(&DocsCommand{})
 }
@@ -47,11 +49,16 @@ func (ac *AddCommand) Init() {
 func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 	file, _ := ac.command.Flags().GetString("file")
 	cover, _ := ac.command.Flags().GetBool("cover")
-	contextName, _ := ac.command.Flags().GetString("context-name")
+	contextPrefix, _ := ac.command.Flags().GetString("context-prefix")
 	selectContext, _ := ac.command.Flags().GetBool("select-context")
+	contextTemplate, _ := ac.command.Flags().GetStringSlice("context-template")
 
 	var newConfig *clientcmdapi.Config
-	var err error
+
+	err := validateContextTemplate(contextTemplate)
+	if err != nil {
+		return err
+	}
 
 	if file == "-" {
 		// from stdin
@@ -75,7 +82,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	err = AddToLocal(newConfig, file, contextName, cover, selectContext)
+	err = AddToLocal(newConfig, file, contextPrefix, cover, selectContext, contextTemplate)
 	if err != nil {
 		return err
 	}
@@ -83,7 +90,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 }
 
 // AddToLocal add kubeConfig to local
-func AddToLocal(newConfig *clientcmdapi.Config, path, newName string, cover bool, selectContext bool) error {
+func AddToLocal(newConfig *clientcmdapi.Config, path, contextPrefix string, cover bool, selectContext bool, contextTemplate []string) error {
 	oldConfig, err := clientcmd.LoadFromFile(cfgFile)
 	if err != nil {
 		return err
@@ -93,7 +100,7 @@ func AddToLocal(newConfig *clientcmdapi.Config, path, newName string, cover bool
 		fileName: getFileName(path),
 	}
 	// merge context loop
-	outConfig, err := kco.handleContexts(oldConfig, newName, selectContext)
+	outConfig, err := kco.handleContexts(oldConfig, contextPrefix, selectContext, contextTemplate)
 	if err != nil {
 		return err
 	}
@@ -121,21 +128,22 @@ func AddToLocal(newConfig *clientcmdapi.Config, path, newName string, cover bool
 	return nil
 }
 
-func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config, contextName string, selectContext bool) (*clientcmdapi.Config, error) {
+func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config, contextPrefix string, selectContext bool, contextTemplate []string) (*clientcmdapi.Config, error) {
 	newConfig := clientcmdapi.NewConfig()
-	var index int
 	var newName string
+	generatedName := make(map[string]int)
+
 	for name, ctx := range kc.config.Contexts {
-		if len(kc.config.Contexts) > 1 {
-			if contextName == "" {
-				newName = fmt.Sprintf("%s-%s", kc.fileName, HashSufString(name))
-			} else {
-				newName = fmt.Sprintf("%s-%d", contextName, index)
-			}
-		} else if contextName == "" {
-			newName = name
-		} else {
-			newName = contextName
+		newName = kc.generateContextName(name, ctx, contextTemplate)
+		if contextPrefix != "" {
+			newName = fmt.Sprintf("%s-%s", contextPrefix, newName)
+		}
+
+		// prevent generate duplicate context name
+		// for example: set --context-template user,cluster, the context1 and context2 have the same user and cluster
+		generatedName[newName]++
+		if generatedName[newName] > 1 {
+			newName = fmt.Sprintf("%s-%d", newName, generatedName[newName])
 		}
 
 		if selectContext {
@@ -159,10 +167,30 @@ func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config, conte
 		itemConfig := kc.handleContext(oldConfig, newName, ctx)
 		newConfig = appendConfig(newConfig, itemConfig)
 		fmt.Printf("Add Context: %s \n", newName)
-		index++
 	}
 	outConfig := appendConfig(oldConfig, newConfig)
 	return outConfig, nil
+}
+
+func (kc *KubeConfigOption) generateContextName(name string, ctx *clientcmdapi.Context, contextTemplate []string) string {
+	valueMap := map[string]string{
+		Filename:  kc.fileName,
+		Context:   name,
+		User:      ctx.AuthInfo,
+		Cluster:   ctx.Cluster,
+		Namespace: ctx.Namespace,
+	}
+
+	var contextValues []string
+	for _, value := range contextTemplate {
+		if v, ok := valueMap[value]; ok {
+			if v != "" {
+				contextValues = append(contextValues, v)
+			}
+		}
+	}
+
+	return strings.Join(contextValues, "-")
 }
 
 func checkContextName(name string, oldConfig *clientcmdapi.Config) bool {
@@ -223,14 +251,16 @@ func (kc *KubeConfigOption) handleContext(oldConfig *clientcmdapi.Config,
 
 func addExample() string {
 	return `
-Note: If -c is set and more than one context is added to the kubeconfig file, the following will occur:
-- If --context-name is set, the context will be generated as <context-name-0>, <context-name-1> ...
-- If --context-name is not set, it will be generated as <file-name-{hash}> where {hash} is the MD5 hash of the file name.
-
 # Merge test.yaml with $HOME/.kube/config
 kubecm add -f test.yaml 
-# Merge test.yaml with $HOME/.kube/config and rename context name
-kubecm add -cf test.yaml --context-name test
+# Merge test.yaml with $HOME/.kube/config and add a prefix before context name
+kubecm add -cf test.yaml --context-prefix test
+# Merge test.yaml with $HOME/.kube/config and define the attributes used for composing the context name
+kubecm add -f test.yaml --context-template user,cluster
+# Merge test.yaml with $HOME/.kube/config, define the attributes used for composing the context name and add a prefix before context name
+kubecm add -f test.yaml --context-template user,cluster --context-prefix demo
+# Merge test.yaml with $HOME/.kube/config and select the context to be added in interactive mode
+kubecm add -f test.yaml --select-context
 # Add kubeconfig from stdin
 cat /etc/kubernetes/admin.conf |  kubecm add -f -
 `
