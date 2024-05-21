@@ -262,6 +262,6 @@ kubecm add -f test.yaml --context-template user,cluster --context-prefix demo
 # Merge test.yaml with $HOME/.kube/config and select the context to be added in interactive mode
 kubecm add -f test.yaml --select-context
 # Add kubeconfig from stdin
-cat /etc/kubernetes/admin.conf |  kubecm add -f -
+cat /etc/kubernetes/admin.conf | kubecm add -f -
 `
 }

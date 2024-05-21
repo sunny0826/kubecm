@@ -14,33 +14,36 @@ kubecm add [flags]
 
 ```
 
-Note: If -c is set and more than one context is added to the kubeconfig file, the following will occur:
-- If --context-name is set, the context will be generated as <context-name-0>, <context-name-1> ...
-- If --context-name is not set, it will be generated as <file-name-{hash}> where {hash} is the MD5 hash of the file name.
-
 # Merge test.yaml with $HOME/.kube/config
 kubecm add -f test.yaml 
-# Merge test.yaml with $HOME/.kube/config and rename context name
-kubecm add -cf test.yaml --context-name test
+# Merge test.yaml with $HOME/.kube/config and add a prefix before context name
+kubecm add -cf test.yaml --context-prefix test
+# Merge test.yaml with $HOME/.kube/config and define the attributes used for composing the context name
+kubecm add -f test.yaml --context-template user,cluster
+# Merge test.yaml with $HOME/.kube/config, define the attributes used for composing the context name and add a prefix before context name
+kubecm add -f test.yaml --context-template user,cluster --context-prefix demo
+# Merge test.yaml with $HOME/.kube/config and select the context to be added in interactive mode
+kubecm add -f test.yaml --select-context
 # Add kubeconfig from stdin
-cat /etc/kubernetes/admin.conf |  kubecm add -f -
+cat /etc/kubernetes/admin.conf | kubecm add -f -
 
 ```
 
 ### Options
 
 ```
-      --context-name string   override context name when add kubeconfig context
-  -c, --cover                 Overwrite local kubeconfig files
-  -f, --file string           Path to merge kubeconfig files
-  -h, --help                  help for add
-      --select-context        select the context to be added
+      --context-prefix string      add a prefix before context name
+      --context-template strings   define the attributes used for composing the context name, available values: filename, user, cluster, context, namespace (default [context])
+  -c, --cover                      overwrite local kubeconfig files
+  -f, --file string                path to merge kubeconfig files
+  -h, --help                       help for add
+      --select-context             select the context to be added
 ```
 
 ### Options inherited from parent commands
 
 ```
-      --config string   path of kubeconfig (default "/Users/guoxd/.kube/config")
+      --config string   path of kubeconfig (default "$HOME/.kube/config")
   -m, --mac-notify      enable to display Mac notification banner
   -s, --silence-table   enable/disable output of context table on successful config update
   -u, --ui-size int     number of list items to show in menu at once (default 4)
