@@ -160,6 +160,23 @@ var (
 			"demo-single-user-single-cluster": {AuthInfo: "single-user", Cluster: "single-cluster", Namespace: "single-ns"},
 		},
 	}
+	contextNameTestConfig = clientcmdapi.Config{
+		AuthInfos: map[string]*clientcmdapi.AuthInfo{
+			"black-user":  {Token: "black-token"},
+			"red-user":    {Token: "red-token"},
+			"single-user": {Token: "single-token"},
+		},
+		Clusters: map[string]*clientcmdapi.Cluster{
+			"pig-cluster":    {Server: "http://pig.org:8080"},
+			"cow-cluster":    {Server: "http://cow.org:8080"},
+			"single-cluster": {Server: "http://single:8080"},
+		},
+		Contexts: map[string]*clientcmdapi.Context{
+			"root":    {AuthInfo: "black-user", Cluster: "pig-cluster", Namespace: "saw-ns"},
+			"federal": {AuthInfo: "red-user", Cluster: "cow-cluster", Namespace: "hammer-ns"},
+			"demo":    {AuthInfo: "single-user", Cluster: "single-cluster", Namespace: "single-ns"},
+		},
+	}
 )
 
 func Test_checkContextName(t *testing.T) {
@@ -243,6 +260,7 @@ func TestKubeConfig_handleContexts(t *testing.T) {
 		{"single context name - new", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, "rename", []string{"context"}}, &renameSingleTestConfig, false},
 		{"set context template", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, "", []string{"filename", "user", "cluster"}}, &contextTemplateTestConfig, false},
 		{"set context template and context prefix", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, "demo", []string{"user", "cluster"}}, &contextTemplateAndPrefixTestConfig, false},
+		{"set context name", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, "demo", []string{}}, &contextNameTestConfig, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
