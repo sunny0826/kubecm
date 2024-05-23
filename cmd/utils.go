@@ -45,6 +45,14 @@ type Namespaces struct {
 	Default bool
 }
 
+const (
+	Filename  = "filename"
+	Context   = "context"
+	User      = "user"
+	Cluster   = "cluster"
+	Namespace = "namespace"
+)
+
 // SelectRunner interface - For better unit testing
 type SelectRunner interface {
 	Run() (int, string, error)
@@ -463,4 +471,13 @@ func MacNotifier(msg string) error {
 // isMacOs check if current system is macOS
 func isMacOs() bool {
 	return r.GOOS == "darwin"
+}
+
+func validateContextTemplate(contextTemplate []string) error {
+	for _, value := range contextTemplate {
+		if value != Filename && value != Context && value != User && value != Cluster && value != Namespace {
+			return errors.New("the available values for context-template are: filename, user, cluster, context, namespace")
+		}
+	}
+	return nil
 }

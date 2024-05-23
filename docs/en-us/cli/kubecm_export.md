@@ -31,7 +31,7 @@ kubecm export -f myconfig.yaml my-context1 my-context2
 ### Options inherited from parent commands
 
 ```
-      --config string   path of kubeconfig (default "/Users/guoxd/.kube/config")
+      --config string   path of kubeconfig (default "$HOME/.kube/config")
   -m, --mac-notify      enable to display Mac notification banner
   -s, --silence-table   enable/disable output of context table on successful config update
   -u, --ui-size int     number of list items to show in menu at once (default 4)

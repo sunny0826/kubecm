@@ -37,6 +37,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 	regionID, _ := ca.command.Flags().GetString("region_id")
 	cover, _ := ca.command.Flags().GetBool("cover")
 	selectContext, _ := ca.command.Flags().GetBool("select-context")
+	contextTemplate, _ := ca.command.Flags().GetStringSlice("context-template")
 	var num int
 	if provider == "" {
 		num = selectCloud(Clouds, "Select Cloud")
@@ -75,7 +76,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			err = AddToLocal(newConfig, clusters[clusterNum].Name, "", cover, selectContext)
+			err = AddToLocal(newConfig, clusters[clusterNum].Name, "", cover, selectContext, contextTemplate)
 			if err != nil {
 				return err
 			}
@@ -88,7 +89,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			err = AddToLocal(newConfig, fmt.Sprintf("alicloud-%s", clusterID), "", cover, selectContext)
+			err = AddToLocal(newConfig, fmt.Sprintf("alicloud-%s", clusterID), "", cover, selectContext, contextTemplate)
 			if err != nil {
 				return err
 			}
@@ -128,7 +129,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			err = AddToLocal(newConfig, clusters[clusterNum].Name, "", cover, selectContext)
+			err = AddToLocal(newConfig, clusters[clusterNum].Name, "", cover, selectContext, contextTemplate)
 			if err != nil {
 				return err
 			}
@@ -141,7 +142,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			err = AddToLocal(newConfig, fmt.Sprintf("tencent-%s", clusterID), "", cover, selectContext)
+			err = AddToLocal(newConfig, fmt.Sprintf("tencent-%s", clusterID), "", cover, selectContext, contextTemplate)
 			if err != nil {
 				return err
 			}
@@ -170,7 +171,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			err = AddToLocal(newConfig, clusters[clusterNum].Name, "", cover, selectContext)
+			err = AddToLocal(newConfig, clusters[clusterNum].Name, "", cover, selectContext, contextTemplate)
 			if err != nil {
 				return err
 			}
@@ -183,7 +184,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			err = AddToLocal(newConfig, fmt.Sprintf("rancher-%s", clusterID), "", cover, selectContext)
+			err = AddToLocal(newConfig, fmt.Sprintf("rancher-%s", clusterID), "", cover, selectContext, contextTemplate)
 			if err != nil {
 				return err
 			}
@@ -220,7 +221,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 		if err != nil {
 			return err
 		}
-		err = AddToLocal(newConfig, fmt.Sprintf("aws-%s", clusterID), "", cover, selectContext)
+		err = AddToLocal(newConfig, fmt.Sprintf("aws-%s", clusterID), "", cover, selectContext, contextTemplate)
 		if err != nil {
 			return err
 		}
@@ -280,7 +281,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			return AddToLocal(newConfig, fmt.Sprintf("azure-%s", clusterID), "", cover, selectContext)
+			return AddToLocal(newConfig, fmt.Sprintf("azure-%s", clusterID), "", cover, selectContext, contextTemplate)
 		}
 
 		subscriptionList, err := azure.ListSubscriptions()
@@ -333,7 +334,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 		if err != nil {
 			return err
 		}
-		return AddToLocal(newConfig, fmt.Sprintf("azure-%s", clusterID), "", cover, selectContext)
+		return AddToLocal(newConfig, fmt.Sprintf("azure-%s", clusterID), "", cover, selectContext, contextTemplate)
 
 	}
 	return nil
