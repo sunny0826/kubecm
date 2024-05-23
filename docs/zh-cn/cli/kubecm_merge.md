@@ -13,23 +13,31 @@ kubecm merge [flags]
 ### 示例
 
 ```
-
 # Merge multiple kubeconfig
 kubecm merge 1st.yaml 2nd.yaml 3rd.yaml
 # Merge KubeConfig in the dir directory
 kubecm merge -f dir
 # Merge KubeConfig in the dir directory to the specified file.
 kubecm merge -f dir --config kubecm.config
-
+# Merge test.yaml with $HOME/.kube/config and add a prefix before context name
+kubecm merge test.yaml --context-prefix test
+# Merge test.yaml with $HOME/.kube/config and define the attributes used for composing the context name
+kubecm merge test.yaml --context-template user,cluster
+# Merge test.yaml with $HOME/.kube/config, define the attributes used for composing the context name and add a prefix before context name
+kubecm merge test.yaml --context-template user,cluster --context-prefix demo
+# Merge test.yaml with $HOME/.kube/config and select the context to be added in interactive mode
+kubecm merge test.yaml --select-context
 ```
 
 ### 选项
 
 ```
-  -y, --assumeyes       skip interactive file overwrite confirmation
-  -f, --folder string   KubeConfig folder
-  -h, --help            help for merge
-  --select-context      select the context to be merged
+  -y, --assumeyes                  skip interactive file overwrite confirmation
+      --context-prefix string      add a prefix before context name
+      --context-template strings   define the attributes used for composing the context name, available values: filename, user, cluster, context, namespace (default [context])
+  -f, --folder string              KubeConfig folder
+  -h, --help                       help for merge
+      --select-context             select the context to be merged
 ```
 
 ### 全局选项
