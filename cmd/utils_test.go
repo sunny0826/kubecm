@@ -412,3 +412,43 @@ func TestPromptUI(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateContextTemplate(t *testing.T) {
+	type args struct {
+		contextTemplate []string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "valid context template",
+			args: args{
+				contextTemplate: []string{Filename, Context, User, Cluster, Namespace},
+			},
+			wantErr: false,
+		},
+		{
+			name: "invalid context template",
+			args: args{
+				contextTemplate: []string{"invalid"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty context template",
+			args: args{
+				contextTemplate: []string{},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateContextTemplate(tt.args.contextTemplate); (err == nil) == tt.wantErr {
+				t.Errorf("validateContextTemplate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

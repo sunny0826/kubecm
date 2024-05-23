@@ -335,3 +335,84 @@ func TestAddToLocal(t *testing.T) {
 		t.Fatalf("Failed to find 'test-context' in the loaded config")
 	}
 }
+
+func TestGenerateContextName(t *testing.T) {
+	type fields struct {
+		config   *clientcmdapi.Config
+		fileName string
+	}
+	type args struct {
+		name            string
+		ctx             *clientcmdapi.Context
+		contextTemplate []string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   string
+	}{
+		{
+			name: "all attributes",
+			fields: fields{
+				config:   &clientcmdapi.Config{},
+				fileName: "test-file",
+			},
+			args: args{
+				name: "test-context",
+				ctx: &clientcmdapi.Context{
+					AuthInfo:  "test-user",
+					Cluster:   "test-cluster",
+					Namespace: "test-namespace",
+				},
+				contextTemplate: []string{"filename", "context", "user", "cluster", "namespace"},
+			},
+			want: "test-file-test-context-test-user-test-cluster-test-namespace",
+		},
+		{
+			name: "partial attributes",
+			fields: fields{
+				config:   &clientcmdapi.Config{},
+				fileName: "test-file",
+			},
+			args: args{
+				name: "test-context",
+				ctx: &clientcmdapi.Context{
+					AuthInfo:  "test-user",
+					Cluster:   "test-cluster",
+					Namespace: "test-namespace",
+				},
+				contextTemplate: []string{"filename", "user", "namespace"},
+			},
+			want: "test-file-test-user-test-namespace",
+		},
+		{
+			name: "no attributes",
+			fields: fields{
+				config:   &clientcmdapi.Config{},
+				fileName: "test-file",
+			},
+			args: args{
+				name: "test-context",
+				ctx: &clientcmdapi.Context{
+					AuthInfo:  "test-user",
+					Cluster:   "test-cluster",
+					Namespace: "test-namespace",
+				},
+				contextTemplate: []string{},
+			},
+			want: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			kc := &KubeConfigOption{
+				config:   tt.fields.config,
+				fileName: tt.fields.fileName,
+			}
+			if got := kc.generateContextName(tt.args.name, tt.args.ctx, tt.args.contextTemplate); got != tt.want {
+				t.Errorf("generateContextName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
