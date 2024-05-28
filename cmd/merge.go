@@ -30,9 +30,10 @@ func (mc *MergeCommand) Init() {
 	}
 	mc.command.Flags().StringP("folder", "f", "", "KubeConfig folder")
 	mc.command.Flags().BoolP("assumeyes", "y", false, "skip interactive file overwrite confirmation")
+	mc.command.Flags().StringSlice("context", []string{}, "specify the context to be merged")
 	mc.command.Flags().String("context-prefix", "", "add a prefix before context name")
-	mc.command.Flags().Bool("select-context", false, "select the context to be merged")
 	mc.command.Flags().StringSlice("context-template", []string{"context"}, "define the attributes used for composing the context name, available values: filename, user, cluster, context, namespace")
+	mc.command.Flags().Bool("select-context", false, "select the context to be merged in interactive mode")
 	//_ = mc.command.MarkFlagRequired("folder")
 	mc.AddCommands(&DocsCommand{})
 }
@@ -40,6 +41,7 @@ func (mc *MergeCommand) Init() {
 func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 	files := args
 	folder, _ := mc.command.Flags().GetString("folder")
+	context, _ := mc.command.Flags().GetStringSlice("context")
 	contextPrefix, _ := mc.command.Flags().GetString("context-prefix")
 	selectContext, _ := mc.command.Flags().GetBool("select-context")
 	contextTemplate, _ := mc.command.Flags().GetStringSlice("context-template")
@@ -72,7 +74,7 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 			config:   loadConfig,
 			fileName: getFileName(yaml),
 		}
-		outConfigs, err = kco.handleContexts(outConfigs, contextPrefix, selectContext, contextTemplate)
+		outConfigs, err = kco.handleContexts(outConfigs, contextPrefix, selectContext, contextTemplate, context)
 		if err != nil {
 			return err
 		}
@@ -138,5 +140,7 @@ kubecm merge test.yaml --context-template user,cluster
 kubecm merge test.yaml --context-template user,cluster --context-prefix demo
 # Merge test.yaml with $HOME/.kube/config and select the context to be added in interactive mode
 kubecm merge test.yaml --select-context
+# Merge test.yaml with $HOME/.kube/config and specify the context to be added
+kubecm merge test.yaml --context context1,context2
 `
 }

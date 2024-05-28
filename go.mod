@@ -34,6 +34,7 @@ require (
 	github.com/aws/aws-sdk-go v1.50.35
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/stretchr/testify v1.9.0
+	golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561
 )
 
 require (
