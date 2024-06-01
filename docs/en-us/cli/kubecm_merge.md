@@ -28,6 +28,8 @@ kubecm merge test.yaml --context-template user,cluster
 kubecm merge test.yaml --context-template user,cluster --context-prefix demo
 # Merge test.yaml with $HOME/.kube/config and select the context to be added in interactive mode
 kubecm merge test.yaml --select-context
+# Merge test.yaml with $HOME/.kube/config and specify the context to be added
+kubecm merge test.yaml --context context1,context2
 
 ```
 
@@ -35,11 +37,12 @@ kubecm merge test.yaml --select-context
 
 ```
   -y, --assumeyes                  skip interactive file overwrite confirmation
+      --context strings            specify the context to be merged
       --context-prefix string      add a prefix before context name
       --context-template strings   define the attributes used for composing the context name, available values: filename, user, cluster, context, namespace (default [context])
   -f, --folder string              KubeConfig folder
   -h, --help                       help for merge
-      --select-context             select the context to be merged
+      --select-context             select the context to be merged in interactive mode
 ```
 
 ### Options inherited from parent commands

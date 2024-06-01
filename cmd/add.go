@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/exp/slices"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -37,23 +38,25 @@ func (ac *AddCommand) Init() {
 		},
 		Example: addExample(),
 	}
+	ac.command.PersistentFlags().BoolP("cover", "c", false, "overwrite local kubeconfig files")
 	ac.command.Flags().StringP("file", "f", "", "path to merge kubeconfig files")
+	ac.command.Flags().StringSlice("context", []string{}, "specify the context to be added")
 	ac.command.Flags().String("context-prefix", "", "add a prefix before context name")
 	ac.command.Flags().String("context-name", "", "override context name when add kubeconfig context, when context-name is set, context-prefix and context-template parameters will be ignored")
-	ac.command.PersistentFlags().BoolP("cover", "c", false, "overwrite local kubeconfig files")
-	ac.command.Flags().Bool("select-context", false, "select the context to be added")
 	ac.command.Flags().StringSlice("context-template", []string{"context"}, "define the attributes used for composing the context name, available values: filename, user, cluster, context, namespace")
+	ac.command.Flags().Bool("select-context", false, "select the context to be added in interactive mode")
 	_ = ac.command.MarkFlagRequired("file")
 	ac.AddCommands(&DocsCommand{})
 }
 
 func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
-	file, _ := ac.command.Flags().GetString("file")
 	cover, _ := ac.command.Flags().GetBool("cover")
+	file, _ := ac.command.Flags().GetString("file")
+	context, _ := ac.command.Flags().GetStringSlice("context")
 	contextPrefix, _ := ac.command.Flags().GetString("context-prefix")
 	contextName, _ := ac.command.Flags().GetString("context-name")
-	selectContext, _ := ac.command.Flags().GetBool("select-context")
 	contextTemplate, _ := ac.command.Flags().GetStringSlice("context-template")
+	selectContext, _ := ac.command.Flags().GetBool("select-context")
 
 	var newConfig *clientcmdapi.Config
 
@@ -88,7 +91,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	err = AddToLocal(newConfig, file, contextPrefix, cover, selectContext, contextTemplate)
+	err = AddToLocal(newConfig, file, contextPrefix, cover, selectContext, contextTemplate, context)
 	if err != nil {
 		return err
 	}
@@ -96,7 +99,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 }
 
 // AddToLocal add kubeConfig to local
-func AddToLocal(newConfig *clientcmdapi.Config, path, contextPrefix string, cover bool, selectContext bool, contextTemplate []string) error {
+func AddToLocal(newConfig *clientcmdapi.Config, path, contextPrefix string, cover bool, selectContext bool, contextTemplate []string, context []string) error {
 	oldConfig, err := clientcmd.LoadFromFile(cfgFile)
 	if err != nil {
 		return err
@@ -106,7 +109,7 @@ func AddToLocal(newConfig *clientcmdapi.Config, path, contextPrefix string, cove
 		fileName: getFileName(path),
 	}
 	// merge context loop
-	outConfig, err := kco.handleContexts(oldConfig, contextPrefix, selectContext, contextTemplate)
+	outConfig, err := kco.handleContexts(oldConfig, contextPrefix, selectContext, contextTemplate, context)
 	if err != nil {
 		return err
 	}
@@ -134,7 +137,7 @@ func AddToLocal(newConfig *clientcmdapi.Config, path, contextPrefix string, cove
 	return nil
 }
 
-func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config, contextPrefix string, selectContext bool, contextTemplate []string) (*clientcmdapi.Config, error) {
+func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config, contextPrefix string, selectContext bool, contextTemplate []string, context []string) (*clientcmdapi.Config, error) {
 	newConfig := clientcmdapi.NewConfig()
 	var newName string
 	generatedName := make(map[string]int)
@@ -152,7 +155,11 @@ func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config, conte
 			newName = fmt.Sprintf("%s-%d", newName, generatedName[newName])
 		}
 
-		if selectContext {
+		if len(context) > 0 {
+			if !slices.Contains(context, newName) {
+				continue
+			}
+		} else if selectContext {
 			importContext := BoolUI(fmt.Sprintf("Do you want to add context「%s」? (If you select `False`, this context will not be merged)", newName))
 			if importContext == "False" {
 				continue
@@ -269,6 +276,8 @@ kubecm add -f test.yaml --context-template user,cluster --context-prefix demo
 kubecm add -f test.yaml --context-name test
 # Merge test.yaml with $HOME/.kube/config and select the context to be added in interactive mode
 kubecm add -f test.yaml --select-context
+# Merge test.yaml with $HOME/.kube/config and specify the context to be added
+kubecm add -f test.yaml --context context1,context2
 # Add kubeconfig from stdin
 cat /etc/kubernetes/admin.conf | kubecm add -f -
 `

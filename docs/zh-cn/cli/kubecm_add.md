@@ -25,6 +25,8 @@ kubecm add -f test.yaml --context-template user,cluster --context-prefix demo
 kubecm add -f test.yaml --context-name test
 # Merge test.yaml with $HOME/.kube/config and select the context to be added in interactive mode
 kubecm add -f test.yaml --select-context
+# Merge test.yaml with $HOME/.kube/config and specify the context to be added
+kubecm add -f test.yaml --context context1,context2
 # Add kubeconfig from stdin
 cat /etc/kubernetes/admin.conf | kubecm add -f -
 ```
@@ -32,13 +34,14 @@ cat /etc/kubernetes/admin.conf | kubecm add -f -
 ### 选项
 
 ```
+      --context strings            specify the context to be added
       --context-name string        override context name when add kubeconfig context, when context-name is set, context-prefix and context-template parameters will be ignored
       --context-prefix string      add a prefix before context name
       --context-template strings   define the attributes used for composing the context name, available values: filename, user, cluster, context, namespace (default [context])
   -c, --cover                      overwrite local kubeconfig files
   -f, --file string                path to merge kubeconfig files
   -h, --help                       help for add
-      --select-context             select the context to be added
+      --select-context             select the context to be added in interactive mode
 ```
 
 ### 全局选项

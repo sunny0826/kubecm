@@ -177,6 +177,35 @@ var (
 			"demo":    {AuthInfo: "single-user", Cluster: "single-cluster", Namespace: "single-ns"},
 		},
 	}
+
+	multiTestConfig = clientcmdapi.Config{
+		AuthInfos: map[string]*clientcmdapi.AuthInfo{
+			"blue-user":  {Token: "blue-token"},
+			"green-user": {Token: "green-token"}},
+		Clusters: map[string]*clientcmdapi.Cluster{
+			"cat-cluster": {Server: "http://cat.org:8080"},
+			"dog-cluster": {Server: "http://dog.org:8080"}},
+		Contexts: map[string]*clientcmdapi.Context{
+			"small": {AuthInfo: "blue-user", Cluster: "cat-cluster", Namespace: "cat-ns"},
+			"large": {AuthInfo: "green-user", Cluster: "dog-cluster", Namespace: "dog-ns"},
+		},
+	}
+
+	selectContextTestConfig = clientcmdapi.Config{
+		AuthInfos: map[string]*clientcmdapi.AuthInfo{
+			"blue-user":  {Token: "blue-token"},
+			"black-user": {Token: "black-token"},
+			"red-user":   {Token: "red-token"}},
+		Clusters: map[string]*clientcmdapi.Cluster{
+			"cat-cluster": {Server: "http://cat.org:8080"},
+			"pig-cluster": {Server: "http://pig.org:8080"},
+			"cow-cluster": {Server: "http://cow.org:8080"}},
+		Contexts: map[string]*clientcmdapi.Context{
+			"small":   {AuthInfo: "blue-user", Cluster: "cat-cluster", Namespace: "cat-ns"},
+			"root":    {AuthInfo: "black-user", Cluster: "pig-cluster", Namespace: "saw-ns"},
+			"federal": {AuthInfo: "red-user", Cluster: "cow-cluster", Namespace: "hammer-ns"},
+		},
+	}
 )
 
 func Test_checkContextName(t *testing.T) {
@@ -244,6 +273,7 @@ func TestKubeConfig_handleContexts(t *testing.T) {
 	}
 	type args struct {
 		oldConfig       *clientcmdapi.Config
+		context         []string
 		contextPrefix   string
 		contextTemplate []string
 	}
@@ -255,12 +285,13 @@ func TestKubeConfig_handleContexts(t *testing.T) {
 		wantErr bool
 	}{
 		// TODO: Add test cases.
-		{"not have new context name", fields{config: newConfig, fileName: "test"}, args{&oldTestConfig, "", []string{"context"}}, &mergedConfig, false},
-		{"single context name", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, "", []string{"context"}}, &mergeSingleTestConfig, false},
-		{"single context name - new", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, "rename", []string{"context"}}, &renameSingleTestConfig, false},
-		{"set context template", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, "", []string{"filename", "user", "cluster"}}, &contextTemplateTestConfig, false},
-		{"set context template and context prefix", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, "demo", []string{"user", "cluster"}}, &contextTemplateAndPrefixTestConfig, false},
-		{"set context name", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, "demo", []string{}}, &contextNameTestConfig, false},
+		{"not have new context name", fields{config: newConfig, fileName: "test"}, args{&oldTestConfig, []string{}, "", []string{"context"}}, &mergedConfig, false},
+		{"single context name", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, []string{}, "", []string{"context"}}, &mergeSingleTestConfig, false},
+		{"single context name - new", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, []string{}, "rename", []string{"context"}}, &renameSingleTestConfig, false},
+		{"set context template", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, []string{}, "", []string{"filename", "user", "cluster"}}, &contextTemplateTestConfig, false},
+		{"set context template and context prefix", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, []string{}, "demo", []string{"user", "cluster"}}, &contextTemplateAndPrefixTestConfig, false},
+		{"set context name", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, []string{}, "demo", []string{}}, &contextNameTestConfig, false},
+		{"select context", fields{config: &multiTestConfig, fileName: "test"}, args{&oldTestConfig, []string{"small"}, "", []string{"context"}}, &selectContextTestConfig, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -268,7 +299,7 @@ func TestKubeConfig_handleContexts(t *testing.T) {
 				config:   tt.fields.config,
 				fileName: tt.fields.fileName,
 			}
-			got, err := kc.handleContexts(tt.args.oldConfig, tt.args.contextPrefix, false, tt.args.contextTemplate)
+			got, err := kc.handleContexts(tt.args.oldConfig, tt.args.contextPrefix, false, tt.args.contextTemplate, tt.args.context)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("handleContexts() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -320,7 +351,7 @@ func TestAddToLocal(t *testing.T) {
 	}
 
 	// Test AddToLocal function
-	err = AddToLocal(newConfig, tempFile.Name(), "", true, false, []string{"context"})
+	err = AddToLocal(newConfig, tempFile.Name(), "", true, false, []string{"context"}, []string{})
 	if err != nil {
 		t.Fatalf("Failed to add to local: %v", err)
 	}
