@@ -408,6 +408,13 @@ func printWarning(out io.Writer, name string) {
 	ct.ResetColor()
 }
 
+func FailOnError(err error, message string) {
+	if err != nil {
+		printWarning(os.Stdout, fmt.Sprintf("%s: %s\n", message, err.Error()))
+		os.Exit(1)
+	}
+}
+
 func appendConfig(c1, c2 *clientcmdapi.Config) *clientcmdapi.Config {
 	config := clientcmdapi.NewConfig()
 	_ = mergo.Merge(config, c1)
@@ -419,6 +426,9 @@ func appendConfig(c1, c2 *clientcmdapi.Config) *clientcmdapi.Config {
 func CheckAndTransformFilePath(path string) (string, error) {
 	if strings.HasPrefix(path, "~/") {
 		path = filepath.Join(homeDir(), path[2:])
+	}
+	if !Exists(path) {
+		CreateDirectory(path)
 	}
 	// read files info
 	_, err := os.Stat(path)
@@ -480,4 +490,37 @@ func validateContextTemplate(contextTemplate []string) error {
 		}
 	}
 	return nil
+}
+
+// checkes if a path exists
+func Exists(path string) bool {
+	printYellow(os.Stdout, "Start Checking if Path Exist")
+	_, err := os.Stat(path)
+	if err == nil {
+		printYellow(os.Stdout, "Path Exist")
+		return true
+	}
+	if os.IsNotExist(err) {
+		printYellow(os.Stdout, "Path Dose NOT Exist")
+		return false
+	}
+	return false
+}
+
+func CreateDirectory(path string) {
+	dir := filepath.Dir(path)
+	var create string
+	if Exists(dir) {
+		printYellow(os.Stdout, dir+" Path Exist")
+	} else {
+		printYellow(os.Stdout, "Createing Directory: "+filepath.Dir(path))
+		if !filepath.IsAbs(dir) {
+			printYellow(os.Stdout, dir+" Path is Not Absolute")
+			create = "./" + dir
+		} else {
+			create = dir
+		}
+		err := os.MkdirAll(create, 0777)
+		FailOnError(err, "Failed to Create Directory")
+	}
 }

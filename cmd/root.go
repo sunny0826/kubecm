@@ -33,6 +33,7 @@ import (
 )
 
 var (
+	// cfgFile represents the path to the configuration file.
 	cfgFile      string
 	uiSize       int
 	macNotify    bool
