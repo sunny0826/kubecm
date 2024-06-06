@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -195,9 +196,10 @@ func TestExitOption(t *testing.T) {
 }
 
 func TestCheckAndTransformFilePath(t *testing.T) {
-	wantPath := homeDir()
+	wantPath := filepath.Join(homeDir(), ".kube", "config")
 	type args struct {
-		path string
+		path      string
+		cfgCreate bool
 	}
 	tests := []struct {
 		name    string
@@ -206,11 +208,13 @@ func TestCheckAndTransformFilePath(t *testing.T) {
 		wantErr bool
 	}{
 		// TODO: Add test cases.
-		{"test-~", args{path: "~/"}, wantPath, false},
+		{"test -~ with no auto create", args{path: "~/", cfgCreate: false}, homeDir(), true},
+		{"test -~ with auto create enabled", args{path: "~/", cfgCreate: true}, wantPath, false},
+		{"test - false config path no auto create", args{path: "", cfgCreate: false}, "", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := CheckAndTransformFilePath(tt.args.path)
+			got, err := CheckAndTransformFilePath(tt.args.path, tt.args.cfgCreate)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CheckAndTransformFilePath() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -219,6 +223,12 @@ func TestCheckAndTransformFilePath(t *testing.T) {
 				t.Errorf("CheckAndTransformFilePath() got = %v, want %v", got, tt.want)
 			}
 		})
+		if tt.args.cfgCreate {
+			t.Cleanup(func() {
+				// Remove the file from wantPath after the test run is done
+				os.RemoveAll(filepath.Join(homeDir(), ".kube"))
+			})
+		}
 	}
 }
 
