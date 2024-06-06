@@ -518,3 +518,16 @@ func IsFile(path string) bool {
 	}
 	return !info.IsDir()
 }
+
+// CheckAndTransformFilePath return converted path
+func CheckAndTransformDirPath(path string) (string, error) {
+	if strings.HasPrefix(path, "~/") {
+		path = filepath.Join(homeDir(), path[2:])
+	}
+	// read files info
+	_, err := os.Stat(path)
+	if err != nil {
+		return "", err
+	}
+	return path, nil
+}
