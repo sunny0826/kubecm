@@ -408,13 +408,6 @@ func printWarning(out io.Writer, name string) {
 	ct.ResetColor()
 }
 
-func FailOnError(err error, message string) {
-	if err != nil {
-		printWarning(os.Stdout, fmt.Sprintf("%s: %s\n", message, err.Error()))
-		os.Exit(1)
-	}
-}
-
 func appendConfig(c1, c2 *clientcmdapi.Config) *clientcmdapi.Config {
 	config := clientcmdapi.NewConfig()
 	_ = mergo.Merge(config, c1)
