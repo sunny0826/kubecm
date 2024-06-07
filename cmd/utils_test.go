@@ -231,6 +231,67 @@ func TestCheckAndTransformFilePath(t *testing.T) {
 		}
 	}
 }
+func TestCheckAndTransformDirPath(t *testing.T) {
+	type args struct {
+		path string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{"test -~ home dir - should pass", args{path: "~/"}, homeDir(), false},
+		{"test -~ with auto create enabled", args{path: ""}, "", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := CheckAndTransformDirPath(tt.args.path)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CheckAndTransformDirPath() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("CheckAndTransformDirPath() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIsFile(t *testing.T) {
+	type args struct {
+		path string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		// TODO: Add test cases.
+		{"test -~ not a file", args{path: "."}, false},
+		{"test - is a file", args{path: "./test.file"}, true},
+		{"test - is a config file", args{path: "./config"}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.want {
+				// Create a file at the path
+				_ = os.WriteFile(tt.args.path, []byte{}, 0666)
+			}
+			got := IsFile(tt.args.path)
+			if got != tt.want {
+				t.Errorf("IsFile() got = %v, want %v", got, tt.want)
+			}
+		})
+		if tt.want {
+			t.Cleanup(func() {
+				// Remove the file from wantPath after the test run is done
+				os.ReadFile(tt.args.path)
+			})
+		}
+	}
+}
 
 func TestCheckValidContext(t *testing.T) {
 	clearWrongConfig := wrongFederalConfig.DeepCopy()
