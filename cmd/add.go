@@ -81,7 +81,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 		}
 	} else {
 		// check path
-		file, err := CheckAndTransformFilePath(file)
+		file, err := CheckAndTransformFilePath(file, cfgCreate)
 		if err != nil {
 			return err
 		}

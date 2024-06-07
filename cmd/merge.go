@@ -52,7 +52,7 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 	}
 
 	if folder != "" {
-		folder, err = CheckAndTransformFilePath(folder)
+		folder, err = CheckAndTransformDirPath(folder)
 		if err != nil {
 			return err
 		}

@@ -340,7 +340,7 @@ func WriteConfig(cover bool, file string, outConfig *clientcmdapi.Config) error 
 
 // UpdateConfigFile update kubeconfig
 func UpdateConfigFile(file string, updateConfig *clientcmdapi.Config) error {
-	file, err := CheckAndTransformFilePath(file)
+	file, err := CheckAndTransformFilePath(file, cfgCreate)
 	if err != nil {
 		return err
 	}
@@ -416,9 +416,30 @@ func appendConfig(c1, c2 *clientcmdapi.Config) *clientcmdapi.Config {
 }
 
 // CheckAndTransformFilePath return converted path
-func CheckAndTransformFilePath(path string) (string, error) {
+func CheckAndTransformFilePath(path string, autoCreate bool) (string, error) {
 	if strings.HasPrefix(path, "~/") {
 		path = filepath.Join(homeDir(), path[2:])
+	}
+	if IsFile(path) {
+		printYellow(os.Stdout, path+" Path Exist\n")
+	} else {
+		if !autoCreate {
+			return path, errors.New("path Not Exist")
+		}
+		printYellow(os.Stdout, "Createing Directory: "+filepath.Dir(path)+"\n")
+		printYellow(os.Stdout, path+" Path is Not Absolute, setting path to home dir\n")
+		pathDir := filepath.Join(homeDir(), ".kube")
+		path = filepath.Join(pathDir, "config")
+		err := os.MkdirAll(pathDir, 0777)
+		if err != nil {
+			return path, err
+		}
+		file, err := os.Create(path)
+		if err != nil {
+			return path, err
+		}
+		defer file.Close()
+		return path, err
 	}
 	// read files info
 	_, err := os.Stat(path)
@@ -480,4 +501,26 @@ func validateContextTemplate(contextTemplate []string) error {
 		}
 	}
 	return nil
+}
+
+// checkes if a path exists
+func IsFile(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return !info.IsDir()
+}
+
+// CheckAndTransformFilePath return converted path
+func CheckAndTransformDirPath(path string) (string, error) {
+	if strings.HasPrefix(path, "~/") {
+		path = filepath.Join(homeDir(), path[2:])
+	}
+	// read files info
+	_, err := os.Stat(path)
+	if err != nil {
+		return "", err
+	}
+	return path, nil
 }
