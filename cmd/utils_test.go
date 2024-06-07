@@ -287,7 +287,7 @@ func TestIsFile(t *testing.T) {
 		if tt.want {
 			t.Cleanup(func() {
 				// Remove the file from wantPath after the test run is done
-				os.ReadFile(tt.args.path)
+				os.Remove(tt.args.path)
 			})
 		}
 	}
