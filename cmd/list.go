@@ -57,8 +57,7 @@ func (lc *ListCommand) runList(command *cobra.Command, args []string) error {
 		printString(os.Stdout, "\nKubernetes version ")
 		printYellow(os.Stdout, clusterMessage.Version.GitVersion)
 		printService(os.Stdout, "\nKubernetes master", clusterMessage.Config.Host)
-		err = MoreInfo(clusterMessage.ClientSet, os.Stdout)
-		if err != nil {
+		if err := MoreInfo(clusterMessage.ClientSet, os.Stdout); err != nil {
 			fmt.Println("(Error reporting can be ignored and does not affect usage.)")
 		}
 	}
@@ -97,5 +96,7 @@ kubecm ls
 kubecm l
 # Filter out keywords(Multi-keyword support)
 kubecm ls kind k3s
+# Useful environment variables
+KUBECM_DISABLE_K8S_MORE_INFO: it will disable the k8s more info in the output
 `
 }
