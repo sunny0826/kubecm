@@ -289,6 +289,9 @@ func ClusterStatus(duration time.Duration) (*ClusterStatusCheck, error) {
 
 // MoreInfo output more info
 func MoreInfo(clientSet kubernetes.Interface, writer io.Writer) error {
+	if os.Getenv("KUBECM_DISABLE_K8S_MORE_INFO") != "" {
+		return nil
+	}
 	timeout := int64(2)
 	ctx := context.TODO()
 	nodesList, err := clientSet.CoreV1().Nodes().List(ctx, metav1.ListOptions{TimeoutSeconds: &timeout})
