@@ -96,5 +96,7 @@ kubecm ls
 kubecm l
 # Filter out keywords(Multi-keyword support)
 kubecm ls kind k3s
+# Useful environment variables
+KUBECM_DISABLE_K8S_MORE_INFO: it will disable the k8s more info in the output
 `
 }
