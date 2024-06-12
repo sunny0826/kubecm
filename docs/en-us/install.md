@@ -4,6 +4,9 @@ Multiple installation paths are available.
 
 #### ** Krew **
 
+[![homebrew downloads](https://img.shields.io/homebrew/installs/dy/kubecm?style=for-the-badge&logo=homebrew&label=homebrew)](https://formulae.brew.sh/formula/kubecm)
+[![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/sunny0826/kubecm/total?style=for-the-badge&logo=github&label=github%20download)](https://github.com/sunny0826/kubecm/releases)
+
 Using [Krew](https://krew.sigs.k8s.io/):
 
 ```bash

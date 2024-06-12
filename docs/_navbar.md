@@ -1,4 +1,2 @@
-- [Home](/)
-- Language
-  - [中文](/zh-cn/)
-  - [English](/en-us/)
+- [🏡 Home](/)
+- [💫 Contribute](/en-us/contribute.md)
