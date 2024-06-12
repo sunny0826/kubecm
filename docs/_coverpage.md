@@ -8,5 +8,5 @@
 ![GitHub](https://img.shields.io/github/license/sunny0826/kubecm.svg?style=flat-square&logo=apache)
 [![GitHub release](https://img.shields.io/github/release/sunny0826/kubecm?style=flat-square&logo=github)](https://github.com/sunny0826/kubecm/releases)
 
-[GitHub](https://github.com/sunny0826/kubecm)
-[Get Started](en-us/README)
+[👨‍💻 GitHub](https://github.com/sunny0826/kubecm)
+[🚀 Get Started](en-us/introduction)

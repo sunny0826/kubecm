@@ -56,7 +56,7 @@ Use "kubecm [command] --help" for more information about a command.
 
 ## Demo
 
-<script id="asciicast-389595" src="https://asciinema.org/a/389595.js" async></script>
+<script src="https://asciinema.org/a/vL1vJZA1KeeFka9C0Wx3SSWto.js" id="asciicast-vL1vJZA1KeeFka9C0Wx3SSWto" async="true"></script>
 
 ## Install
 Using [Krew](https://krew.sigs.k8s.io/):

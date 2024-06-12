@@ -4,23 +4,15 @@ It also supports kubeconfig management from cloud.
 
 ## Quick start
 
-### Install
+![demo](../static/interaction-lates.gif)
 
-Using [Krew](https://krew.sigs.k8s.io/):
+### 💫 Highlights
 
-```bash
-kubectl krew install kc
-```
-
-Using Homebrew:
-
-```bash
-brew install kubecm
-```
-
-Source binary:
-
-[Download the binary](https://github.com/sunny0826/kubecm/releases)
+- **Context Management**: Switch between Kubernetes **clusters** and **namespaces** in a single command.
+- **Merge-Kubeconfig**: Merge multiple kubeconfig files into one.
+- **Interactive Mode**: Interactively select the context you want to switch to.
+- **Multi-Platform**: Support Linux, macOS, and Windows.
+- **Auto-Completion**: Support auto-completion for Bash, Zsh, and Fish.
 
 ### Add kubeconfig
 
@@ -57,10 +49,11 @@ kubecm ns
 # change to namespace of kube-system
 kubecm ns kube-system
 ```
-![ns](../../static/ns.gif)
+![ns](../../static/ns-lates.gif)
+
 
 ### Interactive operation
 
-<script id="asciicast-389595" src="https://asciinema.org/a/389595.js" async></script>
+<script src="https://asciinema.org/a/vL1vJZA1KeeFka9C0Wx3SSWto.js" id="asciicast-vL1vJZA1KeeFka9C0Wx3SSWto" async="true"></script>
 
 more commands, please see [CLI References](./cli/kubecm_add.md)

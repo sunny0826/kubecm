@@ -11,7 +11,7 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6065/badge)](https://bestpractices.coreinfrastructure.org/projects/6065)
 [![All Contributors](https://img.shields.io/github/all-contributors/sunny0826/kubecm?color=ee8449&style=flat-square)](#contributors)
 
-![demo](docs/static/Interaction.gif)
+![demo](docs/static/interaction-lates.gif)
 
 ## 🚀 Install
 
@@ -48,8 +48,7 @@ For full documentation, please visit the KubeCM website: [https://kubecm.cloud](
 
 ## 🎬 Demo 
 
-[![asciicast](https://asciinema.org/a/389595.svg)](https://asciinema.org/a/389595)
-
+[![asciicast](https://asciinema.org/a/663642.svg)](https://asciinema.org/a/663642)
 
 ## 🤝 Contribute
 
