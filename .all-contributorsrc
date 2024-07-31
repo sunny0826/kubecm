@@ -5,8 +5,7 @@
   "repoHost": "https://github.com",
   "files": [
     "README.md",
-    "docs/en-us/contribute.md",
-    "docs/zh-cn/contribute.md"
+    "docs/en-us/contribute.md"
   ],
   "imageSize": 100,
   "commit": true,
