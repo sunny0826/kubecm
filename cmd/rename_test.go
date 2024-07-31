@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -49,7 +50,7 @@ var (
 	}
 )
 
-func Test_renameComplet(t *testing.T) {
+func Test_renameComplete(t *testing.T) {
 	type args struct {
 		rename   string
 		kubeName string
@@ -68,16 +69,56 @@ func Test_renameComplet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := renameComplet(tt.args.rename, tt.args.kubeName, tt.args.config)
+			got, err := renameComplete(tt.args.rename, tt.args.kubeName, tt.args.config)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("renameComplet() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("renameComplete() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("renameComplet() got = %v, want %v", got, tt.want)
+				t.Errorf("renameComplete() got = %v, want %v", got, tt.want)
 			}
 			if err != nil {
 				fmt.Printf("ERROR: %v\n", err)
+			}
+		})
+	}
+}
+
+func Test_checkRenameArgs(t *testing.T) {
+	tests := []struct {
+		name      string
+		args      []string
+		kubeItems []Needle
+		wantErr   error
+	}{
+		{
+			name:      "valid args",
+			args:      []string{"context1", "new-context"},
+			kubeItems: []Needle{{Name: "context1"}},
+			wantErr:   nil,
+		},
+		{
+			name:      "invalid args length",
+			args:      []string{"context1"},
+			kubeItems: []Needle{{Name: "context1"}},
+			wantErr:   errors.New("requires exactly 2 args"),
+		},
+		{
+			name:      "context not found",
+			args:      []string{"context2", "new-context"},
+			kubeItems: []Needle{{Name: "context1"}},
+			wantErr:   errors.New("Can not find cluster: context2"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := checkRenameArgs(tt.args, tt.kubeItems)
+			if err != nil && err.Error() != tt.wantErr.Error() {
+				t.Errorf("checkRenameArgs() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if err == nil && tt.wantErr != nil {
+				t.Errorf("checkRenameArgs() error = nil, wantErr %v", tt.wantErr)
 			}
 		})
 	}

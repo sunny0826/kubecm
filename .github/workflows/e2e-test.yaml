@@ -107,6 +107,10 @@ jobs:
           export KUBECONFIG="$PWD/multi.config"
           bin/kubecm s kind-2nd-kind
           echo "********************************************************************************"
+          echo "Running kubecm rename..."
+          echo "********************************************************************************"
+          bin/kubecm rename kind-2nd-kind kind-2nd-kind-new      
+          echo "********************************************************************************"
           echo "Running kubecm create..."
           echo "********************************************************************************"
           bin/kubecm create --user e2e --namespace default --cluster-role view --context-name kind-2nd-kind
