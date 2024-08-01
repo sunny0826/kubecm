@@ -16,6 +16,8 @@ kubecm rename [flags]
 
 # Renamed the context interactively
 kubecm rename
+# Renamed the context non-interactively
+kubecm rename <kube-context-name> <new-kube-context-name>
 
 ```
 

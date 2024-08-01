@@ -42,15 +42,27 @@ func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error 
 			kubeItems = append([]Needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
 		}
 	}
-	// exit option
-	kubeItems, err = ExitOption(kubeItems)
-	if err != nil {
-		return err
+	var kubeName string
+	var rename string
+	// args option
+	if len(args) > 0 {
+		err = checkRenameArgs(args, kubeItems)
+		if err != nil {
+			return err
+		}
+		kubeName = args[0]
+		rename = args[1]
+	} else {
+		// exit option
+		kubeItems, err = ExitOption(kubeItems)
+		if err != nil {
+			return err
+		}
+		num := SelectUI(kubeItems, "Select The Rename Kube Context")
+		kubeName = kubeItems[num].Name
+		rename = PromptUI("Rename", kubeName)
 	}
-	num := SelectUI(kubeItems, "Select The Rename Kube Context")
-	kubeName := kubeItems[num].Name
-	rename := PromptUI("Rename", kubeName)
-	config, err = renameComplet(rename, kubeName, config)
+	config, err = renameComplete(rename, kubeName, config)
 	if err != nil {
 		return err
 	}
@@ -61,7 +73,7 @@ func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error 
 	return MacNotifier(fmt.Sprintf("Rename [%s] to [%s]\n", kubeName, rename))
 }
 
-func renameComplet(rename, kubeName string, config *clientcmdapi.Config) (*clientcmdapi.Config, error) {
+func renameComplete(rename, kubeName string, config *clientcmdapi.Config) (*clientcmdapi.Config, error) {
 	if _, ok := config.Contexts[rename]; ok || rename == kubeName {
 		return nil, errors.New("Name: " + rename + " already exists")
 	}
@@ -75,9 +87,23 @@ func renameComplet(rename, kubeName string, config *clientcmdapi.Config) (*clien
 	return config, nil
 }
 
+func checkRenameArgs(args []string, kubeItems []Needle) error {
+	if len(args) != 2 {
+		return errors.New("requires exactly 2 args")
+	}
+	for _, item := range kubeItems {
+		if item.Name == args[0] {
+			return nil
+		}
+	}
+	return errors.New("Can not find cluster: " + args[0])
+}
+
 func renameExample() string {
 	return `
 # Renamed the context interactively
 kubecm rename
+# Renamed the context non-interactively
+kubecm rename <kube-context-name> <new-kube-context-name>
 `
 }
