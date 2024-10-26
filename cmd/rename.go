@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"slices"
 
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
@@ -42,6 +43,7 @@ func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error 
 			kubeItems = append([]Needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
 		}
 	}
+	slices.SortFunc(kubeItems, compareKubeItems)
 	var kubeName string
 	var rename string
 	// args option

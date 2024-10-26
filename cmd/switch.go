@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"slices"
 
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
@@ -81,6 +82,7 @@ func handleOperation(config *clientcmdapi.Config) (*clientcmdapi.Config, error) 
 			kubeItems = append([]Needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
 		}
 	}
+	slices.SortFunc(kubeItems, compareKubeItems)
 	// exit option
 	kubeItems, err := ExitOption(kubeItems)
 	if err != nil {
