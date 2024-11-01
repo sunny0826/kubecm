@@ -452,6 +452,10 @@ func CheckAndTransformFilePath(path string, autoCreate bool) (string, error) {
 	return path, nil
 }
 
+func compareKubeItems(a, b Needle) int {
+	return strings.Compare(a.Name, b.Name)
+}
+
 // CheckValidContext check and clean mismatched AuthInfo and Cluster
 func CheckValidContext(clear bool, config *clientcmdapi.Config) *clientcmdapi.Config {
 	for key, obj := range config.Contexts {

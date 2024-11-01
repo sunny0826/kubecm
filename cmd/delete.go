@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"slices"
 
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
@@ -112,6 +113,7 @@ func selectDeleteContext(config *clientcmdapi.Config) (string, string, error) {
 			kubeItems = append([]Needle{{Name: key, Cluster: obj.Cluster, User: obj.AuthInfo, Center: "(*)"}}, kubeItems...)
 		}
 	}
+	slices.SortFunc(kubeItems, compareKubeItems)
 	// exit option
 	kubeItems, err := ExitOption(kubeItems)
 	if err != nil {
