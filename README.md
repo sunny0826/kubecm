@@ -125,14 +125,3 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
-
-## 🍻 Acknowledgement
-
-- [JetBrains IDEs](https://www.jetbrains.com/?from=kubecm)
-
-<p align="center">
-  <a href="https://www.jetbrains.com/?from=kubecm" title="前往官网了解JetBrains出品的IDEs">
-    <img src="docs/static/jetbrains.svg" width="128" alt="JetBrains logo">
-  </a>
-</p>
-
