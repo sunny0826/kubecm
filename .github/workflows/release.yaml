@@ -39,4 +39,4 @@ jobs:
           token: ${{ secrets.HOMEBREW_TOKEN }}
           formula: kubecm
       - name: Update new version in krew-index
-        uses: rajatjindal/krew-release-bot@v0.0.46
+        uses: rajatjindal/krew-release-bot@v0.0.47
