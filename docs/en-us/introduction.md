@@ -4,7 +4,7 @@ It also supports kubeconfig management from cloud.
 
 ## Quick start
 
-![demo](../static/interaction-lates.gif)
+![demo](../static/kubecm-home.gif)
 
 ### 💫 Highlights
 

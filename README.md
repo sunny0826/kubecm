@@ -11,7 +11,7 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6065/badge)](https://bestpractices.coreinfrastructure.org/projects/6065)
 [![All Contributors](https://img.shields.io/github/all-contributors/sunny0826/kubecm?color=ee8449&style=flat-square)](#contributors)
 
-![demo](docs/static/interaction-lates.gif)
+![demo](docs/static/kubecm-home.gif)
 
 ## 🚀 Install
 
