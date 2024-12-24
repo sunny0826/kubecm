@@ -351,7 +351,7 @@ func TestAddToLocal(t *testing.T) {
 	}
 
 	// Test AddToLocal function
-	err = AddToLocal(newConfig, tempFile.Name(), "", true, false, []string{"context"}, []string{})
+	err = AddToLocal(newConfig, tempFile.Name(), "", true, false, []string{"context"}, []string{}, false)
 	if err != nil {
 		t.Fatalf("Failed to add to local: %v", err)
 	}
@@ -443,6 +443,126 @@ func TestGenerateContextName(t *testing.T) {
 			}
 			if got := kc.generateContextName(tt.args.name, tt.args.ctx, tt.args.contextTemplate); got != tt.want {
 				t.Errorf("generateContextName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAddToLocal_InsecureSkipTLSVerify(t *testing.T) {
+	oldCfg := clientcmdapi.Config{
+		Contexts: map[string]*clientcmdapi.Context{
+			"old-context": {AuthInfo: "old-user", Cluster: "old-cluster"},
+		},
+		AuthInfos: map[string]*clientcmdapi.AuthInfo{
+			"old-user": {},
+		},
+		Clusters: map[string]*clientcmdapi.Cluster{
+			"old-cluster": {Server: "https://old.example.org"},
+		},
+		CurrentContext: "old-context",
+	}
+
+	oldFile, err := os.CreateTemp("", "old-kubeconfig-*.yaml")
+	if err != nil {
+		t.Fatalf("failed to create temp file for old config: %v", err)
+	}
+	defer os.Remove(oldFile.Name())
+	defer oldFile.Close()
+
+	if err := clientcmd.WriteToFile(oldCfg, oldFile.Name()); err != nil {
+		t.Fatalf("failed to write old config to file: %v", err)
+	}
+
+	cfgFile = oldFile.Name()
+
+	newCfg := &clientcmdapi.Config{
+		Clusters: map[string]*clientcmdapi.Cluster{
+			"test-cluster": {
+				Server:                   "https://test.example.org",
+				CertificateAuthority:     "/fake/ca/path",
+				CertificateAuthorityData: []byte("fake-ca-data"),
+				InsecureSkipTLSVerify:    false,
+			},
+		},
+		AuthInfos: map[string]*clientcmdapi.AuthInfo{
+			"test-authinfo": {Token: "test-token"},
+		},
+		Contexts: map[string]*clientcmdapi.Context{
+			"test-context": {
+				AuthInfo:  "test-authinfo",
+				Cluster:   "test-cluster",
+				Namespace: "test-namespace",
+			},
+		},
+		CurrentContext: "test-context",
+	}
+
+	tests := []struct {
+		name                   string
+		insecureSkipTLSVerify  bool
+		wantInsecureSkipTLS    bool
+		wantCertificateAuthNil bool
+	}{
+		{
+			name:                   "InsecureSkipTLSVerify=false",
+			insecureSkipTLSVerify:  false,
+			wantInsecureSkipTLS:    false,
+			wantCertificateAuthNil: false, // dont clear CA
+		},
+		{
+			name:                   "InsecureSkipTLSVerify=true",
+			insecureSkipTLSVerify:  true,
+			wantInsecureSkipTLS:    true,
+			wantCertificateAuthNil: true, // will clear CA
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := clientcmd.WriteToFile(oldCfg, oldFile.Name()); err != nil {
+				t.Fatalf("failed to re-write old config to file: %v", err)
+			}
+
+			err = AddToLocal(
+				newCfg.DeepCopy(),
+				"fake-path",
+				"",
+				true,
+				false,
+				[]string{"context"},
+				[]string{},
+				tt.insecureSkipTLSVerify,
+			)
+			if err != nil {
+				t.Fatalf("AddToLocal() failed: %v", err)
+			}
+
+			merged, err := clientcmd.LoadFromFile(oldFile.Name())
+			if err != nil {
+				t.Fatalf("failed to load config from file: %v", err)
+			}
+
+			cluster, ok := merged.Clusters["test-cluster"]
+			if !ok {
+				t.Fatalf("cluster 'test-cluster' not found in merged config")
+			}
+
+			if cluster.InsecureSkipTLSVerify != tt.wantInsecureSkipTLS {
+				t.Errorf("got InsecureSkipTLSVerify=%v, want %v",
+					cluster.InsecureSkipTLSVerify, tt.wantInsecureSkipTLS)
+			}
+
+			if tt.wantCertificateAuthNil {
+				if cluster.CertificateAuthority != "" || len(cluster.CertificateAuthorityData) != 0 {
+					t.Errorf("CertificateAuthority/CertificateAuthorityData not cleared, got path=%q data=%q",
+						cluster.CertificateAuthority, string(cluster.CertificateAuthorityData))
+				}
+			} else {
+				if cluster.CertificateAuthority != "/fake/ca/path" ||
+					string(cluster.CertificateAuthorityData) != "fake-ca-data" {
+					t.Errorf("CertificateAuthority/CertificateAuthorityData changed unexpectedly, got path=%q data=%q",
+						cluster.CertificateAuthority, string(cluster.CertificateAuthorityData))
+				}
 			}
 		})
 	}
