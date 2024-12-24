@@ -39,6 +39,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 	context, _ := ca.command.Flags().GetStringSlice("context")
 	selectContext, _ := ca.command.Flags().GetBool("select-context")
 	contextTemplate, _ := ca.command.Flags().GetStringSlice("context-template")
+	insecureSkipTLSVerify, _ := ca.command.Flags().GetBool("insecure-skip-tls-verify")
 	var num int
 	if provider == "" {
 		num = selectCloud(Clouds, "Select Cloud")
@@ -77,7 +78,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			err = AddToLocal(newConfig, clusters[clusterNum].Name, "", cover, selectContext, contextTemplate, context)
+			err = AddToLocal(newConfig, clusters[clusterNum].Name, "", cover, selectContext, contextTemplate, context, insecureSkipTLSVerify)
 			if err != nil {
 				return err
 			}
@@ -90,7 +91,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			err = AddToLocal(newConfig, fmt.Sprintf("alicloud-%s", clusterID), "", cover, selectContext, contextTemplate, context)
+			err = AddToLocal(newConfig, fmt.Sprintf("alicloud-%s", clusterID), "", cover, selectContext, contextTemplate, context, insecureSkipTLSVerify)
 			if err != nil {
 				return err
 			}
@@ -130,7 +131,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			err = AddToLocal(newConfig, clusters[clusterNum].Name, "", cover, selectContext, contextTemplate, context)
+			err = AddToLocal(newConfig, clusters[clusterNum].Name, "", cover, selectContext, contextTemplate, context, insecureSkipTLSVerify)
 			if err != nil {
 				return err
 			}
@@ -143,7 +144,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			err = AddToLocal(newConfig, fmt.Sprintf("tencent-%s", clusterID), "", cover, selectContext, contextTemplate, context)
+			err = AddToLocal(newConfig, fmt.Sprintf("tencent-%s", clusterID), "", cover, selectContext, contextTemplate, context, insecureSkipTLSVerify)
 			if err != nil {
 				return err
 			}
@@ -172,7 +173,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			err = AddToLocal(newConfig, clusters[clusterNum].Name, "", cover, selectContext, contextTemplate, context)
+			err = AddToLocal(newConfig, clusters[clusterNum].Name, "", cover, selectContext, contextTemplate, context, insecureSkipTLSVerify)
 			if err != nil {
 				return err
 			}
@@ -185,7 +186,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			err = AddToLocal(newConfig, fmt.Sprintf("rancher-%s", clusterID), "", cover, selectContext, contextTemplate, context)
+			err = AddToLocal(newConfig, fmt.Sprintf("rancher-%s", clusterID), "", cover, selectContext, contextTemplate, context, insecureSkipTLSVerify)
 			if err != nil {
 				return err
 			}
@@ -222,7 +223,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 		if err != nil {
 			return err
 		}
-		err = AddToLocal(newConfig, fmt.Sprintf("aws-%s", clusterID), "", cover, selectContext, contextTemplate, context)
+		err = AddToLocal(newConfig, fmt.Sprintf("aws-%s", clusterID), "", cover, selectContext, contextTemplate, context, insecureSkipTLSVerify)
 		if err != nil {
 			return err
 		}
@@ -282,7 +283,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			return AddToLocal(newConfig, fmt.Sprintf("azure-%s", clusterID), "", cover, selectContext, contextTemplate, context)
+			return AddToLocal(newConfig, fmt.Sprintf("azure-%s", clusterID), "", cover, selectContext, contextTemplate, context, insecureSkipTLSVerify)
 		}
 
 		subscriptionList, err := azure.ListSubscriptions()
@@ -335,7 +336,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 		if err != nil {
 			return err
 		}
-		return AddToLocal(newConfig, fmt.Sprintf("azure-%s", clusterID), "", cover, selectContext, contextTemplate, context)
+		return AddToLocal(newConfig, fmt.Sprintf("azure-%s", clusterID), "", cover, selectContext, contextTemplate, context, insecureSkipTLSVerify)
 
 	}
 	return nil
