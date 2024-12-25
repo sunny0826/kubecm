@@ -22,8 +22,9 @@ type AddCommand struct {
 
 // KubeConfigOption kubeConfig option
 type KubeConfigOption struct {
-	config   *clientcmdapi.Config
-	fileName string
+	config                *clientcmdapi.Config
+	fileName              string
+	insecureSkipTLSVerify bool
 }
 
 // Init AddCommand
@@ -45,6 +46,7 @@ func (ac *AddCommand) Init() {
 	ac.command.Flags().String("context-name", "", "override context name when add kubeconfig context, when context-name is set, context-prefix and context-template parameters will be ignored")
 	ac.command.Flags().StringSlice("context-template", []string{"context"}, "define the attributes used for composing the context name, available values: filename, user, cluster, context, namespace")
 	ac.command.Flags().Bool("select-context", false, "select the context to be added in interactive mode")
+	ac.command.Flags().Bool("insecure-skip-tls-verify", false, "if true, the server's certificate will not be checked for validity")
 	_ = ac.command.MarkFlagRequired("file")
 	ac.AddCommands(&DocsCommand{})
 }
@@ -57,6 +59,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 	contextName, _ := ac.command.Flags().GetString("context-name")
 	contextTemplate, _ := ac.command.Flags().GetStringSlice("context-template")
 	selectContext, _ := ac.command.Flags().GetBool("select-context")
+	insecureSkipTLSVerify, _ := ac.command.Flags().GetBool("insecure-skip-tls-verify")
 
 	var newConfig *clientcmdapi.Config
 
@@ -91,7 +94,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	err = AddToLocal(newConfig, file, contextPrefix, cover, selectContext, contextTemplate, context)
+	err = AddToLocal(newConfig, file, contextPrefix, cover, selectContext, contextTemplate, context, insecureSkipTLSVerify)
 	if err != nil {
 		return err
 	}
@@ -99,14 +102,15 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 }
 
 // AddToLocal add kubeConfig to local
-func AddToLocal(newConfig *clientcmdapi.Config, path, contextPrefix string, cover bool, selectContext bool, contextTemplate []string, context []string) error {
+func AddToLocal(newConfig *clientcmdapi.Config, path, contextPrefix string, cover bool, selectContext bool, contextTemplate []string, context []string, insecureSkipTLSVerify bool) error {
 	oldConfig, err := clientcmd.LoadFromFile(cfgFile)
 	if err != nil {
 		return err
 	}
 	kco := &KubeConfigOption{
-		config:   newConfig,
-		fileName: getFileName(path),
+		config:                newConfig,
+		fileName:              getFileName(path),
+		insecureSkipTLSVerify: insecureSkipTLSVerify,
 	}
 	// merge context loop
 	outConfig, err := kco.handleContexts(oldConfig, contextPrefix, selectContext, contextTemplate, context)
@@ -253,8 +257,17 @@ func (kc *KubeConfigOption) handleContext(oldConfig *clientcmdapi.Config,
 	userName := fmt.Sprintf("%v%v", ctx.AuthInfo, userNameSuffix)
 	clusterName := fmt.Sprintf("%v%v", ctx.Cluster, clusterNameSuffix)
 	newCtx := ctx.DeepCopy()
+
+	// deep copy and clear CA data
+	cluster := kc.config.Clusters[newCtx.Cluster].DeepCopy()
+	if kc.insecureSkipTLSVerify {
+		cluster.InsecureSkipTLSVerify = true
+		cluster.CertificateAuthority = ""
+		cluster.CertificateAuthorityData = nil
+	}
+
 	newConfig.AuthInfos[userName] = kc.config.AuthInfos[newCtx.AuthInfo]
-	newConfig.Clusters[clusterName] = kc.config.Clusters[newCtx.Cluster]
+	newConfig.Clusters[clusterName] = cluster
 	newConfig.Contexts[name] = newCtx
 	newConfig.Contexts[name].AuthInfo = userName
 	newConfig.Contexts[name].Cluster = clusterName
@@ -280,5 +293,7 @@ kubecm add -f test.yaml --select-context
 kubecm add -f test.yaml --context context1,context2
 # Add kubeconfig from stdin
 cat /etc/kubernetes/admin.conf | kubecm add -f -
+# Merge test.yaml with $HOME/.kube/config and skip TLS certificate verification
+kubecm add -f test.yaml --insecure-skip-tls-verify
 `
 }
