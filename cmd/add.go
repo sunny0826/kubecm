@@ -11,6 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/slices"
+	"k8s.io/apimachinery/pkg/util/rand"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -245,7 +246,7 @@ func (kc *KubeConfigOption) handleContext(oldConfig *clientcmdapi.Config,
 
 	isClusterNameExist, isUserNameExist := checkClusterAndUserName(oldConfig, ctx.Cluster, ctx.AuthInfo)
 	newConfig := clientcmdapi.NewConfig()
-	suffix := HashSufString(name)
+	suffix := rand.String(10)
 
 	if isClusterNameExist {
 		clusterNameSuffix = "-" + suffix
@@ -278,7 +279,7 @@ func (kc *KubeConfigOption) handleContext(oldConfig *clientcmdapi.Config,
 func addExample() string {
 	return `
 # Merge test.yaml with $HOME/.kube/config
-kubecm add -f test.yaml 
+kubecm add -f test.yaml
 # Merge test.yaml with $HOME/.kube/config and add a prefix before context name
 kubecm add -cf test.yaml --context-prefix test
 # Merge test.yaml with $HOME/.kube/config and define the attributes used for composing the context name
