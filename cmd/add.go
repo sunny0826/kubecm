@@ -218,22 +218,44 @@ func checkContextName(name string, oldConfig *clientcmdapi.Config) bool {
 	return false
 }
 
-func checkClusterAndUserName(oldConfig *clientcmdapi.Config, newClusterName, newUserName string) (bool, bool) {
+// checkClusterAndUserName check if the cluster and user exist in the same context, or just cluster or user exist
+func checkClusterAndUserName(oldConfig *clientcmdapi.Config, newClusterName, newUserName string) (bool, bool, bool) {
 	var (
-		isClusterNameExist bool
-		isUserNameExist    bool
+		clusterAndUserNameExistInSameContext bool
+		justClusterNameExist                 bool
+		justUserNameExist                    bool
 	)
 
 	for _, ctx := range oldConfig.Contexts {
+		if ctx.Cluster == newClusterName && ctx.AuthInfo == newUserName {
+			clusterAndUserNameExistInSameContext = true
+			break
+		}
 		if ctx.Cluster == newClusterName {
-			isClusterNameExist = true
+			justClusterNameExist = true
 		}
 		if ctx.AuthInfo == newUserName {
-			isUserNameExist = true
+			justUserNameExist = true
 		}
 	}
 
-	return isClusterNameExist, isUserNameExist
+	return clusterAndUserNameExistInSameContext, justClusterNameExist, justUserNameExist
+}
+
+// isSameKubeConfigAlreadyExist return true if the same kubeconfig is already
+// exist, assert by cluster, user name and corresponding cluster and user info
+func (kc *KubeConfigOption) isSameKubeConfigAlreadyExist(oldConfig *clientcmdapi.Config, ctx *clientcmdapi.Context) bool {
+	oldCluster, ok := oldConfig.Clusters[ctx.Cluster]
+	if !ok {
+		return false
+	}
+
+	oldUser, ok := oldConfig.AuthInfos[ctx.AuthInfo]
+	if !ok {
+		return false
+	}
+
+	return reflect.DeepEqual(oldCluster, kc.config.Clusters[ctx.Cluster]) && reflect.DeepEqual(oldUser, kc.config.AuthInfos[ctx.AuthInfo])
 }
 
 func (kc *KubeConfigOption) handleContext(oldConfig *clientcmdapi.Config,
@@ -244,14 +266,20 @@ func (kc *KubeConfigOption) handleContext(oldConfig *clientcmdapi.Config,
 		userNameSuffix    string
 	)
 
-	isClusterNameExist, isUserNameExist := checkClusterAndUserName(oldConfig, ctx.Cluster, ctx.AuthInfo)
 	newConfig := clientcmdapi.NewConfig()
+	bothExistInSameContext, justClusterNameExist, justUserNameExist := checkClusterAndUserName(oldConfig, ctx.Cluster, ctx.AuthInfo)
+	// if same kubeconfig is already exist, skip it
+	if bothExistInSameContext {
+		if kc.isSameKubeConfigAlreadyExist(oldConfig, ctx) {
+			return newConfig
+		}
+	}
 	suffix := rand.String(10)
 
-	if isClusterNameExist {
+	if justClusterNameExist {
 		clusterNameSuffix = "-" + suffix
 	}
-	if isUserNameExist {
+	if justUserNameExist {
 		userNameSuffix = "-" + suffix
 	}
 
@@ -267,8 +295,25 @@ func (kc *KubeConfigOption) handleContext(oldConfig *clientcmdapi.Config,
 		cluster.CertificateAuthorityData = nil
 	}
 
-	newConfig.AuthInfos[userName] = kc.config.AuthInfos[newCtx.AuthInfo]
-	newConfig.Clusters[clusterName] = cluster
+	var clusterInfoExist, userInfoExist bool
+	for _, oldCluster := range oldConfig.Clusters {
+		if reflect.DeepEqual(oldCluster, cluster) {
+			clusterInfoExist = true
+		}
+	}
+	if !clusterInfoExist {
+		newConfig.Clusters[clusterName] = cluster
+	}
+
+	for _, oldUser := range oldConfig.AuthInfos {
+		if reflect.DeepEqual(oldUser, kc.config.AuthInfos[newCtx.AuthInfo]) {
+			userInfoExist = true
+		}
+	}
+	if !userInfoExist {
+		newConfig.AuthInfos[userName] = kc.config.AuthInfos[newCtx.AuthInfo]
+	}
+
 	newConfig.Contexts[name] = newCtx
 	newConfig.Contexts[name].AuthInfo = userName
 	newConfig.Contexts[name].Cluster = clusterName
