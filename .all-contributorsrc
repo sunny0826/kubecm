@@ -223,6 +223,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "poneding",
+      "name": "Pone Ding",
+      "avatar_url": "https://avatars.githubusercontent.com/u/33922888?v=4",
+      "profile": "https://poneding.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
