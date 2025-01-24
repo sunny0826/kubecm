@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -171,16 +170,19 @@ func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config, conte
 			}
 		}
 
-		if checkContextName(newName, oldConfig) {
+		var quitNewName bool
+		for checkContextName(newName, oldConfig) {
 			nameConfirm := BoolUI(fmt.Sprintf("「%s」 Name already exists, do you want to rename it? (If you select `False`, this context will not be merged)", newName))
 			if nameConfirm == "True" {
 				newName = PromptUI("Rename", newName)
-				if newName == kc.fileName {
-					return nil, errors.New("need to rename")
-				}
-			} else {
 				continue
+			} else {
+				quitNewName = true
+				break
 			}
+		}
+		if quitNewName {
+			continue
 		}
 		itemConfig := kc.handleContext(oldConfig, newName, ctx)
 		newConfig = appendConfig(newConfig, itemConfig)
@@ -229,7 +231,6 @@ func checkClusterAndUserName(oldConfig *clientcmdapi.Config, newClusterName, new
 	for _, ctx := range oldConfig.Contexts {
 		if ctx.Cluster == newClusterName && ctx.AuthInfo == newUserName {
 			clusterAndUserNameExistInSameContext = true
-			break
 		}
 		if ctx.Cluster == newClusterName {
 			justClusterNameExist = true
