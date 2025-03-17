@@ -1,6 +1,7 @@
 module github.com/sunny0826/kubecm
 
 go 1.22.2
+toolchain go1.24.1
 
 require (
 	github.com/alibabacloud-go/cs-20151215/v2 v2.4.5
@@ -18,8 +19,8 @@ require (
 	github.com/rancher/rancher/pkg/client v0.0.0-20211110212758-cc2b8beb1473
 	github.com/savioxavier/termlink v1.3.0
 	github.com/spf13/cobra v1.8.1
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1030
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.929
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1117
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.1117
 	k8s.io/api v0.31.2
 	k8s.io/apimachinery v0.31.2
 	k8s.io/client-go v0.31.1
