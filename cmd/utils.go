@@ -164,8 +164,21 @@ func SelectUI(kubeItems []Needle, label string) int {
 	return s
 }
 
+// enterFullscreen enter fullscreen
+func enterFullscreen() {
+	fmt.Print("\033[?1049h\033[H")
+}
+
+// exitFullscreen exit fullscreen , restore terminal state
+func exitFullscreen() {
+	fmt.Print("\033[?1049l")
+}
+
 // selectUIRunner
 func selectUIRunner(kubeItems []Needle, label string, runner SelectRunner) (int, error) {
+	enterFullscreen()
+	defer exitFullscreen()
+	uiSize = len(kubeItems)
 	templates := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
 		Active:   "\U0001F63C {{ .Name | red }}{{ .Center | red}}",
