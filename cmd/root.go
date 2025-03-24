@@ -73,7 +73,7 @@ func (cli *Cli) setFlags() {
 	flags.BoolVar(&cfgCreate, "create", false, "Create a new kubeconfig file if not exists")
 	// let the `make doc-gen` command generate consistent output rather than parsing different $HOME environment variables for different users.
 	flags.Lookup("config").DefValue = "$HOME/.kube/config"
-	flags.IntVarP(&uiSize, "ui-size", "u", 4, "number of list items to show in menu at once")
+	flags.IntVarP(&uiSize, "ui-size", "u", 10, "number of list items to show in menu at once")
 	flags.BoolVarP(&silenceTable, "silence-table", "s", false, "enable/disable output of context table on successful config update")
 	flags.BoolVarP(&macNotify, "mac-notify", "m", false, "enable to display Mac notification banner")
 }

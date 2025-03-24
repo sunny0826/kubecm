@@ -178,7 +178,6 @@ func exitFullscreen() {
 func selectUIRunner(kubeItems []Needle, label string, runner SelectRunner) (int, error) {
 	enterFullscreen()
 	defer exitFullscreen()
-	uiSize = len(kubeItems)
 	templates := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
 		Active:   "\U0001F63C {{ .Name | red }}{{ .Center | red}}",
