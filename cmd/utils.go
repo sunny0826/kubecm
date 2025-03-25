@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"github.com/lithammer/fuzzysearch/fuzzy"
 	"io"
 	"log"
 	"os"
@@ -184,7 +185,7 @@ func selectUIRunner(kubeItems []Needle, label string, runner SelectRunner) (int,
 		if input == "q" && name == "<exit>" {
 			return true
 		}
-		return strings.Contains(name, input)
+		return fuzzy.Match(input, name)
 	}
 	prompt := promptui.Select{
 		Label:     label,
