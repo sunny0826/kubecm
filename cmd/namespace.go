@@ -133,7 +133,7 @@ func selectNamespaceWithRunner(namespaces []Namespaces, runner SelectRunner) (in
 func GetClientSet(configFile string) (kubernetes.Interface, error) {
 	config, err := clientcmd.BuildConfigFromFlags("", configFile)
 	if err != nil {
-		return nil, fmt.Errorf(err.Error())
+		return nil, fmt.Errorf("failed to build config: %s", err.Error())
 	}
 	return kubernetes.NewForConfig(config)
 }
@@ -143,7 +143,7 @@ func GetNamespaceList(currentNamespace string, clientset kubernetes.Interface) (
 	var nss []Namespaces
 	namespaceList, err := clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, fmt.Errorf(err.Error())
+		return nil, fmt.Errorf("failed to list namespaces: %s", err.Error())
 	}
 	for _, specItem := range namespaceList.Items {
 		switch currentNamespace {
@@ -168,7 +168,7 @@ func GetNamespaceList(currentNamespace string, clientset kubernetes.Interface) (
 func CheckNamespaceExist(namespace string, clientset kubernetes.Interface) (bool, error) {
 	ns, err := clientset.CoreV1().Namespaces().Get(context.TODO(), namespace, metav1.GetOptions{})
 	if err != nil {
-		return false, fmt.Errorf(err.Error())
+		return false, fmt.Errorf("failed to get namespace %s: %s", namespace, err.Error())
 	}
 	if ns.Name == namespace {
 		return true, nil
