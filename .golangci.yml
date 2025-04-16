@@ -8,11 +8,9 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    - stylecheck
     - tagliatelle
   disable:
     - unused
-    - deadcode
   exclusions:
     paths:
       - vendor$
