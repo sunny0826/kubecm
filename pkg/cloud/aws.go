@@ -119,7 +119,7 @@ func (a *AWS) GetKubeConfigObj(clusterID string) (*clientcmdapi.Config, error) {
 	}
 
 	decodePem, err := base64.StdEncoding.DecodeString(*cluster.Cluster.CertificateAuthority.Data)
-	if err != nil {
+	if err != nil || string(decodePem) == "" {
 		return nil, err
 	}
 
