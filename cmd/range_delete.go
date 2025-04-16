@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -34,35 +35,59 @@ func (rdc *RangeDeleteCommand) Init() {
 }
 
 func (rdc *RangeDeleteCommand) runRangeDelete(command *cobra.Command, args []string) error {
+	if len(args) == 0 {
+		return errors.New("no pattern specified")
+	}
+
 	config, err := clientcmd.LoadFromFile(cfgFile)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to load kubeconfig file %q: %w", cfgFile, err)
 	}
 
-	if len(args) == 0 {
-		return errors.New("nothing can be deleted, because no pattern specified")
-	}
-
-	if rdc.matchMode != "prefix" && rdc.matchMode != "suffix" && rdc.matchMode != "contains" {
-		return fmt.Errorf("invalid match mode: %s, must be one of: prefix, suffix, contains", rdc.matchMode)
-	}
-
-	err = rangeDeleteContexts(args[0], rdc.matchMode, config)
+	// Select contexts to delete
+	needDeleteContexts, err := matchContexts(config.Contexts, args[0], rdc.matchMode)
 	if err != nil {
 		return err
 	}
 
-	err = WriteConfig(false, cfgFile, config)
-	if err != nil {
+	if len(needDeleteContexts) == 0 {
+		return errors.New("no contexts matched the specified pattern")
+	}
+
+	// Confirm delete
+	fmt.Printf("Found %d contexts matching %s mode with pattern %q:\n", len(needDeleteContexts), rdc.matchMode, args[0])
+	for _, ctx := range needDeleteContexts {
+		fmt.Printf("  - %s\n", ctx)
+	}
+
+	if !strings.EqualFold(BoolUI(fmt.Sprintf("Are you sure you want to delete these %d contexts?", len(needDeleteContexts))), "True") {
+		return errors.New("range delete operation cancelled")
+	}
+
+	if err := rangeDeleteContexts(needDeleteContexts, config); err != nil {
 		return err
 	}
+
+	if err := WriteConfig(true, cfgFile, config); err != nil {
+		return fmt.Errorf("failed to write kubeconfig file %q: %w", cfgFile, err)
+	}
+
 	return nil
 }
 
-func rangeDeleteContexts(pattern string, matchMode string, config *clientcmdapi.Config) error {
-	var needDeleteContexts []string
+// matchContexts selects contexts that match the given pattern and mode.
+func matchContexts(contexts map[string]*clientcmdapi.Context, pattern, matchMode string) ([]string, error) {
+	if pattern == "" {
+		return nil, errors.New("pattern cannot be empty")
+	}
 
-	for contextName := range config.Contexts {
+	validModes := map[string]bool{"prefix": true, "suffix": true, "contains": true}
+	if !validModes[matchMode] {
+		return nil, fmt.Errorf("invalid match mode: %s, must be one of: prefix, suffix, contains", matchMode)
+	}
+
+	var matches []string
+	for contextName := range contexts {
 		var matched bool
 		switch matchMode {
 		case "prefix":
@@ -72,31 +97,26 @@ func rangeDeleteContexts(pattern string, matchMode string, config *clientcmdapi.
 		case "contains":
 			matched = strings.Contains(contextName, pattern)
 		}
-
 		if matched {
-			needDeleteContexts = append(needDeleteContexts, contextName)
+			matches = append(matches, contextName)
 		}
 	}
 
-	if len(needDeleteContexts) == 0 {
-		return errors.New("nothing can be deleted, because no contexts matched")
-	}
+	sort.Strings(matches)
 
-	// confirm delete
-	fmt.Printf("Found %d contexts matching %s mode with pattern %q:\n", len(needDeleteContexts), matchMode, pattern)
+	return matches, nil
+}
+
+// rangeDeleteContexts deletes the specified contexts and their associated clusters and auth infos if not used elsewhere.
+func rangeDeleteContexts(needDeleteContexts []string, config *clientcmdapi.Config) error {
 	for _, ctx := range needDeleteContexts {
-		fmt.Printf("  - %s\n", ctx)
-	}
+		if _, exists := config.Contexts[ctx]; !exists {
+			return fmt.Errorf("context %q does not exist", ctx)
+		}
 
-	confirm := BoolUI(fmt.Sprintf("Are you sure you want to delete these %d contexts?", len(needDeleteContexts)))
-	if confirm != "True" {
-		return errors.New("range delete operation cancelled")
-	}
-
-	// delete all matched contexts
-	for _, ctx := range needDeleteContexts {
 		delContext := config.Contexts[ctx]
-		isClusterNameExist, isUserNameExist := checkClusterAndUserNameExceptContextToDelete(config, config.Contexts[ctx])
+		isClusterNameExist, isUserNameExist := checkClusterAndUserNameExceptContextToDelete(config, delContext)
+
 		if !isUserNameExist {
 			delete(config.AuthInfos, delContext.AuthInfo)
 		}
@@ -104,6 +124,7 @@ func rangeDeleteContexts(pattern string, matchMode string, config *clientcmdapi.
 			delete(config.Clusters, delContext.Cluster)
 		}
 		delete(config.Contexts, ctx)
+
 		fmt.Printf("Context Delete:「%s」\n", ctx)
 	}
 
@@ -115,12 +136,12 @@ func rangeDeleteExample() string {
 # Delete all contexts with prefix "dev-"
 kubecm range-delete dev-
 or 
-kubecm range-delete -m prefix dev-
+kubecm range-delete --mode prefix dev-
 
-# Delete all contexts with suffix "-prod"
-kubecm range-delete -m suffix -prod
+# Delete all contexts with suffix "prod"
+kubecm range-delete --mode suffix prod
 
 # Delete all contexts containing "staging"
-kubecm range-delete -m contains staging
+kubecm range-delete --mode contains staging
 `
 }
