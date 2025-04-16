@@ -2,10 +2,7 @@ version: "2"
 run:
   timeout: 10m
   tests: true
-issues:
-  exclude-dirs-use-default: false
 linters:
-  enable-all: false
   enable:
     - errcheck
     - gosimple
