@@ -36,8 +36,6 @@ jobs:
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v7
-        with:
-          version: v1.54
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v5.4.0
