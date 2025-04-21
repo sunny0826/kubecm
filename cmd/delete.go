@@ -27,6 +27,7 @@ func (dc *DeleteCommand) Init() {
 		},
 		Example: deleteExample(),
 	}
+	dc.AddCommands(&RangeCommand{})
 	dc.AddCommands(&DocsCommand{})
 }
 

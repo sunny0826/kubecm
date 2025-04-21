@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -11,30 +10,29 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
-// RangeDeleteCommand range delete cmd struct
-type RangeDeleteCommand struct {
+// RangeCommand range subcommand for delete command
+type RangeCommand struct {
 	BaseCommand
 	matchMode string // support prefix, suffix, contains
 }
 
-// Init RangeDeleteCommand
-func (rdc *RangeDeleteCommand) Init() {
-	rdc.command = &cobra.Command{
-		Use:     "range-delete",
-		Short:   "Delete contexts matching a pattern",
-		Long:    `Delete all contexts that match a specified pattern from the kubeconfig`,
-		Aliases: []string{"rd"},
+// Init RangeCommand
+func (rc *RangeCommand) Init() {
+	rc.command = &cobra.Command{
+		Use:   "range",
+		Short: "Delete contexts matching a pattern",
+		Long:  `Delete all contexts that match a specified pattern from the kubeconfig`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return rdc.runRangeDelete(cmd, args)
+			return rc.runRange(cmd, args)
 		},
-		Example: rangeDeleteExample(),
+		Example: rangeExample(),
 	}
 
-	rdc.command.Flags().StringVarP(&rdc.matchMode, "mode", "", "prefix", "Match mode: prefix, suffix, or contains")
-	rdc.AddCommands(&DocsCommand{})
+	rc.command.Flags().StringVarP(&rc.matchMode, "mode", "", "prefix", "Match mode: prefix, suffix, or contains")
+	rc.AddCommands(&DocsCommand{})
 }
 
-func (rdc *RangeDeleteCommand) runRangeDelete(command *cobra.Command, args []string) error {
+func (rc *RangeCommand) runRange(command *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return errors.New("no pattern specified")
 	}
@@ -45,7 +43,7 @@ func (rdc *RangeDeleteCommand) runRangeDelete(command *cobra.Command, args []str
 	}
 
 	// Select contexts to delete
-	needDeleteContexts, err := matchContexts(config.Contexts, args[0], rdc.matchMode)
+	needDeleteContexts, err := matchContexts(config.Contexts, args[0], rc.matchMode)
 	if err != nil {
 		return err
 	}
@@ -55,7 +53,7 @@ func (rdc *RangeDeleteCommand) runRangeDelete(command *cobra.Command, args []str
 	}
 
 	// Confirm delete
-	fmt.Printf("Found %d contexts matching %s mode with pattern %q:\n", len(needDeleteContexts), rdc.matchMode, args[0])
+	fmt.Printf("Found %d contexts matching %s mode with pattern %q:\n", len(needDeleteContexts), rc.matchMode, args[0])
 	for _, ctx := range needDeleteContexts {
 		fmt.Printf("  - %s\n", ctx)
 	}
@@ -102,8 +100,6 @@ func matchContexts(contexts map[string]*clientcmdapi.Context, pattern, matchMode
 		}
 	}
 
-	sort.Strings(matches)
-
 	return matches, nil
 }
 
@@ -131,17 +127,17 @@ func rangeDeleteContexts(needDeleteContexts []string, config *clientcmdapi.Confi
 	return nil
 }
 
-func rangeDeleteExample() string {
+func rangeExample() string {
 	return `
 # Delete all contexts with prefix "dev-"
-kubecm range-delete dev-
+kubecm delete range dev-
 or 
-kubecm range-delete --mode prefix dev-
+kubecm delete range --mode prefix dev-
 
 # Delete all contexts with suffix "prod"
-kubecm range-delete --mode suffix prod
+kubecm delete range --mode suffix prod
 
 # Delete all contexts containing "staging"
-kubecm range-delete --mode contains staging
+kubecm delete range --mode contains staging
 `
 }
