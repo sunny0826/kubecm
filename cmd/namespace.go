@@ -102,8 +102,8 @@ func selectNamespaceWithRunner(namespaces []Namespaces, runner SelectRunner) (in
 	}
 	searcher := func(input string, index int) bool {
 		pepper := namespaces[index]
-		name := strings.Replace(strings.ToLower(pepper.Name), " ", "", -1)
-		input = strings.Replace(strings.ToLower(input), " ", "", -1)
+		name := strings.ReplaceAll(strings.ToLower(pepper.Name), " ", "")
+		input = strings.ReplaceAll(strings.ToLower(input), " ", "")
 		if input == "q" && name == "<exit>" {
 			return true
 		}
@@ -133,7 +133,7 @@ func selectNamespaceWithRunner(namespaces []Namespaces, runner SelectRunner) (in
 func GetClientSet(configFile string) (kubernetes.Interface, error) {
 	config, err := clientcmd.BuildConfigFromFlags("", configFile)
 	if err != nil {
-		return nil, fmt.Errorf(err.Error())
+		return nil, fmt.Errorf("%w", err)
 	}
 	return kubernetes.NewForConfig(config)
 }
@@ -143,7 +143,7 @@ func GetNamespaceList(currentNamespace string, clientset kubernetes.Interface) (
 	var nss []Namespaces
 	namespaceList, err := clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, fmt.Errorf(err.Error())
+		return nil, fmt.Errorf("%w", err)
 	}
 	for _, specItem := range namespaceList.Items {
 		switch currentNamespace {
@@ -168,7 +168,7 @@ func GetNamespaceList(currentNamespace string, clientset kubernetes.Interface) (
 func CheckNamespaceExist(namespace string, clientset kubernetes.Interface) (bool, error) {
 	ns, err := clientset.CoreV1().Namespaces().Get(context.TODO(), namespace, metav1.GetOptions{})
 	if err != nil {
-		return false, fmt.Errorf(err.Error())
+		return false, fmt.Errorf("%w", err)
 	}
 	if ns.Name == namespace {
 		return true, nil

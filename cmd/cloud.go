@@ -322,8 +322,8 @@ func selectOption(templates *promptui.SelectTemplates, options []string, label s
 
 	searcher := func(input string, index int) bool {
 		pepper := options[index]
-		name := strings.Replace(strings.ToLower(pepper), " ", "", -1)
-		input = strings.Replace(strings.ToLower(input), " ", "", -1)
+		name := strings.ReplaceAll(strings.ToLower(pepper), " ", "")
+		input = strings.ReplaceAll(strings.ToLower(input), " ", "")
 		return strings.Contains(name, input)
 	}
 	prompt := promptui.Select{
