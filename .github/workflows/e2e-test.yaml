@@ -57,6 +57,12 @@ jobs:
           kind create cluster --image kindest/node:v1.21.14 --name 3rd-kind --kubeconfig 3rd-kind
           kind get clusters
 
+      - name: Setup test clusters for delete range
+        run: |
+          kind create cluster --image kindest/node:v1.21.14 --name dev-foo --kubeconfig dev-foo
+          kind create cluster --image kindest/node:v1.21.14 --name foo-prod --kubeconfig foo-prod
+          kind create cluster --image kindest/node:v1.21.14 --name foo-staging-bar --kubeconfig foo-staging-bar
+
       - name: E2E Test
         run: |
           bin/kubecm version
@@ -90,6 +96,26 @@ jobs:
           echo "Running kubecm delete..."
           echo "********************************************************************************"
           bin/kubecm d kind-kind
+          echo "********************************************************************************"
+          echo "Adding kind test clusters to kubecm for delete range tests..."
+          echo "********************************************************************************"
+          bin/kubecm add -cf dev-foo
+          bin/kubecm add -cf foo-prod
+          bin/kubecm add -cf foo-staging-bar
+          echo "Context list after adding kind test clusters:"
+          bin/kubecm list
+          echo "********************************************************************************"
+          echo "Test prefix mode: delete contexts starting with 'kind-dev-'"
+          echo "********************************************************************************"
+          bin/kubecm delete range kind-dev- -y
+          echo "********************************************************************************"
+          echo "Test suffix mode: delete contexts ending with 'prod'"
+          echo "********************************************************************************"
+          bin/kubecm delete range --mode suffix prod -y
+          echo "********************************************************************************"
+          echo "Test contains mode: delete contexts containing 'staging'"
+          echo "********************************************************************************"
+          bin/kubecm delete range --mode contains staging -y
           echo "********************************************************************************"
           echo "Running kubecm global flag --config..."
           echo "********************************************************************************"
