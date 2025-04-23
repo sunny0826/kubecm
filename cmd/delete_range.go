@@ -14,6 +14,7 @@ import (
 type RangeCommand struct {
 	BaseCommand
 	matchMode string // support prefix, suffix, contains
+	yes       bool   // skip confirmation prompt
 }
 
 // Init RangeCommand
@@ -29,6 +30,7 @@ func (rc *RangeCommand) Init() {
 	}
 
 	rc.command.Flags().StringVarP(&rc.matchMode, "mode", "", "prefix", "Match mode: prefix, suffix, or contains")
+	rc.command.Flags().BoolVarP(&rc.yes, "yes", "y", false, "Skip confirmation prompt")
 	rc.AddCommands(&DocsCommand{})
 }
 
@@ -58,8 +60,11 @@ func (rc *RangeCommand) runRange(command *cobra.Command, args []string) error {
 		fmt.Printf("  - %s\n", ctx)
 	}
 
-	if !strings.EqualFold(BoolUI(fmt.Sprintf("Are you sure you want to delete these %d contexts?", len(needDeleteContexts))), "True") {
-		return errors.New("range delete operation cancelled")
+	// Skip confirmation if -y/--yes flag is set
+	if !rc.yes {
+		if !strings.EqualFold(BoolUI(fmt.Sprintf("Are you sure you want to delete these %d contexts?", len(needDeleteContexts))), "True") {
+			return errors.New("range delete operation cancelled")
+		}
 	}
 
 	if err := rangeDeleteContexts(needDeleteContexts, config); err != nil {
@@ -139,5 +144,8 @@ kubecm delete range --mode suffix prod
 
 # Delete all contexts containing "staging"
 kubecm delete range --mode contains staging
+
+# Force delete all contexts with prefix "dev-" (skip confirmation)
+kubecm delete range dev- -y
 `
 }
