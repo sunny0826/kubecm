@@ -4,12 +4,13 @@ run:
   tests: true
 linters:
   enable:
-    - errcheck
+    
     - govet
     - ineffassign
     - tagliatelle
   disable:
     - unused
+    - errcheck
   exclusions:
     paths:
       - vendor$

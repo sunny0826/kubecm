@@ -307,8 +307,16 @@ func TestAddToLocal(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp file: %v", err)
 	}
-	defer os.Remove(tempFile.Name())
-	defer os.Remove(localFile.Name())
+	defer func() {
+		if err := os.Remove(tempFile.Name()); err != nil {
+			t.Errorf("remove temp file error: %v", err)
+		}
+	}()
+	defer func() {
+		if err := os.Remove(localFile.Name()); err != nil {
+			t.Errorf("remove local file error: %v", err)
+		}
+	}()
 
 	// Write an initial empty config to the temp file
 	emptyConfig := clientcmdapi.NewConfig()
