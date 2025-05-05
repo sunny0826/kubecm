@@ -35,7 +35,7 @@ jobs:
         run: make test
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@v8
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v5.4.2
