@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sort"
 	"testing"
 
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -100,6 +101,8 @@ func TestMatchContexts(t *testing.T) {
 				t.Errorf("unexpected error: %v", err)
 			}
 
+			sort.Strings(got)
+			sort.Strings(tt.expected)
 			if !reflect.DeepEqual(got, tt.expected) {
 				t.Errorf("expected matches %v, got %v", tt.expected, got)
 			}
