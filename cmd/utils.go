@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"github.com/lithammer/fuzzysearch/fuzzy"
 	"io"
 	"log"
 	"os"
@@ -15,8 +16,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-
-	"github.com/lithammer/fuzzysearch/fuzzy"
 
 	"k8s.io/client-go/rest"
 
