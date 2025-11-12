@@ -233,6 +233,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "xiaoshanyangcode",
+      "name": "小山羊创作",
+      "avatar_url": "https://avatars.githubusercontent.com/u/133758630?v=4",
+      "profile": "https://github.com/xiaoshanyangcode",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
