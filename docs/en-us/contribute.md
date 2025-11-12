@@ -87,6 +87,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="http://www.aiopsclub.com"><img src="https://avatars.githubusercontent.com/u/11087727?v=4?s=100" width="100px;" alt="yxxhero"/><br /><sub><b>yxxhero</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=yxxhero" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mayooot"><img src="https://avatars.githubusercontent.com/u/85121496?v=4?s=100" width="100px;" alt="Harry Li"/><br /><sub><b>Harry Li</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=mayooot" title="Code">💻</a> <a href="https://github.com/sunny0826/kubecm/commits?author=mayooot" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://poneding.com"><img src="https://avatars.githubusercontent.com/u/33922888?v=4?s=100" width="100px;" alt="Pone Ding"/><br /><sub><b>Pone Ding</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=poneding" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/xiaoshanyangcode"><img src="https://avatars.githubusercontent.com/u/133758630?v=4?s=100" width="100px;" alt="小山羊创作"/><br /><sub><b>小山羊创作</b></sub></a><br /><a href="https://github.com/sunny0826/kubecm/commits?author=xiaoshanyangcode" title="Code">💻</a></td>
     </tr>
   </tbody>
   <tfoot>
