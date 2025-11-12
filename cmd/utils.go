@@ -549,8 +549,11 @@ func CheckAndTransformDirPath(path string) (string, error) {
 // Make the stdout tables look better by replacing characters with Unicode.
 func beautifyStdoutTable(raw string) string {
 	lines := strings.Split(raw, "\n")
-
+	lastLineIndex := 1
 	for i, line := range lines {
+		if len(line) == 0 {
+			continue
+		}
 		line = strings.ReplaceAll(line, " | ", " │ ")
 		if strings.HasPrefix(line, "|") {
 			line = "│" + strings.TrimPrefix(line, "|")
@@ -558,10 +561,11 @@ func beautifyStdoutTable(raw string) string {
 		if strings.HasSuffix(line, "|") {
 			line = strings.TrimSuffix(line, "|") + "│"
 		}
-		if i%2 == 0 {
+		if line[1] == '-' || line[1] == '=' {
 			line = strings.ReplaceAll(line, "-", "─")
 			line = strings.ReplaceAll(line, "=", "═")
 			line = strings.ReplaceAll(line, "+", "┼")
+			lastLineIndex = i
 		}
 		if strings.HasPrefix(line, "┼") {
 			runes := []rune(line)
@@ -576,17 +580,9 @@ func beautifyStdoutTable(raw string) string {
 		lines[i] = line
 	}
 
-	lastOddLineIndex := -1
-	for i := len(lines) - 1; i >= 0; i-- {
-		if strings.Contains(lines[i], "┼") {
-			lastOddLineIndex = i
-			break
-		}
-	}
-
 	lines[0] = strings.ReplaceAll(lines[0], "┼", "┬")
 	lines[2] = strings.ReplaceAll(lines[2], "┼", "╪")
-	lines[lastOddLineIndex] = strings.ReplaceAll(lines[lastOddLineIndex], "┼", "┴")
+	lines[lastLineIndex] = strings.ReplaceAll(lines[lastLineIndex], "┼", "┴")
 
 	runesLine1 := []rune(lines[0])
 	runesLine1[0] = '┌'
@@ -598,10 +594,10 @@ func beautifyStdoutTable(raw string) string {
 	runesLine3[len(runesLine3)-1] = '╡'
 	lines[2] = string(runesLine3)
 
-	runesLineEnd := []rune(lines[lastOddLineIndex])
+	runesLineEnd := []rune(lines[lastLineIndex])
 	runesLineEnd[0] = '└'
 	runesLineEnd[len(runesLineEnd)-1] = '┘'
-	lines[lastOddLineIndex] = string(runesLineEnd)
+	lines[lastLineIndex] = string(runesLineEnd)
 
 	return strings.Join(lines, "\n")
 }
