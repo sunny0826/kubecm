@@ -146,7 +146,8 @@ func PrintTable(config *clientcmdapi.Config) error {
 		tabulate.SetWrapStrings(true)
 		// Render the table
 		tabulate.SetAlign("center")
-		fmt.Println(tabulate.Render("grid", "left"))
+		tableString := tabulate.Render("grid", "left")
+		fmt.Println(beautifyStdoutTable(tableString))
 	} else {
 		return errors.New("context not found")
 	}
@@ -543,4 +544,64 @@ func CheckAndTransformDirPath(path string) (string, error) {
 		return "", err
 	}
 	return path, nil
+}
+
+// Make the stdout tables look better by replacing characters with Unicode.
+func beautifyStdoutTable(raw string) string {
+	lines := strings.Split(raw, "\n")
+
+	for i, line := range lines {
+		line = strings.ReplaceAll(line, " | ", " │ ")
+		if strings.HasPrefix(line, "|") {
+			line = "│" + strings.TrimPrefix(line, "|")
+		}
+		if strings.HasSuffix(line, "|") {
+			line = strings.TrimSuffix(line, "|") + "│"
+		}
+		if i%2 == 0 {
+			line = strings.ReplaceAll(line, "-", "─")
+			line = strings.ReplaceAll(line, "=", "═")
+			line = strings.ReplaceAll(line, "+", "┼")
+		}
+		if strings.HasPrefix(line, "┼") {
+			runes := []rune(line)
+			runes[0] = '├'
+			line = string(runes)
+		}
+		if strings.HasSuffix(line, "┼") {
+			runes := []rune(line)
+			runes[len(runes)-1] = '┤'
+			line = string(runes)
+		}
+		lines[i] = line
+	}
+
+	lastOddLineIndex := -1
+	for i := len(lines) - 1; i >= 0; i-- {
+		if strings.Contains(lines[i], "┼") {
+			lastOddLineIndex = i
+			break
+		}
+	}
+
+	lines[0] = strings.ReplaceAll(lines[0], "┼", "┬")
+	lines[2] = strings.ReplaceAll(lines[2], "┼", "╪")
+	lines[lastOddLineIndex] = strings.ReplaceAll(lines[lastOddLineIndex], "┼", "┴")
+
+	runesLine1 := []rune(lines[0])
+	runesLine1[0] = '┌'
+	runesLine1[len(runesLine1)-1] = '┐'
+	lines[0] = string(runesLine1)
+
+	runesLine3 := []rune(lines[2])
+	runesLine3[0] = '╞'
+	runesLine3[len(runesLine3)-1] = '╡'
+	lines[2] = string(runesLine3)
+
+	runesLineEnd := []rune(lines[lastOddLineIndex])
+	runesLineEnd[0] = '└'
+	runesLineEnd[len(runesLineEnd)-1] = '┘'
+	lines[lastOddLineIndex] = string(runesLineEnd)
+
+	return strings.Join(lines, "\n")
 }
