@@ -38,24 +38,31 @@ func (al *AliasCommand) Init() {
 const SourceCmd = "[[ ! -f ~/.kubecm ]] || source ~/.kubecm"
 
 func (al *AliasCommand) runAlias(command *cobra.Command, args []string) error {
-	config, err := clientcmd.LoadFromFile(cfgFile)
-	if err != nil {
-		return err
+	var tmp string
+
+	for _, kubeconfig := range KubeconfigSplitter(cfgFile) {
+		config, err := clientcmd.LoadFromFile(kubeconfig)
+		if err != nil {
+			return err
+		}
+
+		aliasTemp := `
+# %s context: %s
+alias %s='kubectl --context %s'`
+
+		for key := range config.Contexts {
+			tmp += fmt.Sprintf(aliasTemp, kubeconfig, key, "k-"+key, key)
+		}
+
 	}
 	allTemp := `
 ## KubeCm Alias Start%s
 ## KubeCm Alias End
 `
-	aliasTemp := `
-# %s
-alias %s='kubectl --context %s'`
-	var tmp string
-	for key := range config.Contexts {
-		tmp += fmt.Sprintf(aliasTemp, key, "k-"+key, key)
-	}
+
 	output, _ := al.command.Flags().GetString("out")
 	result := fmt.Sprintf(allTemp, tmp)
-	err = updateFile(result, filepath.Join(homeDir(), ".kubecm"))
+	err := updateFile(result, filepath.Join(homeDir(), ".kubecm"))
 	if err != nil {
 		return err
 	}

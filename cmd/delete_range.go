@@ -39,9 +39,13 @@ func (rc *RangeCommand) runRange(command *cobra.Command, args []string) error {
 		return errors.New("no pattern specified")
 	}
 
-	config, err := clientcmd.LoadFromFile(cfgFile)
+	kubeconfig, err := SelectKubeconfigFile("Select the kubeconfig file to delete from")
 	if err != nil {
-		return fmt.Errorf("failed to load kubeconfig file %q: %w", cfgFile, err)
+		return err
+	}
+	config, err := clientcmd.LoadFromFile(kubeconfig)
+	if err != nil {
+		return fmt.Errorf("failed to load kubeconfig file %q: %w", kubeconfig, err)
 	}
 
 	// Select contexts to delete
@@ -71,8 +75,8 @@ func (rc *RangeCommand) runRange(command *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := WriteConfig(true, cfgFile, config); err != nil {
-		return fmt.Errorf("failed to write kubeconfig file %q: %w", cfgFile, err)
+	if err := WriteConfig(true, kubeconfig, config); err != nil {
+		return fmt.Errorf("failed to write kubeconfig file %q: %w", kubeconfig, err)
 	}
 
 	return nil

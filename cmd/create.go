@@ -65,8 +65,11 @@ func (ce *CreateCommand) runCreate(cmd *cobra.Command, args []string) error {
 	clean, _ := ce.command.Flags().GetBool("print-clean-up")
 
 	printYellow(os.Stdout, "WARNING: This feature is only supported in kubernates v1.24 and later.\n")
-
-	config, err := clientcmd.LoadFromFile(cfgFile)
+	kubeconfig, err := SelectKubeconfigFile("Select The Kubeconfig file To Export Context From")
+	if err != nil {
+		return err
+	}
+	config, err := clientcmd.LoadFromFile(kubeconfig)
 	if err != nil {
 		return err
 	}
@@ -85,7 +88,7 @@ func (ce *CreateCommand) runCreate(cmd *cobra.Command, args []string) error {
 	} else {
 		co.contextName = contextName
 		co.config.CurrentContext = contextName
-		set, err := GetClientSet(cfgFile)
+		set, err := GetClientSet(kubeconfig)
 		if err != nil {
 			return err
 		}

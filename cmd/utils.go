@@ -23,6 +23,7 @@ import (
 	ct "github.com/daviddengcn/go-colortext"
 	"github.com/imdario/mergo"
 	"github.com/manifoldco/promptui"
+	kubecmVersion "github.com/sunny0826/kubecm/version"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	v "k8s.io/apimachinery/pkg/version"
@@ -38,6 +39,11 @@ type Needle struct {
 	Cluster string
 	User    string
 	Center  string
+}
+
+type KubeconfigFiles struct {
+	File string
+	Path string
 }
 
 // Namespaces namespaces struct
@@ -166,6 +172,18 @@ func SelectUI(kubeItems []Needle, label string) int {
 	return s
 }
 
+// SelectUI output select ui
+func SelectUIKubeconfigFiles(kubeItems []KubeconfigFiles, label string) int {
+	s, err := selectUIRunnerKubefiles(kubeItems, label, nil)
+	if err != nil {
+		if err.Error() == "exit" {
+			os.Exit(0)
+		}
+		log.Fatalf("Prompt failed %v\n", err)
+	}
+	return s
+}
+
 // enterFullscreen enter fullscreen
 func enterFullscreen() {
 	fmt.Print("\033[?1049h\033[H")
@@ -215,6 +233,77 @@ func selectUIRunner(kubeItems []Needle, label string, runner SelectRunner) (int,
 		return 0, err
 	}
 	if kubeItems[i].Name == "<Exit>" {
+		return 0, errors.New("exit")
+	}
+	return i, err
+}
+
+// SelectKubeconfigFile displays a file selection UI and returns the full path of the selected kubeconfig file.
+func SelectKubeconfigFile(label string) (string, error) {
+	var kubeItems []KubeconfigFiles
+	kubeconfigFiles := KubeconfigSplitter(cfgFile)
+	if len(kubeconfigFiles) == 0 {
+		return "", errors.New("no kubeconfig files found")
+	}
+	for _, kubeconfig := range kubeconfigFiles {
+		_, err := clientcmd.LoadFromFile(kubeconfig)
+		if err != nil {
+			return "", err
+		}
+		kubeItems = append(kubeItems, KubeconfigFiles{File: filepath.Base(kubeconfig), Path: filepath.Dir(kubeconfig)})
+	}
+	if len(kubeconfigFiles) == 1 {
+		return kubeconfigFiles[0], nil
+	}
+	// exit option
+	kubeItems, err := ExitOptionKubefiles(kubeItems)
+	if err != nil {
+		return "", err
+	}
+	num := SelectUIKubeconfigFiles(kubeItems, label)
+	kubeconfig := fmt.Sprintf("%s/%s", kubeItems[num].Path, kubeItems[num].File)
+	return kubeconfig, err
+}
+
+// selectUIRunnerKubefiles runs the interactive file selection UI.
+// Returns the selected index or an error if the user exits.
+func selectUIRunnerKubefiles(kubeItems []KubeconfigFiles, label string, runner SelectRunner) (int, error) {
+	enterFullscreen()
+	defer exitFullscreen()
+	templates := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "\U0001F63C {{ .File | red }}",
+		Inactive: "  {{ .File | cyan }}",
+		Selected: "\U0001F638 Select: {{ .File | green }}",
+		Details: `
+--------- Info ----------
+{{ "File:" | faint }}	{{ .File }}
+{{ "Path:" | faint }}	{{ .Path }}`,
+	}
+	searcher := func(input string, index int) bool {
+		pepper := kubeItems[index]
+		name := strings.ReplaceAll(strings.ToLower(pepper.File), " ", "")
+		input = strings.ReplaceAll(strings.ToLower(input), " ", "")
+		if input == "q" && name == "<exit>" {
+			return true
+		}
+		return fuzzy.Match(input, name)
+	}
+	prompt := promptui.Select{
+		Label:     label,
+		Items:     kubeItems,
+		Templates: templates,
+		Size:      uiSize,
+		Searcher:  searcher,
+	}
+	if runner == nil {
+		runner = &prompt
+	}
+	i, _, err := runner.Run()
+	if err != nil {
+		return 0, err
+	}
+	if kubeItems[i].File == "<Exit>" {
 		return 0, errors.New("exit")
 	}
 	return i, err
@@ -379,6 +468,12 @@ func ExitOption(kubeItems []Needle) ([]Needle, error) {
 	return kubeItems, nil
 }
 
+// ExitOptionKubefiles exit option of SelectUIKubeconfigFiles
+func ExitOptionKubefiles(kubeItems []KubeconfigFiles) ([]KubeconfigFiles, error) {
+	kubeItems = append(kubeItems, KubeconfigFiles{File: "<Exit>", Path: "exit the kubecm"})
+	return kubeItems, nil
+}
+
 func printService(out io.Writer, name, link string) {
 	ct.ChangeColor(ct.Green, false, ct.None, false)
 	fmt.Fprint(out, name)
@@ -464,6 +559,25 @@ func CheckAndTransformFilePath(path string, autoCreate bool) (string, error) {
 		return "", err
 	}
 	return path, nil
+}
+
+// KubeconfigSplitter splits the os environment variable $KUBECONFIG into individual file paths.
+// by using platform-specific path separator.
+func KubeconfigSplitter(kubeconfig string) []string {
+	var splitter = ""
+	switch getVersion().GoOs {
+	case kubecmVersion.Windows:
+		splitter = kubecmVersion.KubeConfigSplitter[kubecmVersion.Windows]
+		break
+	case kubecmVersion.Linux:
+		splitter = kubecmVersion.KubeConfigSplitter[kubecmVersion.Linux]
+		break
+	default:
+		splitter = kubecmVersion.KubeConfigSplitter[kubecmVersion.Others]
+		break
+	}
+	return strings.Split(kubeconfig, splitter)
+
 }
 
 func compareKubeItems(a, b Needle) int {
