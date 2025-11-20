@@ -564,17 +564,14 @@ func CheckAndTransformFilePath(path string, autoCreate bool) (string, error) {
 // KubeconfigSplitter splits the os environment variable $KUBECONFIG into individual file paths.
 // by using platform-specific path separator.
 func KubeconfigSplitter(kubeconfig string) []string {
-	var splitter = ""
+	var splitter string
 	switch getVersion().GoOs {
 	case kubecmVersion.Windows:
 		splitter = kubecmVersion.KubeConfigSplitter[kubecmVersion.Windows]
-		break
 	case kubecmVersion.Linux:
 		splitter = kubecmVersion.KubeConfigSplitter[kubecmVersion.Linux]
-		break
 	default:
 		splitter = kubecmVersion.KubeConfigSplitter[kubecmVersion.Others]
-		break
 	}
 	return strings.Split(kubeconfig, splitter)
 
