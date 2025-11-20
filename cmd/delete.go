@@ -32,7 +32,11 @@ func (dc *DeleteCommand) Init() {
 }
 
 func (dc *DeleteCommand) runDelete(command *cobra.Command, args []string) error {
-	config, err := clientcmd.LoadFromFile(cfgFile)
+	kubeconfig, err := SelectKubeconfigFile("Select The Kubeconfig file To Delete From")
+	if err != nil {
+		return err
+	}
+	config, err := clientcmd.LoadFromFile(kubeconfig)
 	if err != nil {
 		return err
 	}
@@ -55,10 +59,11 @@ func (dc *DeleteCommand) runDelete(command *cobra.Command, args []string) error 
 			return err
 		}
 	}
-	err = WriteConfig(true, cfgFile, config)
+	err = WriteConfig(true, kubeconfig, config)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

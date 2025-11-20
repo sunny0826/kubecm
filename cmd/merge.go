@@ -84,16 +84,21 @@ func (mc MergeCommand) runMerge(command *cobra.Command, args []string) error {
 		fmt.Println("No context to merge.")
 		return nil
 	}
-
-	confirm, _ := mc.command.Flags().GetBool("assumeyes")
-	if !confirm {
-		cover := BoolUI(fmt.Sprintf("Are you sure you want to overwrite the 「%s」 file?", cfgFile))
-		confirm, _ = strconv.ParseBool(cover)
-	}
-	err = WriteConfig(confirm, cfgFile, outConfigs)
+	kubeconfig, err := SelectKubeconfigFile("Select The Kubeconfig file To Merge Into")
 	if err != nil {
 		return err
 	}
+
+	confirm, _ := mc.command.Flags().GetBool("assumeyes")
+	if !confirm {
+		cover := BoolUI(fmt.Sprintf("Are you sure you want to overwrite the 「%s」 file?", kubeconfig))
+		confirm, _ = strconv.ParseBool(cover)
+	}
+	err = WriteConfig(confirm, kubeconfig, outConfigs)
+	if err != nil {
+		return err
+	}
+
 	return MacNotifier("Merge Successfully")
 }
 

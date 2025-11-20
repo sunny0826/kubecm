@@ -40,7 +40,11 @@ Switch Kube Context interactively
 }
 
 func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error {
-	config, err := clientcmd.LoadFromFile(cfgFile)
+	kubeconfig, err := SelectKubeconfigFile("Select the kubeconfig file to switch context from")
+	if err != nil {
+		return err
+	}
+	config, err := clientcmd.LoadFromFile(kubeconfig)
 	if err != nil {
 		return err
 	}
@@ -56,7 +60,7 @@ func (sc *SwitchCommand) runSwitch(command *cobra.Command, args []string) error 
 			return err
 		}
 	}
-	err = WriteConfig(true, cfgFile, config)
+	err = WriteConfig(true, kubeconfig, config)
 	if err != nil {
 		return err
 	}

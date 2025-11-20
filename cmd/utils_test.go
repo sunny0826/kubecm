@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	kubecmVersion "github.com/sunny0826/kubecm/version"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -191,6 +192,49 @@ func TestExitOption(t *testing.T) {
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ExitOption() got = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func TestKubeconfigSplitter(t *testing.T) {
+	type args struct {
+		kubeconfig string
+	}
+	tests := []struct {
+		name string
+		args args
+		GoOs string
+		want []string
+	}{
+		{
+			name: "one kubeconfig linux",
+			GoOs: kubecmVersion.Linux,
+			args: args{kubeconfig: "$HOME/Downloads/kubeconfig-6.yaml"},
+			want: []string{"$HOME/Downloads/kubeconfig-6.yaml"},
+		},
+		{
+			name: "two kubeconfig linux",
+			GoOs: kubecmVersion.Linux,
+			args: args{kubeconfig: "/Users/user123/.kube/config:$HOME/Downloads/kubeconfig-6.yaml"},
+			want: []string{"/Users/user123/.kube/config", "$HOME/Downloads/kubeconfig-6.yaml"},
+		},
+		{
+			name: "one kubeconfig windows",
+			GoOs: kubecmVersion.Windows,
+			args: args{kubeconfig: "$HOME/Downloads/kubeconfig-6.yaml"},
+			want: []string{"$HOME/Downloads/kubeconfig-6.yaml"},
+		},
+		{
+			name: "two kubeconfig windows",
+			GoOs: kubecmVersion.Windows,
+			args: args{kubeconfig: "/Users/user123/.kube/config;$HOME/Downloads/kubeconfig-6.yaml"},
+			want: []string{"/Users/user123/.kube/config", "$HOME/Downloads/kubeconfig-6.yaml"},
+		},
+	}
+	for _, tt := range tests {
+		kubecmVersion.GoOs = tt.GoOs
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, KubeconfigSplitter(tt.args.kubeconfig), "KubeconfigSplitter(%v)", tt.args.kubeconfig)
 		})
 	}
 }

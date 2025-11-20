@@ -103,7 +103,11 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 
 // AddToLocal add kubeConfig to local
 func AddToLocal(newConfig *clientcmdapi.Config, path, contextPrefix string, cover bool, selectContext bool, contextTemplate []string, context []string, insecureSkipTLSVerify bool) error {
-	oldConfig, err := clientcmd.LoadFromFile(cfgFile)
+	kubeconfig, err := SelectKubeconfigFile("Select The kubeconfig file to add to")
+	if err != nil {
+		return err
+	}
+	oldConfig, err := clientcmd.LoadFromFile(kubeconfig)
 	if err != nil {
 		return err
 	}
@@ -129,7 +133,7 @@ func AddToLocal(newConfig *clientcmdapi.Config, path, contextPrefix string, cove
 	}
 
 	if !cover {
-		cover, err = strconv.ParseBool(BoolUI(fmt.Sprintf("Does it overwrite File 「%s」?", cfgFile)))
+		cover, err = strconv.ParseBool(BoolUI(fmt.Sprintf("Does it overwrite File 「%s」?", kubeconfig)))
 		if err != nil {
 			return err
 		}

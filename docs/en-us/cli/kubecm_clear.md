@@ -14,7 +14,7 @@ kubecm clear
 
 ```
 
-# Clear lapsed context, cluster and user (default is /Users/guoxudong/.kube/config)
+# Clear lapsed context, cluster and user (default is /Users/I540484/.kube/openmcp-live.yaml:/Users/I540484/.kube/openmcp-canary.yaml)
 kubecm clear
 # Customised clear lapsed files
 kubecm clear config.yaml test.yaml
@@ -34,7 +34,7 @@ kubecm clear config.yaml test.yaml
       --create          Create a new kubeconfig file if not exists
   -m, --mac-notify      enable to display Mac notification banner
   -s, --silence-table   enable/disable output of context table on successful config update
-  -u, --ui-size int     number of list items to show in menu at once (default 4)
+  -u, --ui-size int     number of list items to show in menu at once (default 10)
 ```
 
 ### SEE ALSO

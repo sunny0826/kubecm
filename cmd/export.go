@@ -33,7 +33,11 @@ func (ec *ExportCommand) Init() {
 }
 
 func (ec *ExportCommand) runExport(args []string) error {
-	config, err := clientcmd.LoadFromFile(cfgFile)
+	kubeconfig, err := SelectKubeconfigFile("Select The Kubeconfig file To Export Context From")
+	if err != nil {
+		return err
+	}
+	config, err := clientcmd.LoadFromFile(kubeconfig)
 	if err != nil {
 		return err
 	}
@@ -62,9 +66,9 @@ func (ec *ExportCommand) runExport(args []string) error {
 	if err != nil {
 		return err
 	}
+	//}
 	return nil
 }
-
 func exportContext(ctxs []string, config *clientcmdapi.Config) (*clientcmdapi.Config, error) {
 	var notFinds []string
 	exportConfig := clientcmdapi.NewConfig()

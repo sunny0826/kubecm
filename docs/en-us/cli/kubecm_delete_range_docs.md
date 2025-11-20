@@ -1,4 +1,4 @@
-## kubecm merge docs
+## kubecm delete range docs
 
 Open document website
 
@@ -7,7 +7,7 @@ Open document website
 Open document website in your browser
 
 ```
-kubecm merge docs [flags]
+kubecm delete range docs [flags]
 ```
 
 ### Examples
@@ -39,5 +39,5 @@ kubecm add docs
 
 ### SEE ALSO
 
-* [kubecm merge](kubecm_merge.md)	 - Merge multiple kubeconfig files into one
+* [kubecm delete range](kubecm_delete_range.md)	 - Delete contexts matching a pattern
 
