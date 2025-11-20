@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
-	"github.com/lithammer/fuzzysearch/fuzzy"
 	"io"
 	"log"
 	"os"
@@ -16,6 +15,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/lithammer/fuzzysearch/fuzzy"
 
 	"k8s.io/client-go/rest"
 
@@ -246,10 +247,6 @@ func SelectKubeconfigFile(label string) (string, error) {
 		return "", errors.New("no kubeconfig files found")
 	}
 	for _, kubeconfig := range kubeconfigFiles {
-		_, err := clientcmd.LoadFromFile(kubeconfig)
-		if err != nil {
-			return "", err
-		}
 		kubeItems = append(kubeItems, KubeconfigFiles{File: filepath.Base(kubeconfig), Path: filepath.Dir(kubeconfig)})
 	}
 	if len(kubeconfigFiles) == 1 {
