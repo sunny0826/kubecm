@@ -242,6 +242,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "sk31337",
+      "name": "Steffen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5519671?v=4",
+      "profile": "https://github.com/sk31337",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
