@@ -33,7 +33,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Bump formulae
-        uses: dawidd6/action-homebrew-bump-formula@v5
+        uses: dawidd6/action-homebrew-bump-formula@v6
         continue-on-error: true
         with:
           token: ${{ secrets.HOMEBREW_TOKEN }}
