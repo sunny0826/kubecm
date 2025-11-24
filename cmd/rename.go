@@ -31,7 +31,11 @@ func (rc *RenameCommand) Init() {
 }
 
 func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error {
-	config, err := clientcmd.LoadFromFile(cfgFile)
+	kubeconfig, err := SelectKubeconfigFile("Select the kubeconfig file to rename from")
+	if err != nil {
+		return err
+	}
+	config, err := clientcmd.LoadFromFile(kubeconfig)
 	if err != nil {
 		return err
 	}
@@ -68,7 +72,7 @@ func (rc *RenameCommand) runRename(command *cobra.Command, args []string) error 
 	if err != nil {
 		return err
 	}
-	err = WriteConfig(true, cfgFile, config)
+	err = WriteConfig(true, kubeconfig, config)
 	if err != nil {
 		return err
 	}

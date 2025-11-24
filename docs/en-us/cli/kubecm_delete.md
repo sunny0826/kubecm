@@ -36,11 +36,12 @@ kubecm delete my-context1 my-context2
       --create          Create a new kubeconfig file if not exists
   -m, --mac-notify      enable to display Mac notification banner
   -s, --silence-table   enable/disable output of context table on successful config update
-  -u, --ui-size int     number of list items to show in menu at once (default 4)
+  -u, --ui-size int     number of list items to show in menu at once (default 10)
 ```
 
 ### SEE ALSO
 
 * [kubecm](kubecm.md)	 - KubeConfig Manager.
 * [kubecm delete docs](kubecm_delete_docs.md)	 - Open document website
+* [kubecm delete range](kubecm_delete_range.md)	 - Delete contexts matching a pattern
 

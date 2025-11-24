@@ -66,7 +66,7 @@ kubecm cloud add --provider alibabacloud --cluster_id=xxxxxx
       --provider string     public cloud
       --region_id string    cloud region id
   -s, --silence-table       enable/disable output of context table on successful config update
-  -u, --ui-size int         number of list items to show in menu at once (default 4)
+  -u, --ui-size int         number of list items to show in menu at once (default 10)
 ```
 
 ### SEE ALSO

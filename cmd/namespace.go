@@ -39,7 +39,11 @@ Switch or change namespace interactively
 }
 
 func (nc *NamespaceCommand) runNamespace(command *cobra.Command, args []string) error {
-	config, err := clientcmd.LoadFromFile(cfgFile)
+	kubeconfig, err := SelectKubeconfigFile("Select the kubeconfig file to run in namespace from")
+	if err != nil {
+		return err
+	}
+	config, err := clientcmd.LoadFromFile(kubeconfig)
 	if err != nil {
 		return err
 	}
@@ -49,7 +53,7 @@ func (nc *NamespaceCommand) runNamespace(command *cobra.Command, args []string) 
 
 	currentContext := config.CurrentContext
 	currentNamespace := config.Contexts[currentContext].Namespace
-	clientset, err := GetClientSet(cfgFile)
+	clientset, err := GetClientSet(kubeconfig)
 	if err != nil {
 		return err
 	}
@@ -75,7 +79,7 @@ func (nc *NamespaceCommand) runNamespace(command *cobra.Command, args []string) 
 			return errors.New("Can not find namespace: " + args[0])
 		}
 	}
-	err = WriteConfig(true, cfgFile, config)
+	err = WriteConfig(true, kubeconfig, config)
 	if err != nil {
 		return err
 	}
