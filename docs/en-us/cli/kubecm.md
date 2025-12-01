@@ -15,7 +15,7 @@ KubeConfig Manager.
 [92m██  ██  ██    ██ ██   ██ ██      ██      ██  ██  ██ [0m
 [92m██   ██  ██████  ██████  ███████  ██████ ██      ██[0m
 [92m[0m
-[44;97m[44;97m Tips [0m[0m [96m[96mFind more information at: [3;32mkubecm.cloud (https://kubecm.cloud)[0m[96m[0m[0m
+[44;97m[44;97m Tips [0m[0m [96m[96mFind more information at: ]8;;https://kubecm.cloud[3;32mkubecm.cloud]8;;[0m[96m[0m[0m
 
 
 ### Options

@@ -103,7 +103,7 @@ jobs:
           bin/kubecm add -cf foo-prod
           bin/kubecm add -cf foo-staging-bar
           echo "Context list (no server column) after adding kind test clusters:"
-          bin/kubecm list -no-server
+          bin/kubecm list --no-server
           echo "********************************************************************************"
           echo "Test prefix mode: delete contexts starting with 'kind-dev-'"
           echo "********************************************************************************"
