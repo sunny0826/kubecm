@@ -106,11 +106,11 @@ jobs:
             user:
               token: token
           EOF
-          bin/kubecm add -f long-server.yaml -c
+          bin/kubecm add -cf long-server.yaml
           echo "********************************************************************************"
           echo "Running kubecm ls (with short server)..."
           echo "********************************************************************************"
-          bin/kubecm list
+          bin/kubecm list --short-server
           echo "********************************************************************************"
           echo "Running kubecm switch..."
           echo "********************************************************************************"
