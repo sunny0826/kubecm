@@ -14,6 +14,8 @@ import (
 // ListCommand list cmd struct
 type ListCommand struct {
 	BaseCommand
+	shortServer bool
+	noServer    bool
 }
 
 // Init ListCommand
@@ -29,6 +31,8 @@ func (lc *ListCommand) Init() {
 		Example: listExample(),
 	}
 	lc.command.DisableFlagsInUseLine = true
+	lc.command.Flags().BoolVar(&lc.shortServer, "short-server", false, "Shorten the server endpoint")
+	lc.command.Flags().BoolVar(&lc.noServer, "no-server", false, "Hide the server column")
 	lc.AddCommands(&DocsCommand{})
 }
 
@@ -50,7 +54,10 @@ func (lc *ListCommand) runList(command *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		err = PrintTable(outConfig)
+		err = PrintTable(os.Stdout, outConfig, &PrintOption{
+			ShortServer: lc.shortServer,
+			NoServer:    lc.noServer,
+		})
 		if err != nil {
 			return err
 		}
