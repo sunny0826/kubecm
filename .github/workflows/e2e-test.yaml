@@ -85,9 +85,32 @@ jobs:
           bin/kubecm merge -f tmp/kubecm-merge -y --config merge.config
           cat merge.config
           echo "********************************************************************************"
-          echo "Running kubecm ls..."
+          echo "Setup long server url cluster..."
           echo "********************************************************************************"
-          bin/kubecm list
+          cat <<EOF > long-server.yaml
+          apiVersion: v1
+          clusters:
+          - cluster:
+              server: https://very-long-domain-name-that-is-extremely-long-and-annoying-to-read-in-the-terminal-output-because-it-wraps-around.example.com:6443
+            name: long-server-cluster
+          contexts:
+          - context:
+              cluster: long-server-cluster
+              user: user
+            name: long-server-context
+          current-context: long-server-context
+          kind: Config
+          preferences: {}
+          users:
+          - name: user
+            user:
+              token: token
+          EOF
+          bin/kubecm add -cf long-server.yaml
+          echo "********************************************************************************"
+          echo "Running kubecm ls (with short server)..."
+          echo "********************************************************************************"
+          bin/kubecm list --short-server
           echo "********************************************************************************"
           echo "Running kubecm switch..."
           echo "********************************************************************************"
@@ -102,8 +125,8 @@ jobs:
           bin/kubecm add -cf dev-foo
           bin/kubecm add -cf foo-prod
           bin/kubecm add -cf foo-staging-bar
-          echo "Context list after adding kind test clusters:"
-          bin/kubecm list
+          echo "Context list (no server column) after adding kind test clusters:"
+          bin/kubecm list --no-server
           echo "********************************************************************************"
           echo "Test prefix mode: delete contexts starting with 'kind-dev-'"
           echo "********************************************************************************"

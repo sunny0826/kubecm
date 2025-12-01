@@ -14,7 +14,7 @@ kubecm clear
 
 ```
 
-# Clear lapsed context, cluster and user (default is /Users/I540484/.kube/openmcp-live.yaml:/Users/I540484/.kube/openmcp-canary.yaml)
+# Clear lapsed context, cluster and user (default is $HOME/.kube/config)
 kubecm clear
 # Customised clear lapsed files
 kubecm clear config.yaml test.yaml

@@ -118,7 +118,16 @@ func HashSufString(data string) string {
 }
 
 // PrintTable generate table
-func PrintTable(config *clientcmdapi.Config) error {
+type PrintOption struct {
+	ShortServer bool
+	NoServer    bool
+}
+
+// PrintTable print table
+func PrintTable(w io.Writer, config *clientcmdapi.Config, option *PrintOption) error {
+	if option == nil {
+		option = &PrintOption{}
+	}
 	var table [][]string
 	sortedKeys := make([]string, 0)
 	for k := range config.Contexts {
@@ -142,19 +151,34 @@ func PrintTable(config *clientcmdapi.Config) error {
 		if !ok {
 			continue
 		}
-		conTmp := []string{head, k, ctx[k].Cluster, ctx[k].AuthInfo, cluster.Server, namespace}
+		conTmp := []string{head, k, ctx[k].Cluster, ctx[k].AuthInfo}
+		if !option.NoServer {
+			server := cluster.Server
+			if option.ShortServer {
+				if len(server) > 30 {
+					server = server[:27] + "..."
+				}
+			}
+			conTmp = append(conTmp, server)
+		}
+		conTmp = append(conTmp, namespace)
 		table = append(table, conTmp)
 	}
 
 	if table != nil {
 		tabulate := gotabulate.Create(table)
-		tabulate.SetHeaders([]string{"CURRENT", "NAME", "CLUSTER", "USER", "SERVER", "Namespace"})
+		headers := []string{"CURRENT", "NAME", "CLUSTER", "USER"}
+		if !option.NoServer {
+			headers = append(headers, "SERVER")
+		}
+		headers = append(headers, "Namespace")
+		tabulate.SetHeaders(headers)
 		// Turn On String Wrapping
 		tabulate.SetWrapStrings(true)
 		// Render the table
 		tabulate.SetAlign("center")
 		tableString := tabulate.Render("grid", "left")
-		fmt.Println(beautifyStdoutTable(tableString))
+		fmt.Fprintln(w, beautifyStdoutTable(tableString))
 	} else {
 		return errors.New("context not found")
 	}
@@ -425,7 +449,7 @@ func WriteConfig(cover bool, file string, outConfig *clientcmdapi.Config) error 
 		fmt.Printf("「%s」 write successful!\n", file)
 
 		if !silenceTable {
-			err = PrintTable(outConfig)
+			err = PrintTable(os.Stdout, outConfig, nil)
 			if err != nil {
 				return err
 			}

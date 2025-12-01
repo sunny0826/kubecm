@@ -29,7 +29,9 @@ KUBECM_DISABLE_K8S_MORE_INFO: it will disable the k8s more info in the output
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help           help for list
+      --no-server      Hide the server column
+      --short-server   Shorten the server endpoint
 ```
 
 ### Options inherited from parent commands

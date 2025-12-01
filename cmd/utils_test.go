@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	kubecmVersion "github.com/sunny0826/kubecm/version"
 	"os"
 	"os/user"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
+
+	kubecmVersion "github.com/sunny0826/kubecm/version"
 
 	"github.com/stretchr/testify/assert"
 
@@ -102,6 +103,51 @@ func Test_appendConfig(t *testing.T) {
 			checkResult(tt.want, got, "", t)
 		})
 	}
+}
+
+func TestPrintTable(t *testing.T) {
+	config := &clientcmdapi.Config{
+		Contexts: map[string]*clientcmdapi.Context{
+			"test-ctx": {
+				Cluster:  "test-cluster",
+				AuthInfo: "test-user",
+			},
+		},
+		Clusters: map[string]*clientcmdapi.Cluster{
+			"test-cluster": {
+				Server: "https://very-long-domain-name.example.com",
+			},
+		},
+		CurrentContext: "test-ctx",
+	}
+
+	t.Run("ShortServer", func(t *testing.T) {
+		var buf bytes.Buffer
+		err := PrintTable(&buf, config, &PrintOption{ShortServer: true})
+		assert.NoError(t, err)
+		// https://very-long-domain-name.example.com (43 chars)
+		// Should be truncated to 27 chars + "..."
+		// "https://very-long-domain-na..."
+		assert.Contains(t, buf.String(), "https://very-long-domain-na...")
+	})
+
+	t.Run("NoServer", func(t *testing.T) {
+		var buf bytes.Buffer
+		err := PrintTable(&buf, config, &PrintOption{NoServer: true})
+		assert.NoError(t, err)
+		assert.NotContains(t, buf.String(), "SERVER")
+		assert.NotContains(t, buf.String(), "https://very-long-domain-name.example.com")
+	})
+
+	t.Run("Default", func(t *testing.T) {
+		var buf bytes.Buffer
+		err := PrintTable(&buf, config, nil)
+		assert.NoError(t, err)
+		assert.Contains(t, buf.String(), "SERVER")
+		// Due to table wrapping, the full URL might be split. Check for parts.
+		assert.Contains(t, buf.String(), "https://very-long-domain-name.")
+		assert.Contains(t, buf.String(), "example.com")
+	})
 }
 
 func checkResult(want, got *clientcmdapi.Config, wantname string, t *testing.T) {
