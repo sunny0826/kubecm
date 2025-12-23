@@ -123,7 +123,8 @@ func CreateMultiContextKubeconfig(t *testing.T, name string, contexts []string) 
 `, userName, i))
 	}
 
-	currentContext := contexts[0]
+	// Use first context as current context
+	currentContext := ""
 	if len(contexts) > 0 {
 		currentContext = contexts[0]
 	}
