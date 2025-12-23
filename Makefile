@@ -1,4 +1,4 @@
-.PHONY: build clean
+.PHONY: build clean e2e-test
 
 # get tag of kubecm
 KUBECM_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)
@@ -71,6 +71,21 @@ lint: golangci
 
 test: fmt vet
 		go test -race -coverprofile=coverage.txt -covermode=atomic ./cmd/...
+
+# Build binary for e2e tests
+e2e-build:
+	mkdir -p bin
+	$(GO) build $(GO_FLAGS) -o bin/kubecm .
+
+# Run e2e tests
+e2e-test: e2e-build
+	@echo "Running e2e tests..."
+	@export KUBECM_BIN=$(PWD)/bin/kubecm && cd test/e2e && go test -v -timeout 10m ./...
+
+# Run e2e tests without rebuilding
+e2e-test-only:
+	@echo "Running e2e tests (without rebuilding)..."
+	@export KUBECM_BIN=$(PWD)/bin/kubecm && cd test/e2e && go test -v -timeout 10m ./...
 
 doc-gen:
 ifneq ($(wildcard "docs/en-us/cli"),)
