@@ -19,6 +19,8 @@ jobs:
   e2e-local:
     name: E2E Tests (Local)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -35,6 +37,8 @@ jobs:
   # Kind-based integration tests (with real clusters)
   kind:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v6
         with:
