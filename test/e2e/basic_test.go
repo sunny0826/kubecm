@@ -13,16 +13,16 @@ func TestAddCommand(t *testing.T) {
 	}
 
 	tests := []struct {
-		name           string
+		name            string
 		setupKubeconfig bool
-		contextName    string
-		wantErr        bool
+		contextName     string
+		wantErr         bool
 	}{
 		{
-			name:           "add context from valid kubeconfig",
+			name:            "add context from valid kubeconfig",
 			setupKubeconfig: true,
-			contextName:    "test-context",
-			wantErr:        false,
+			contextName:     "test-context",
+			wantErr:         false,
 		},
 	}
 
@@ -30,10 +30,10 @@ func TestAddCommand(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a temporary kubeconfig for the main config
 			mainConfig := GetTempKubeconfig(t)
-			
+
 			// Create initial config with one context
 			initialConfig := CreateTestKubeconfig(t, "initial.yaml", "initial-cluster", "initial-context")
-			
+
 			// Copy initial config to main config
 			data, err := os.ReadFile(initialConfig)
 			if err != nil {
@@ -48,7 +48,7 @@ func TestAddCommand(t *testing.T) {
 			testConfig := CreateTestKubeconfig(t, "test.yaml", "test-cluster", tt.contextName)
 
 			// Run kubecm add
-			output, err := RunKubecmWithEnv(t, map[string]string{"KUBECONFIG": mainConfig}, 
+			output, err := RunKubecmWithEnv(t, map[string]string{"KUBECONFIG": mainConfig},
 				"add", "-cf", testConfig)
 
 			if tt.wantErr && err == nil {
@@ -142,10 +142,10 @@ func TestSwitchCommand(t *testing.T) {
 	}
 
 	tests := []struct {
-		name        string
-		contexts    []string
-		switchTo    string
-		wantErr     bool
+		name     string
+		contexts []string
+		switchTo string
+		wantErr  bool
 	}{
 		{
 			name:     "switch to existing context",
@@ -161,7 +161,7 @@ func TestSwitchCommand(t *testing.T) {
 			testConfig := CreateMultiContextKubeconfig(t, "test.yaml", tt.contexts)
 
 			// Run kubecm switch
-			output, err := RunKubecmWithEnv(t, map[string]string{"KUBECONFIG": testConfig}, 
+			output, err := RunKubecmWithEnv(t, map[string]string{"KUBECONFIG": testConfig},
 				"switch", tt.switchTo)
 
 			if tt.wantErr && err == nil {
@@ -181,10 +181,10 @@ func TestDeleteCommand(t *testing.T) {
 	}
 
 	tests := []struct {
-		name         string
-		contexts     []string
-		deleteCtx    string
-		wantErr      bool
+		name      string
+		contexts  []string
+		deleteCtx string
+		wantErr   bool
 	}{
 		{
 			name:      "delete existing context",
@@ -200,7 +200,7 @@ func TestDeleteCommand(t *testing.T) {
 			testConfig := CreateMultiContextKubeconfig(t, "test.yaml", tt.contexts)
 
 			// Run kubecm delete (no -y flag needed when context name is provided)
-			output, err := RunKubecmWithEnv(t, map[string]string{"KUBECONFIG": testConfig}, 
+			output, err := RunKubecmWithEnv(t, map[string]string{"KUBECONFIG": testConfig},
 				"delete", tt.deleteCtx)
 
 			if tt.wantErr && err == nil {

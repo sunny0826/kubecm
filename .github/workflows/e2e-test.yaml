@@ -15,6 +15,24 @@ on:
       - '**.mod'
 
 jobs:
+  # Go-based e2e tests (local environment)
+  e2e-local:
+    name: E2E Tests (Local)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: Run e2e tests
+        run: |
+          make e2e-test
+
+  # Kind-based integration tests (with real clusters)
   kind:
     runs-on: ubuntu-latest
     steps:

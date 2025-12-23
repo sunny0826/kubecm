@@ -13,11 +13,11 @@ func TestMergeCommand(t *testing.T) {
 	}
 
 	tests := []struct {
-		name           string
-		configs        []string // config names with their contexts
-		outputFile     string
-		wantContexts   []string
-		wantErr        bool
+		name         string
+		configs      []string // config names with their contexts
+		outputFile   string
+		wantContexts []string
+		wantErr      bool
 	}{
 		{
 			name:         "merge two kubeconfigs",
@@ -38,15 +38,15 @@ func TestMergeCommand(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tmpDir := t.TempDir()
-			
+
 			// Create test kubeconfigs
 			var configPaths []string
 			for _, cfg := range tt.configs {
 				parts := strings.Split(cfg, ":")
 				configName := parts[0]
 				contextName := parts[1]
-				
-				configPath := CreateTestKubeconfig(t, configName, 
+
+				configPath := CreateTestKubeconfig(t, configName,
 					"cluster-"+contextName, contextName)
 				configPaths = append(configPaths, configPath)
 			}
@@ -78,7 +78,7 @@ func TestMergeCommand(t *testing.T) {
 				}
 
 				// List contexts from merged config
-				listOutput, err := RunKubecmWithEnv(t, 
+				listOutput, err := RunKubecmWithEnv(t,
 					map[string]string{"KUBECONFIG": outputPath}, "list")
 				if err != nil {
 					t.Errorf("Failed to list contexts from merged config: %v", err)
@@ -87,7 +87,7 @@ func TestMergeCommand(t *testing.T) {
 				// Verify all expected contexts are present
 				for _, expectedCtx := range tt.wantContexts {
 					if !strings.Contains(listOutput, expectedCtx) {
-						t.Errorf("Expected context %s not found in merged config: %s", 
+						t.Errorf("Expected context %s not found in merged config: %s",
 							expectedCtx, listOutput)
 					}
 				}
@@ -103,11 +103,11 @@ func TestRenameCommand(t *testing.T) {
 	}
 
 	tests := []struct {
-		name        string
-		contexts    []string
-		oldName     string
-		newName     string
-		wantErr     bool
+		name     string
+		contexts []string
+		oldName  string
+		newName  string
+		wantErr  bool
 	}{
 		{
 			name:     "rename existing context",
@@ -124,7 +124,7 @@ func TestRenameCommand(t *testing.T) {
 			testConfig := CreateMultiContextKubeconfig(t, "test.yaml", tt.contexts)
 
 			// Run kubecm rename
-			output, err := RunKubecmWithEnv(t, map[string]string{"KUBECONFIG": testConfig}, 
+			output, err := RunKubecmWithEnv(t, map[string]string{"KUBECONFIG": testConfig},
 				"rename", tt.oldName, tt.newName)
 
 			if tt.wantErr && err == nil {
@@ -140,12 +140,12 @@ func TestRenameCommand(t *testing.T) {
 				if err != nil {
 					t.Errorf("Failed to list contexts after rename: %v", err)
 				}
-				
+
 				// Old name should not exist
 				if strings.Contains(listOutput, tt.oldName) {
 					t.Errorf("Old context name %s still found after rename: %s", tt.oldName, listOutput)
 				}
-				
+
 				// New name should exist
 				if !strings.Contains(listOutput, tt.newName) {
 					t.Errorf("New context name %s not found after rename: %s", tt.newName, listOutput)
@@ -184,7 +184,7 @@ func TestNamespaceCommand(t *testing.T) {
 			testConfig := CreateMultiContextKubeconfig(t, "test.yaml", tt.contexts)
 
 			// Run kubecm namespace
-			output, err := RunKubecmWithEnv(t, map[string]string{"KUBECONFIG": testConfig}, 
+			output, err := RunKubecmWithEnv(t, map[string]string{"KUBECONFIG": testConfig},
 				"namespace", tt.namespace)
 
 			if tt.wantErr && err == nil {
@@ -224,7 +224,7 @@ func TestClearCommand(t *testing.T) {
 			testConfig := CreateMultiContextKubeconfig(t, "test.yaml", tt.contexts)
 
 			// Run kubecm clear (passes file path as argument to avoid interactive prompt)
-			output, err := RunKubecmWithEnv(t, map[string]string{"KUBECONFIG": testConfig}, 
+			output, err := RunKubecmWithEnv(t, map[string]string{"KUBECONFIG": testConfig},
 				"clear", testConfig)
 
 			if tt.wantErr && err == nil {
