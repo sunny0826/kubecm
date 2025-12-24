@@ -28,7 +28,7 @@ func RunKubecm(t *testing.T, args ...string) (string, error) {
 
 	t.Logf("Running: kubecm %s", strings.Join(args, " "))
 	if len(output) > 0 {
-		t.Logf("Output: %s", string(output))
+		t.Logf("Output: \n%s", string(output))
 	}
 
 	return string(output), err
@@ -50,7 +50,7 @@ func RunKubecmWithEnv(t *testing.T, env map[string]string, args ...string) (stri
 
 	t.Logf("Running: kubecm %s (with env: %v)", strings.Join(args, " "), env)
 	if len(output) > 0 {
-		t.Logf("Output: %s", string(output))
+		t.Logf("Output: \n%s", string(output))
 	}
 
 	return string(output), err
