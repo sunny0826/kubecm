@@ -73,6 +73,14 @@ func Test_checkEnvForSecret(t *testing.T) {
 			want:  "ten_env_id",
 			want1: "ten_env_sec",
 		},
+		{
+			name: "aws_env",
+			args: args{
+				num: 3,
+			},
+			want:  "aws_env_id",
+			want1: "aws_env_sec",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -83,6 +91,9 @@ func Test_checkEnvForSecret(t *testing.T) {
 			case "ten_env":
 				os.Setenv("TENCENTCLOUD_SECRET_ID", "ten_env_id")
 				os.Setenv("TENCENTCLOUD_SECRET_KEY", "ten_env_sec")
+			case "aws_env":
+				os.Setenv("AWS_ACCESS_KEY_ID", "aws_env_id")
+				os.Setenv("AWS_SECRET_ACCESS_KEY", "aws_env_sec")
 			}
 			got, got1 := checkEnvForSecret(tt.args.num)
 			if got != tt.want {

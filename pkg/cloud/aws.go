@@ -1,67 +1,145 @@
 package cloud
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
+	"sort"
 
-	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/eks"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+)
 
-	"github.com/aws/aws-sdk-go/aws/credentials"
+// AWSAuth authentication mode for AWS
+type AWSAuth int
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
-	"github.com/aws/aws-sdk-go/service/eks"
-
-	"github.com/aws/aws-sdk-go/aws/session"
+const (
+	// AWSAuthDefault uses the default credential chain (profile, SSO, env, IMDS)
+	AWSAuthDefault AWSAuth = iota
+	// AWSAuthStaticCredentials uses static access key + secret
+	AWSAuthStaticCredentials
 )
 
 // AWS struct of aws cloud
 type AWS struct {
-	AccessKeyID     string
-	AccessKeySecret string
+	AuthMode        AWSAuth
+	Profile         string // for AWSAuthDefault
+	AccessKeyID     string // for AWSAuthStaticCredentials
+	AccessKeySecret string // for AWSAuthStaticCredentials
 	RegionID        string
+
+	cfg *aws.Config // cached config
 }
 
-// getSession get session of aws cloud
-func (a *AWS) getSession() (*session.Session, error) {
-	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String(a.RegionID),
-		Credentials: credentials.NewStaticCredentials(a.AccessKeyID, a.AccessKeySecret, ""),
-	})
-	return sess, err
-}
-
-// GetRegionID get region id of aws
-func GetRegionID() ([]string, error) {
-	partitions := endpoints.DefaultPartitions()
-	var regionList []string
-	for _, p := range partitions {
-		for id := range p.Regions() {
-			// fmt.Printf("%s\n", id)
-			regionList = append(regionList, id)
-		}
+// getAWSConfig returns an AWS config, caching after first call.
+func (a *AWS) getAWSConfig() (aws.Config, error) {
+	if a.cfg != nil {
+		return *a.cfg, nil
 	}
-	return regionList, nil
+
+	var (
+		cfg aws.Config
+		err error
+	)
+
+	ctx := context.Background()
+	opts := []func(*config.LoadOptions) error{}
+
+	if a.RegionID != "" {
+		opts = append(opts, config.WithRegion(a.RegionID))
+	}
+
+	switch a.AuthMode {
+	case AWSAuthDefault:
+		if a.Profile != "" {
+			opts = append(opts, config.WithSharedConfigProfile(a.Profile))
+		}
+		cfg, err = config.LoadDefaultConfig(ctx, opts...)
+	case AWSAuthStaticCredentials:
+		opts = append(opts, config.WithCredentialsProvider(
+			credentials.NewStaticCredentialsProvider(a.AccessKeyID, a.AccessKeySecret, ""),
+		))
+		cfg, err = config.LoadDefaultConfig(ctx, opts...)
+	default:
+		return aws.Config{}, fmt.Errorf("invalid AWS auth mode: %d", a.AuthMode)
+	}
+
+	if err != nil {
+		return aws.Config{}, err
+	}
+
+	a.cfg = &cfg
+	return cfg, nil
 }
 
-// ListCluster list cluster info of aws
-func (a *AWS) ListCluster() (clusters []ClusterInfo, err error) {
-	sess, err := a.getSession()
+// awsRegions is a static sorted list of AWS regions.
+// This avoids a dependency on SDK v1's endpoints package.
+var awsRegions = []string{
+	"af-south-1",
+	"ap-east-1",
+	"ap-northeast-1",
+	"ap-northeast-2",
+	"ap-northeast-3",
+	"ap-south-1",
+	"ap-south-2",
+	"ap-southeast-1",
+	"ap-southeast-2",
+	"ap-southeast-3",
+	"ap-southeast-4",
+	"ap-southeast-5",
+	"ap-southeast-7",
+	"ca-central-1",
+	"ca-west-1",
+	"eu-central-1",
+	"eu-central-2",
+	"eu-north-1",
+	"eu-south-1",
+	"eu-south-2",
+	"eu-west-1",
+	"eu-west-2",
+	"eu-west-3",
+	"il-central-1",
+	"me-central-1",
+	"me-south-1",
+	"mx-central-1",
+	"sa-east-1",
+	"us-east-1",
+	"us-east-2",
+	"us-west-1",
+	"us-west-2",
+}
+
+// GetRegionID returns a sorted list of AWS region IDs.
+func GetRegionID() ([]string, error) {
+	regions := make([]string, len(awsRegions))
+	copy(regions, awsRegions)
+	sort.Strings(regions)
+	return regions, nil
+}
+
+// ListCluster lists EKS clusters in the configured region.
+func (a *AWS) ListCluster() ([]ClusterInfo, error) {
+	cfg, err := a.getAWSConfig()
 	if err != nil {
 		return nil, err
 	}
-	var clusterList []ClusterInfo
-	svc := eks.New(sess)
+
+	ctx := context.Background()
+	svc := eks.NewFromConfig(cfg)
 	input := &eks.ListClustersInput{}
 
-	result, err := svc.ListClusters(input)
+	result, err := svc.ListClusters(ctx, input)
 	if err != nil {
 		return nil, err
 	}
 
+	var clusterList []ClusterInfo
 	for _, clusterName := range result.Clusters {
-		clusterInfo, err := a.getClusterInfo(*clusterName)
+		clusterInfo, err := a.getClusterInfo(clusterName)
 		if err != nil {
 			return nil, err
 		}
@@ -70,27 +148,29 @@ func (a *AWS) ListCluster() (clusters []ClusterInfo, err error) {
 	return clusterList, nil
 }
 
-// GetClusterInfo get cluster info of aws eks
-func (a *AWS) getClusterInfo(clusterName string) (clusterInfo ClusterInfo, err error) {
-	sess, err := a.getSession()
+// getClusterInfo returns info for a single EKS cluster.
+func (a *AWS) getClusterInfo(clusterName string) (ClusterInfo, error) {
+	cfg, err := a.getAWSConfig()
 	if err != nil {
 		return ClusterInfo{}, err
 	}
 
-	svcSts := sts.New(sess)
-	callerIdentity, err := svcSts.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+	ctx := context.Background()
+
+	stsSvc := sts.NewFromConfig(cfg)
+	callerIdentity, err := stsSvc.GetCallerIdentity(ctx, &sts.GetCallerIdentityInput{})
 	if err != nil {
 		return ClusterInfo{}, err
 	}
 
-	svc := eks.New(sess)
-	input := &eks.DescribeClusterInput{
+	eksSvc := eks.NewFromConfig(cfg)
+	cluster, err := eksSvc.DescribeCluster(ctx, &eks.DescribeClusterInput{
 		Name: &clusterName,
-	}
-	cluster, err := svc.DescribeCluster(input)
+	})
 	if err != nil {
 		return ClusterInfo{}, err
 	}
+
 	return ClusterInfo{
 		ID:         *cluster.Cluster.Name,
 		Account:    *callerIdentity.Account,
@@ -98,22 +178,23 @@ func (a *AWS) getClusterInfo(clusterName string) (clusterInfo ClusterInfo, err e
 		RegionID:   a.RegionID,
 		K8sVersion: *cluster.Cluster.Version,
 		ConsoleURL: fmt.Sprintf("https://%s.console.aws.amazon.com/eks/home?region=%s#/clusters/%s", a.RegionID, a.RegionID, *cluster.Cluster.Name),
-	}, err
-
+	}, nil
 }
 
-// GetKubeConfigObj get aws eks kubeConfig file
+// GetKubeConfigObj returns a kubeconfig object for the given EKS cluster.
+// If a Profile is set, --profile is added to the exec args so the generated
+// kubeconfig works without needing AWS_PROFILE in the environment.
 func (a *AWS) GetKubeConfigObj(clusterID string) (*clientcmdapi.Config, error) {
-	sess, err := a.getSession()
+	cfg, err := a.getAWSConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	svc := eks.New(sess)
-	input := &eks.DescribeClusterInput{
+	ctx := context.Background()
+	svc := eks.NewFromConfig(cfg)
+	cluster, err := svc.DescribeCluster(ctx, &eks.DescribeClusterInput{
 		Name: &clusterID,
-	}
-	cluster, err := svc.DescribeCluster(input)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -121,6 +202,20 @@ func (a *AWS) GetKubeConfigObj(clusterID string) (*clientcmdapi.Config, error) {
 	decodePem, err := base64.StdEncoding.DecodeString(*cluster.Cluster.CertificateAuthority.Data)
 	if err != nil {
 		return nil, err
+	}
+
+	execArgs := []string{
+		"eks",
+		"get-token",
+		"--cluster-name",
+		*cluster.Cluster.Name,
+		"--region",
+		a.RegionID,
+		"--output",
+		"json",
+	}
+	if a.Profile != "" {
+		execArgs = append(execArgs, "--profile", a.Profile)
 	}
 
 	kubeconfig := &clientcmdapi.Config{
@@ -135,16 +230,7 @@ func (a *AWS) GetKubeConfigObj(clusterID string) (*clientcmdapi.Config, error) {
 				Exec: &clientcmdapi.ExecConfig{
 					APIVersion: "client.authentication.k8s.io/v1beta1",
 					Command:    "aws",
-					Args: []string{
-						"eks",
-						"get-token",
-						"--cluster-name",
-						*cluster.Cluster.Name,
-						"--region",
-						a.RegionID,
-						"--output",
-						"json",
-					},
+					Args:       execArgs,
 				},
 			},
 		},
