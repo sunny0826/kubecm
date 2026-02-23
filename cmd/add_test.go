@@ -162,6 +162,24 @@ var (
 		},
 	}
 
+	contextNameWithPrefixTestConfig = clientcmdapi.Config{
+		AuthInfos: map[string]*clientcmdapi.AuthInfo{
+			"black-user":  {Token: "black-token"},
+			"red-user":    {Token: "red-token"},
+			"single-user": {Token: "single-token"},
+		},
+		Clusters: map[string]*clientcmdapi.Cluster{
+			"pig-cluster":    {Server: "http://pig.org:8080"},
+			"cow-cluster":    {Server: "http://cow.org:8080"},
+			"single-cluster": {Server: "http://single:8080"},
+		},
+		Contexts: map[string]*clientcmdapi.Context{
+			"root":                {AuthInfo: "black-user", Cluster: "pig-cluster", Namespace: "saw-ns"},
+			"federal":             {AuthInfo: "red-user", Cluster: "cow-cluster", Namespace: "hammer-ns"},
+			"demo-single-context": {AuthInfo: "single-user", Cluster: "single-cluster", Namespace: "single-ns"},
+		},
+	}
+
 	multiTestConfig = clientcmdapi.Config{
 		AuthInfos: map[string]*clientcmdapi.AuthInfo{
 			"blue-user":  {Token: "blue-token"},
@@ -274,7 +292,7 @@ func TestKubeConfig_handleContexts(t *testing.T) {
 		{"single context name - new", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, []string{}, "rename", []string{"context"}}, &renameSingleTestConfig, false},
 		{"set context template", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, []string{}, "", []string{"filename", "user", "cluster"}}, &contextTemplateTestConfig, false},
 		{"set context template and context prefix", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, []string{}, "demo", []string{"user", "cluster"}}, &contextTemplateAndPrefixTestConfig, false},
-		{"set context name", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, []string{}, "demo", []string{}}, &contextNameTestConfig, false},
+		{"set context name", fields{config: singleConfig, fileName: "test"}, args{&oldTestConfig, []string{}, "demo", []string{}}, &contextNameWithPrefixTestConfig, false},
 		{"select context", fields{config: &multiTestConfig, fileName: "test"}, args{&oldTestConfig, []string{"small"}, "", []string{"context"}}, &selectContextTestConfig, false},
 	}
 	for _, tt := range tests {
@@ -424,7 +442,7 @@ func TestGenerateContextName(t *testing.T) {
 				},
 				contextTemplate: []string{},
 			},
-			want: "",
+			want: "test-context",
 		},
 	}
 	for _, tt := range tests {
