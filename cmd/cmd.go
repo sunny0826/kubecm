@@ -22,6 +22,7 @@ func NewBaseCommand() *BaseCommand {
 		&CloudCommand{},      // cloud command
 		&ExportCommand{},     // export command
 		&DocsCommand{},       // docs command
+		&RegistryCommand{},   // registry command
 	)
 
 	return baseCmd

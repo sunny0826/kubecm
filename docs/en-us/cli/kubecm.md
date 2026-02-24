@@ -41,6 +41,7 @@ KubeConfig Manager.
 * [kubecm export](kubecm_export.md)	 - Export the specified context from the kubeconfig
 * [kubecm list](kubecm_list.md)	 - List KubeConfig
 * [kubecm merge](kubecm_merge.md)	 - Merge multiple kubeconfig files into one
+* [kubecm registry](kubecm_registry.md)	 - Manage kubeconfig registries (Git-backed distribution)
 * [kubecm rename](kubecm_rename.md)	 - Rename the contexts of kubeconfig
 * [kubecm switch](kubecm_switch.md)	 - Switch Kube Context interactively
 * [kubecm version](kubecm_version.md)	 - Print version info
