@@ -9,10 +9,11 @@ Manage kubeconfig from cloud
 ### Options
 
 ```
-      --cluster_id string   kubernetes cluster id
-  -h, --help                help for cloud
-      --provider string     public cloud
-      --region_id string    cloud region id
+      --aws_profile string   AWS profile name (from ~/.aws/config)
+      --cluster_id string    kubernetes cluster id
+  -h, --help                 help for cloud
+      --provider string      public cloud
+      --region_id string     cloud region id
 ```
 
 ### Options inherited from parent commands
