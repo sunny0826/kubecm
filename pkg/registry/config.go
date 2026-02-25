@@ -16,8 +16,12 @@ const (
 	registriesDir = "registries"
 )
 
-// ConfigDir returns ~/.kubecm/
+// ConfigDir returns the kubecm configuration directory.
+// If KUBECM_HOME is set, it is used directly. Otherwise defaults to ~/.kubecm/.
 func ConfigDir() (string, error) {
+	if dir := os.Getenv("KUBECM_HOME"); dir != "" {
+		return dir, nil
+	}
 	home, err := homeDir()
 	if err != nil {
 		return "", err
