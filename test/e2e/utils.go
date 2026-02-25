@@ -106,21 +106,21 @@ func CreateMultiContextKubeconfig(t *testing.T, name string, contexts []string) 
 		clusterName := fmt.Sprintf("cluster-%d", i)
 		userName := fmt.Sprintf("user-%d", i)
 
-		clusterSection.WriteString(fmt.Sprintf(`- cluster:
+		fmt.Fprintf(&clusterSection, `- cluster:
     server: https://%s.example.com:6443
   name: %s
-`, clusterName, clusterName))
+`, clusterName, clusterName)
 
-		contextSection.WriteString(fmt.Sprintf(`- context:
+		fmt.Fprintf(&contextSection, `- context:
     cluster: %s
     user: %s
   name: %s
-`, clusterName, userName, ctx))
+`, clusterName, userName, ctx)
 
-		userSection.WriteString(fmt.Sprintf(`- name: %s
+		fmt.Fprintf(&userSection, `- name: %s
   user:
     token: token-%d
-`, userName, i))
+`, userName, i)
 	}
 
 	// Use first context as current context
