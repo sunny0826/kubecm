@@ -193,23 +193,13 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 		}
 	case 3:
 		fmt.Println("⛅  Selected: AWS")
-		accessKeyID, accessKeySecret := checkEnvForSecret(3)
-		aws := cloud.AWS{
-			AccessKeyID:     accessKeyID,
-			AccessKeySecret: accessKeySecret,
-		}
-		if regionID == "" {
-			regionList, err := cloud.GetRegionID()
-			if err != nil {
-				return err
-			}
-			regionNum := selectRegion(regionList, "Select Region ID")
-			aws.RegionID = regionList[regionNum]
-		} else {
-			aws.RegionID = regionID
+		awsProfile, _ := ca.command.Flags().GetString("aws_profile")
+		awsProvider, err := buildAWSProvider(awsProfile, regionID)
+		if err != nil {
+			return err
 		}
 		if clusterID == "" {
-			clusters, err := aws.ListCluster()
+			clusters, err := awsProvider.ListCluster()
 			if err != nil {
 				return err
 			}
@@ -219,7 +209,7 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 			clusterNum := selectCluster(clusters, "Select Cluster")
 			clusterID = clusters[clusterNum].ID
 		}
-		newConfig, err := aws.GetKubeConfigObj(clusterID)
+		newConfig, err := awsProvider.GetKubeConfigObj(clusterID)
 		if err != nil {
 			return err
 		}
@@ -344,38 +334,48 @@ func (ca *CloudAddCommand) runCloudAdd(cmd *cobra.Command, args []string) error 
 
 func cloudAddExample() string {
 	return `
-# Supports AWS, Ali Cloud, Tencent Cloud and Rancher
-# The AK/AS of the cloud platform will be retrieved directly 
-# if it exists in the environment variable, 
+# Supports AWS, Ali Cloud, Tencent Cloud, Rancher and Azure
+# The AK/AS of the cloud platform will be retrieved directly
+# if it exists in the environment variable,
 # otherwise a prompt box will appear asking for it.
-
-# Set env AliCloud secret key
-export ACCESS_KEY_ID=YOUR_AKID
-export ACCESS_KEY_SECRET=YOUR_SECRET_KEY
-
-# Set env Tencent secret key
-export TENCENTCLOUD_SECRET_ID=YOUR_SECRET_ID
-export TENCENTCLOUD_SECRET_KEY=YOUR_SECRET_KEY
-
-# Set env Rancher secret key
-export RANCHER_SERVER_URL=https://xxx
-export RANCHER_API_KEY=YOUR_API_KEY
-
-# Set env AWS secret key
-# Note: Please install the AWS CLI before normal use.
-export AWS_ACCESS_KEY_ID=YOUR_AKID
-export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
-
-# Set env Azure secret key
-export AZURE_SUBSCRIPTION_ID=YOUR_SUBSCRIPTION_ID
-export AZURE_CLIENT_ID=YOUR_CLIENT_ID
-export AZURE_CLIENT_SECRET=YOUR_CLIENT_SECRET
-export AZURE_TENANT_ID=YOUR_TENANT_ID
-export AZURE_OBJECT_ID=YOUR_OBJECT_ID
 
 # Interaction: select kubeconfig from the cloud
 kubecm cloud add
-# Add kubeconfig from cloud
+
+# AlibabaCloud
+export ACCESS_KEY_ID=YOUR_AKID
+export ACCESS_KEY_SECRET=YOUR_SECRET_KEY
 kubecm cloud add --provider alibabacloud --cluster_id=xxxxxx
+
+# Tencent Cloud
+export TENCENTCLOUD_SECRET_ID=YOUR_SECRET_ID
+export TENCENTCLOUD_SECRET_KEY=YOUR_SECRET_KEY
+kubecm cloud add --provider tencent --region_id=ap-guangzhou
+
+# Rancher
+export RANCHER_SERVER_URL=https://xxx
+export RANCHER_API_KEY=YOUR_API_KEY
+kubecm cloud add --provider rancher
+
+# AWS with named profile (recommended)
+kubecm cloud add --provider aws --aws_profile my-profile --region_id us-east-1
+
+# AWS with profile from environment
+export AWS_PROFILE=my-profile
+kubecm cloud add --provider aws
+
+# AWS with static credentials (backward compatible)
+export AWS_ACCESS_KEY_ID=YOUR_AKID
+export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
+kubecm cloud add --provider aws --region_id us-east-1
+
+# Azure with default SDK auth
+kubecm cloud add --provider azure
+
+# Azure with service principal
+export AZURE_CLIENT_ID=YOUR_CLIENT_ID
+export AZURE_CLIENT_SECRET=YOUR_CLIENT_SECRET
+export AZURE_TENANT_ID=YOUR_TENANT_ID
+kubecm cloud add --provider azure
 `
 }

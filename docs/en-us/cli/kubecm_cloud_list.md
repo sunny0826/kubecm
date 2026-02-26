@@ -14,24 +14,22 @@ kubecm cloud list [flags]
 
 ```
 
-# Supports Ali Cloud and Tencent Cloud
-# The AK/AS of the cloud platform will be retrieved directly 
-# if it exists in the environment variable, 
-# otherwise a prompt box will appear asking for it.
+# Supports AlibabaCloud, Tencent Cloud, Rancher, AWS and Azure
 
-# Set env AliCloud secret key
-export ACCESS_KEY_ID=xxx
-export ACCESS_KEY_SECRET=xxx
-# Set env Tencent secret key
-export TENCENTCLOUD_SECRET_ID=xxx
-export TENCENTCLOUD_SECRET_KEY=xxx
-# Set env Rancher secret key
-export RANCHER_SERVER_URL=https://xxx
-export RANCHER_API_KEY=xxx
-# Interaction: list kubeconfig from cloud
+# Interaction: list clusters from cloud
 kubecm cloud list
-# Add kubeconfig from cloud
-kubecm cloud list --provider alibabacloud --cluster_id=xxxxxx
+
+# AlibabaCloud
+kubecm cloud list --provider alibabacloud
+
+# AWS with named profile
+kubecm cloud list --provider aws --aws_profile my-profile --region_id eu-west-3
+
+# AWS with default credential chain
+kubecm cloud list --provider aws --region_id us-east-1
+
+# Azure
+kubecm cloud list --provider azure
 
 ```
 
@@ -44,14 +42,15 @@ kubecm cloud list --provider alibabacloud --cluster_id=xxxxxx
 ### Options inherited from parent commands
 
 ```
-      --cluster_id string   kubernetes cluster id
-      --config string       path of kubeconfig (default "$HOME/.kube/config")
-      --create              Create a new kubeconfig file if not exists
-  -m, --mac-notify          enable to display Mac notification banner
-      --provider string     public cloud
-      --region_id string    cloud region id
-  -s, --silence-table       enable/disable output of context table on successful config update
-  -u, --ui-size int         number of list items to show in menu at once (default 10)
+      --aws_profile string   AWS profile name (from ~/.aws/config)
+      --cluster_id string    kubernetes cluster id
+      --config string        path of kubeconfig (default "$HOME/.kube/config")
+      --create               Create a new kubeconfig file if not exists
+  -m, --mac-notify           enable to display Mac notification banner
+      --provider string      public cloud
+      --region_id string     cloud region id
+  -s, --silence-table        enable/disable output of context table on successful config update
+  -u, --ui-size int          number of list items to show in menu at once (default 10)
 ```
 
 ### SEE ALSO

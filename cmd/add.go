@@ -205,6 +205,10 @@ func (kc *KubeConfigOption) generateContextName(name string, ctx *clientcmdapi.C
 		Namespace: ctx.Namespace,
 	}
 
+	if len(contextTemplate) == 0 {
+		return name
+	}
+
 	var contextValues []string
 	for _, value := range contextTemplate {
 		if v, ok := valueMap[value]; ok {

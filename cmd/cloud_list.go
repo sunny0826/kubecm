@@ -30,13 +30,14 @@ func (cl *CloudListCommand) Init() {
 func (cl *CloudListCommand) runCloudList(cmd *cobra.Command, args []string) error {
 	provider, _ := cl.command.Flags().GetString("provider")
 	regionID, _ := cl.command.Flags().GetString("region_id")
+	awsProfile, _ := cl.command.Flags().GetString("aws_profile")
 	var num int
 	if provider == "" {
 		num = selectCloud(Clouds, "Select Cloud")
 	} else {
 		num = checkFlags(provider)
 	}
-	clusters, err := getClusters(provider, regionID, num)
+	clusters, err := getClusters(provider, regionID, awsProfile, num)
 	if err != nil {
 		return err
 	}
@@ -70,23 +71,21 @@ func printListTable(clusters []cloud.ClusterInfo) error {
 
 func cloudListExample() string {
 	return `
-# Supports Ali Cloud and Tencent Cloud
-# The AK/AS of the cloud platform will be retrieved directly 
-# if it exists in the environment variable, 
-# otherwise a prompt box will appear asking for it.
+# Supports AlibabaCloud, Tencent Cloud, Rancher, AWS and Azure
 
-# Set env AliCloud secret key
-export ACCESS_KEY_ID=xxx
-export ACCESS_KEY_SECRET=xxx
-# Set env Tencent secret key
-export TENCENTCLOUD_SECRET_ID=xxx
-export TENCENTCLOUD_SECRET_KEY=xxx
-# Set env Rancher secret key
-export RANCHER_SERVER_URL=https://xxx
-export RANCHER_API_KEY=xxx
-# Interaction: list kubeconfig from cloud
+# Interaction: list clusters from cloud
 kubecm cloud list
-# Add kubeconfig from cloud
-kubecm cloud list --provider alibabacloud --cluster_id=xxxxxx
+
+# AlibabaCloud
+kubecm cloud list --provider alibabacloud
+
+# AWS with named profile
+kubecm cloud list --provider aws --aws_profile my-profile --region_id eu-west-3
+
+# AWS with default credential chain
+kubecm cloud list --provider aws --region_id us-east-1
+
+# Azure
+kubecm cloud list --provider azure
 `
 }

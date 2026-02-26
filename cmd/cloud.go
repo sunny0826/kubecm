@@ -68,12 +68,13 @@ func (cc *CloudCommand) Init() {
 	cc.command.PersistentFlags().String("provider", "", "public cloud")
 	cc.command.PersistentFlags().String("cluster_id", "", "kubernetes cluster id")
 	cc.command.PersistentFlags().String("region_id", "", "cloud region id")
+	cc.command.PersistentFlags().String("aws_profile", "", "AWS profile name (from ~/.aws/config)")
 	cc.AddCommands(&CloudAddCommand{})
 	cc.AddCommands(&CloudListCommand{})
 	cc.AddCommands(&DocsCommand{})
 }
 
-func getClusters(provider, regionID string, num int) ([]cloud.ClusterInfo, error) {
+func getClusters(provider, regionID, awsProfile string, num int) ([]cloud.ClusterInfo, error) {
 	var clusters []cloud.ClusterInfo
 	var err error
 	switch num {
@@ -126,22 +127,11 @@ func getClusters(provider, regionID string, num int) ([]cloud.ClusterInfo, error
 		}
 	case 3:
 		fmt.Println("⛅  Selected: AWS")
-		accessKeyID, accessKeySecret := checkEnvForSecret(3)
-		aws := cloud.AWS{
-			AccessKeyID:     accessKeyID,
-			AccessKeySecret: accessKeySecret,
+		awsProvider, err := buildAWSProvider(awsProfile, regionID)
+		if err != nil {
+			return nil, err
 		}
-		if regionID == "" {
-			regionList, err := cloud.GetRegionID()
-			if err != nil {
-				return nil, err
-			}
-			regionNum := selectRegion(regionList, "Select Region ID")
-			aws.RegionID = regionList[regionNum]
-		} else {
-			aws.RegionID = regionID
-		}
-		clusters, err = aws.ListCluster()
+		clusters, err = awsProvider.ListCluster()
 		if err != nil {
 			return nil, err
 		}
@@ -187,6 +177,55 @@ func getClusters(provider, regionID string, num int) ([]cloud.ClusterInfo, error
 	}
 
 	return clusters, err
+}
+
+// buildAWSProvider creates an AWS provider with the appropriate auth mode.
+// If awsProfile is set, it uses the default credential chain with that profile.
+// Otherwise, it prompts the user to select an auth type.
+func buildAWSProvider(awsProfile, regionID string) (cloud.AWS, error) {
+	a := cloud.AWS{}
+
+	if awsProfile != "" {
+		// Profile flag provided: use default credential chain with profile
+		a.AuthMode = cloud.AWSAuthDefault
+		a.Profile = awsProfile
+	} else {
+		// Prompt for auth type (like Azure does)
+		authModes := []string{"Default (Credential Chain)", "Static Credentials"}
+		authMode := selectOption(nil, authModes, "Select Auth Type")
+		switch authMode {
+		case 0:
+			a.AuthMode = cloud.AWSAuthDefault
+			// Check for AWS_PROFILE env var
+			if envProfile := os.Getenv("AWS_PROFILE"); envProfile != "" {
+				a.Profile = envProfile
+			}
+		case 1:
+			a.AuthMode = cloud.AWSAuthStaticCredentials
+			a.AccessKeyID, a.AccessKeySecret = checkEnvForSecret(3)
+		}
+	}
+
+	// Resolve region
+	if regionID != "" {
+		a.RegionID = regionID
+	} else {
+		// Check environment variables
+		if envRegion := os.Getenv("AWS_REGION"); envRegion != "" {
+			a.RegionID = envRegion
+		} else if envRegion := os.Getenv("AWS_DEFAULT_REGION"); envRegion != "" {
+			a.RegionID = envRegion
+		} else {
+			regionList, err := cloud.GetRegionID()
+			if err != nil {
+				return cloud.AWS{}, err
+			}
+			regionNum := selectRegion(regionList, "Select Region ID")
+			a.RegionID = regionList[regionNum]
+		}
+	}
+
+	return a, nil
 }
 
 func checkEnvForSecret(num int) (string, string) {
