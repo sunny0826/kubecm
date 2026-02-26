@@ -52,7 +52,14 @@ func (nc *NamespaceCommand) runNamespace(command *cobra.Command, args []string) 
 	}
 
 	currentContext := config.CurrentContext
-	currentNamespace := config.Contexts[currentContext].Namespace
+	if currentContext == "" {
+		return fmt.Errorf("current-context is not set")
+	}
+	ctx, ok := config.Contexts[currentContext]
+	if !ok {
+		return fmt.Errorf("context %q not found in kubeconfig", currentContext)
+	}
+	currentNamespace := ctx.Namespace
 	clientset, err := GetClientSet(kubeconfig)
 	if err != nil {
 		return err
