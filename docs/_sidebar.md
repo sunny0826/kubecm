@@ -1,8 +1,10 @@
 * [Install](/en-us/install.md)
 * [Introduction](/en-us/introduction.md)
+* [Registry](/en-us/registry.md)
 * CLI References
     * [kubecm add](/en-us/cli/kubecm_add.md)
     * [kubecm alias](/en-us/cli/kubecm_alias.md)
+    * [kubecm cloud](/en-us/cli/kubecm_cloud.md)
     * [kubecm completion](/en-us/cli/kubecm_completion.md)
     * [kubecm delete](/en-us/cli/kubecm_delete.md)
     * [kubecm list](/en-us/cli/kubecm_list.md)
@@ -12,3 +14,4 @@
     * [kubecm switch](/en-us/cli/kubecm_switch.md)
     * [kubecm version](/en-us/cli/kubecm_version.md)
     * [kubecm export](/en-us/cli/kubecm_export.md)
+    * [kubecm registry](/en-us/cli/kubecm_registry.md)

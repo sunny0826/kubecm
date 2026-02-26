@@ -39,6 +39,7 @@ Source binary:
 - **Context Management**: Switch between Kubernetes **clusters** and **namespaces** in a single command.
 - **Merge-Kubeconfig**: Merge multiple kubeconfig files into one.
 - **Interactive Mode**: Interactively select the context you want to switch to.
+- **Registry**: Distribute kubeconfigs across teams using a [Git-backed registry](https://kubecm.cloud/en-us/registry).
 - **Multi-Platform**: Support Linux, macOS, and Windows.
 - **Auto-Completion**: Support auto-completion for Bash, Zsh, and Fish.
 

@@ -39,6 +39,7 @@ Available Commands:
   list        List KubeConfig
   merge       Merge multiple kubeconfig files into one
   namespace   Switch or change namespace interactively
+  registry    Git-backed kubeconfig distribution for teams
   rename      Rename the contexts of kubeconfig
   switch      Switch Kube Context interactively
   version     Print version info
