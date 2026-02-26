@@ -1,5 +1,6 @@
 * [Introduction](/en-us/introduction.md)
 * [Install](/en-us/install.md)
+* [Registry](/en-us/registry.md)
 * CLI References
     * [add](/en-us/cli/kubecm_add.md)
     * [cloud](/en-us/cli/kubecm_cloud.md)
@@ -15,4 +16,5 @@
     * [clear](/en-us/cli/kubecm_clear.md)
     * [version](/en-us/cli/kubecm_version.md)
     * [export](/en-us/cli/kubecm_export.md)
+    * [registry](/en-us/cli/kubecm_registry.md)
 * [Contribute](/en-us/contribute.md)
