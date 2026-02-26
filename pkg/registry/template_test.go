@@ -119,3 +119,87 @@ func TestResolveFragmentTemplates(t *testing.T) {
 		}
 	})
 }
+
+// --- Tests using new Cluster types (new API) ---
+
+func TestResolveClusterTemplates(t *testing.T) {
+	t.Run("aws cluster", func(t *testing.T) {
+		cl := &Cluster{
+			Provider: "aws",
+			AWS: &AWSClusterConfig{
+				Region:  "{{ .Region }}",
+				Cluster: "eks-{{ .Env }}",
+				Profile: "{{ .Profile }}",
+			},
+		}
+		vars := map[string]string{
+			"Region":  "eu-central-1",
+			"Env":     "prod",
+			"Profile": "admin",
+		}
+
+		if err := ResolveClusterTemplates(cl, vars); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if cl.AWS.Region != "eu-central-1" {
+			t.Errorf("region = %q, want %q", cl.AWS.Region, "eu-central-1")
+		}
+		if cl.AWS.Cluster != "eks-prod" {
+			t.Errorf("cluster = %q, want %q", cl.AWS.Cluster, "eks-prod")
+		}
+		if cl.AWS.Profile != "admin" {
+			t.Errorf("profile = %q, want %q", cl.AWS.Profile, "admin")
+		}
+	})
+}
+
+func TestResolveUserTemplates(t *testing.T) {
+	t.Run("aws profile template", func(t *testing.T) {
+		u := &User{
+			Provider: "aws",
+			AWS: &AWSUserConfig{
+				Profile: "{{ .Org }}/AWSAdministratorAccess",
+			},
+		}
+		vars := map[string]string{"Org": "acme"}
+
+		if err := ResolveUserTemplates(u, vars); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if u.AWS.Profile != "acme/AWSAdministratorAccess" {
+			t.Errorf("profile = %q, want %q", u.AWS.Profile, "acme/AWSAdministratorAccess")
+		}
+	})
+
+	t.Run("azure tenantId template", func(t *testing.T) {
+		u := &User{
+			Provider: "azure",
+			Azure: &AzureUserConfig{
+				TenantID: "{{ .TenantID }}",
+			},
+		}
+		vars := map[string]string{"TenantID": "abc-123"}
+
+		if err := ResolveUserTemplates(u, vars); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if u.Azure.TenantID != "abc-123" {
+			t.Errorf("tenantId = %q, want %q", u.Azure.TenantID, "abc-123")
+		}
+	})
+
+	t.Run("nil vars is no-op", func(t *testing.T) {
+		u := &User{
+			Provider: "aws",
+			AWS: &AWSUserConfig{
+				Profile: "static-profile",
+			},
+		}
+		if err := ResolveUserTemplates(u, nil); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if u.AWS.Profile != "static-profile" {
+			t.Errorf("profile changed unexpectedly")
+		}
+	})
+}

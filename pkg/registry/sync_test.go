@@ -403,6 +403,368 @@ func contextNames(cfg *clientcmdapi.Config) []string {
 	return names
 }
 
+func TestSync_ContextsFormat(t *testing.T) {
+	dir := setupTestRegistryWithUsers(t)
+
+	entry := &RegistryEntry{
+		Name: "test",
+		Role: "contexts-role",
+	}
+	currentConfig := clientcmdapi.NewConfig()
+
+	result, err := Sync(dir, entry, currentConfig, false)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(result.Added) != 2 {
+		t.Errorf("expected 2 added contexts, got %d: %v", len(result.Added), result.Added)
+	}
+
+	if _, ok := currentConfig.Contexts["eks-prod"]; !ok {
+		t.Errorf("expected context 'eks-prod', got: %v", contextNames(currentConfig))
+	}
+	if _, ok := currentConfig.Contexts["eks-staging"]; !ok {
+		t.Errorf("expected context 'eks-staging', got: %v", contextNames(currentConfig))
+	}
+}
+
+func TestSync_WithUserOverride(t *testing.T) {
+	dir := setupTestRegistryWithUsers(t)
+
+	entry := &RegistryEntry{
+		Name: "test",
+		Role: "user-override-role",
+	}
+	currentConfig := clientcmdapi.NewConfig()
+
+	result, err := Sync(dir, entry, currentConfig, false)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(result.Added) != 1 {
+		t.Errorf("expected 1 added context, got %d: %v", len(result.Added), result.Added)
+	}
+
+	// The static fragment's token should be present (user override is static too)
+	if _, ok := currentConfig.Contexts["static-cluster"]; !ok {
+		t.Errorf("expected context 'static-cluster', got: %v", contextNames(currentConfig))
+	}
+}
+
+func TestSync_SameFragmentDifferentUsers(t *testing.T) {
+	dir := setupTestRegistryWithUsers(t)
+
+	entry := &RegistryEntry{
+		Name: "test",
+		Role: "multi-user-role",
+	}
+	currentConfig := clientcmdapi.NewConfig()
+
+	result, err := Sync(dir, entry, currentConfig, false)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(result.Added) != 2 {
+		t.Errorf("expected 2 added contexts, got %d: %v", len(result.Added), result.Added)
+	}
+
+	if _, ok := currentConfig.Contexts["prod-admin"]; !ok {
+		t.Errorf("expected context 'prod-admin', got: %v", contextNames(currentConfig))
+	}
+	if _, ok := currentConfig.Contexts["prod-ro"]; !ok {
+		t.Errorf("expected context 'prod-ro', got: %v", contextNames(currentConfig))
+	}
+}
+
+func TestSync_DuplicateContextNameError(t *testing.T) {
+	dir := setupTestRegistryWithUsers(t)
+
+	entry := &RegistryEntry{
+		Name: "test",
+		Role: "duplicate-role",
+	}
+	currentConfig := clientcmdapi.NewConfig()
+
+	_, err := Sync(dir, entry, currentConfig, false)
+	if err == nil {
+		t.Error("expected error for duplicate context names")
+	}
+}
+
+// setupTestRegistryWithUsers creates a test registry with users/ directory.
+func setupTestRegistryWithUsers(t *testing.T) string {
+	t.Helper()
+	dir := t.TempDir()
+
+	writeFile(t, filepath.Join(dir, "registry.yaml"), `
+apiVersion: kubecm.io/v1alpha1
+kind: Registry
+metadata:
+  name: test
+`)
+
+	os.MkdirAll(filepath.Join(dir, "roles"), 0o755)
+	os.MkdirAll(filepath.Join(dir, "fragments"), 0o755)
+	os.MkdirAll(filepath.Join(dir, "users"), 0o755)
+
+	// Fragments
+	writeFile(t, filepath.Join(dir, "fragments", "eks-prod.yaml"), `
+apiVersion: kubecm.io/v1alpha1
+kind: Fragment
+metadata:
+  name: eks-prod
+provider: static
+kubeconfig: |
+  apiVersion: v1
+  kind: Config
+  clusters:
+    - cluster:
+        server: https://eks-prod.example.com:6443
+      name: eks-prod
+  contexts:
+    - context:
+        cluster: eks-prod
+        user: eks-prod
+      name: eks-prod
+  users:
+    - name: eks-prod
+      user:
+        token: prod-token
+`)
+
+	writeFile(t, filepath.Join(dir, "fragments", "eks-staging.yaml"), `
+apiVersion: kubecm.io/v1alpha1
+kind: Fragment
+metadata:
+  name: eks-staging
+provider: static
+kubeconfig: |
+  apiVersion: v1
+  kind: Config
+  clusters:
+    - cluster:
+        server: https://eks-staging.example.com:6443
+      name: eks-staging
+  contexts:
+    - context:
+        cluster: eks-staging
+        user: eks-staging
+      name: eks-staging
+  users:
+    - name: eks-staging
+      user:
+        token: staging-token
+`)
+
+	writeFile(t, filepath.Join(dir, "fragments", "static-cluster.yaml"), `
+apiVersion: kubecm.io/v1alpha1
+kind: Fragment
+metadata:
+  name: static-cluster
+provider: static
+kubeconfig: |
+  apiVersion: v1
+  kind: Config
+  clusters:
+    - cluster:
+        server: https://k8s.internal:6443
+      name: onprem
+  contexts:
+    - context:
+        cluster: onprem
+        user: onprem
+      name: onprem
+  users:
+    - name: onprem
+      user:
+        token: base-token
+`)
+
+	// Users
+	writeFile(t, filepath.Join(dir, "users", "admin.yaml"), `
+apiVersion: kubecm.io/v1alpha1
+kind: User
+metadata:
+  name: admin
+provider: static
+`)
+
+	writeFile(t, filepath.Join(dir, "users", "readonly.yaml"), `
+apiVersion: kubecm.io/v1alpha1
+kind: User
+metadata:
+  name: readonly
+provider: static
+`)
+
+	// Roles
+
+	// contexts: format (no users)
+	writeFile(t, filepath.Join(dir, "roles", "contexts-role.yaml"), `
+apiVersion: kubecm.io/v1alpha1
+kind: Role
+metadata:
+  name: contexts-role
+contexts:
+  - fragment: eks-prod
+  - fragment: eks-staging
+`)
+
+	// context with user override (static provider)
+	writeFile(t, filepath.Join(dir, "roles", "user-override-role.yaml"), `
+apiVersion: kubecm.io/v1alpha1
+kind: Role
+metadata:
+  name: user-override-role
+contexts:
+  - fragment: static-cluster
+    user: admin
+`)
+
+	// Same fragment with different users
+	writeFile(t, filepath.Join(dir, "roles", "multi-user-role.yaml"), `
+apiVersion: kubecm.io/v1alpha1
+kind: Role
+metadata:
+  name: multi-user-role
+contexts:
+  - fragment: eks-prod
+    user: admin
+    name: prod-admin
+  - fragment: eks-prod
+    user: readonly
+    name: prod-ro
+`)
+
+	// Duplicate context names (should fail validation) - uses deprecated fragment: field
+	writeFile(t, filepath.Join(dir, "roles", "duplicate-role.yaml"), `
+apiVersion: kubecm.io/v1alpha1
+kind: Role
+metadata:
+  name: duplicate-role
+contexts:
+  - fragment: eks-prod
+    user: admin
+  - fragment: eks-prod
+    user: readonly
+`)
+
+	// --- Roles using new cluster: field ---
+
+	// contexts: format with new cluster: field (no users)
+	writeFile(t, filepath.Join(dir, "roles", "contexts-cluster-role.yaml"), `
+apiVersion: kubecm.io/v1alpha1
+kind: Role
+metadata:
+  name: contexts-cluster-role
+contexts:
+  - cluster: eks-prod
+  - cluster: eks-staging
+`)
+
+	// Same cluster with different users using new cluster: field
+	writeFile(t, filepath.Join(dir, "roles", "multi-user-cluster-role.yaml"), `
+apiVersion: kubecm.io/v1alpha1
+kind: Role
+metadata:
+  name: multi-user-cluster-role
+contexts:
+  - cluster: eks-prod
+    user: admin
+    name: prod-admin
+  - cluster: eks-prod
+    user: readonly
+    name: prod-ro
+`)
+
+	// Duplicate context names using new cluster: field
+	writeFile(t, filepath.Join(dir, "roles", "duplicate-cluster-role.yaml"), `
+apiVersion: kubecm.io/v1alpha1
+kind: Role
+metadata:
+  name: duplicate-cluster-role
+contexts:
+  - cluster: eks-prod
+    user: admin
+  - cluster: eks-prod
+    user: readonly
+`)
+
+	return dir
+}
+
+// --- Tests using new cluster: field (new API) ---
+
+func TestSync_ContextsClusterField(t *testing.T) {
+	dir := setupTestRegistryWithUsers(t)
+
+	entry := &RegistryEntry{
+		Name: "test",
+		Role: "contexts-cluster-role",
+	}
+	currentConfig := clientcmdapi.NewConfig()
+
+	result, err := Sync(dir, entry, currentConfig, false)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(result.Added) != 2 {
+		t.Errorf("expected 2 added contexts, got %d: %v", len(result.Added), result.Added)
+	}
+
+	if _, ok := currentConfig.Contexts["eks-prod"]; !ok {
+		t.Errorf("expected context 'eks-prod', got: %v", contextNames(currentConfig))
+	}
+	if _, ok := currentConfig.Contexts["eks-staging"]; !ok {
+		t.Errorf("expected context 'eks-staging', got: %v", contextNames(currentConfig))
+	}
+}
+
+func TestSync_SameClusterDifferentUsers(t *testing.T) {
+	dir := setupTestRegistryWithUsers(t)
+
+	entry := &RegistryEntry{
+		Name: "test",
+		Role: "multi-user-cluster-role",
+	}
+	currentConfig := clientcmdapi.NewConfig()
+
+	result, err := Sync(dir, entry, currentConfig, false)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(result.Added) != 2 {
+		t.Errorf("expected 2 added contexts, got %d: %v", len(result.Added), result.Added)
+	}
+
+	if _, ok := currentConfig.Contexts["prod-admin"]; !ok {
+		t.Errorf("expected context 'prod-admin', got: %v", contextNames(currentConfig))
+	}
+	if _, ok := currentConfig.Contexts["prod-ro"]; !ok {
+		t.Errorf("expected context 'prod-ro', got: %v", contextNames(currentConfig))
+	}
+}
+
+func TestSync_DuplicateClusterNameError(t *testing.T) {
+	dir := setupTestRegistryWithUsers(t)
+
+	entry := &RegistryEntry{
+		Name: "test",
+		Role: "duplicate-cluster-role",
+	}
+	currentConfig := clientcmdapi.NewConfig()
+
+	_, err := Sync(dir, entry, currentConfig, false)
+	if err == nil {
+		t.Error("expected error for duplicate context names with cluster: field")
+	}
+}
+
 func TestFormatSyncResult(t *testing.T) {
 	r := &SyncResult{
 		Added:   []string{"ctx1"},

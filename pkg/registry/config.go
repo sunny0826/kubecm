@@ -143,18 +143,43 @@ func LoadRole(repoDir, roleName string) (*Role, error) {
 	return &role, nil
 }
 
-// LoadFragment reads fragments/<name>.yaml from a cloned registry repo.
-func LoadFragment(repoDir, fragmentName string) (*Fragment, error) {
-	path := filepath.Join(repoDir, "fragments", fragmentName+".yaml")
+// LoadCluster reads clusters/<name>.yaml from a cloned registry repo.
+// Falls back to fragments/<name>.yaml for backward compatibility.
+func LoadCluster(repoDir, clusterName string) (*Cluster, error) {
+	path := filepath.Join(repoDir, "clusters", clusterName+".yaml")
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("reading fragment %q: %w", fragmentName, err)
+		// Fallback to legacy fragments/ directory
+		path = filepath.Join(repoDir, "fragments", clusterName+".yaml")
+		data, err = os.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("reading cluster %q: %w", clusterName, err)
+		}
 	}
-	var frag Fragment
-	if err := yaml.Unmarshal(data, &frag); err != nil {
-		return nil, fmt.Errorf("parsing fragment %q: %w", fragmentName, err)
+	var cl Cluster
+	if err := yaml.Unmarshal(data, &cl); err != nil {
+		return nil, fmt.Errorf("parsing cluster %q: %w", clusterName, err)
 	}
-	return &frag, nil
+	return &cl, nil
+}
+
+// LoadFragment is a deprecated alias for LoadCluster.
+func LoadFragment(repoDir, fragmentName string) (*Fragment, error) {
+	return LoadCluster(repoDir, fragmentName)
+}
+
+// LoadUser reads users/<name>.yaml from a cloned registry repo.
+func LoadUser(repoDir, userName string) (*User, error) {
+	path := filepath.Join(repoDir, "users", userName+".yaml")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("reading user %q: %w", userName, err)
+	}
+	var u User
+	if err := yaml.Unmarshal(data, &u); err != nil {
+		return nil, fmt.Errorf("parsing user %q: %w", userName, err)
+	}
+	return &u, nil
 }
 
 func homeDir() (string, error) {
