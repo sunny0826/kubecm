@@ -18,7 +18,7 @@ type SyncResult struct {
 }
 
 // Sync performs a full registry sync for the given entry.
-// It loads the role, resolves each fragment, and returns
+// It loads the role, resolves each cluster, and returns
 // the merged kubeconfig changes + updated managed contexts list.
 func Sync(repoDir string, entry *RegistryEntry, currentConfig *clientcmdapi.Config, dryRun bool) (*SyncResult, error) {
 	role, err := LoadRole(repoDir, entry.Role)
@@ -33,28 +33,55 @@ func Sync(repoDir string, entry *RegistryEntry, currentConfig *clientcmdapi.Conf
 		managedSet[ctx] = true
 	}
 
-	for _, fragName := range role.Fragments {
-		frag, err := LoadFragment(repoDir, fragName)
+	// Validate role contexts before processing
+	if err := ValidateRoleContexts(role); err != nil {
+		return nil, fmt.Errorf("validating role: %w", err)
+	}
+
+	for _, rc := range role.NormalizedContexts() {
+		clusterRef := rc.ClusterRef()
+
+		cl, err := LoadCluster(repoDir, clusterRef)
 		if err != nil {
-			result.Errors = append(result.Errors, fmt.Sprintf("loading fragment %q: %v", fragName, err))
+			result.Errors = append(result.Errors, fmt.Sprintf("loading cluster %q: %v", clusterRef, err))
 			continue
 		}
 
-		// Apply template variables
-		if err := ResolveFragmentTemplates(frag, entry.Variables); err != nil {
-			result.Errors = append(result.Errors, fmt.Sprintf("template %q: %v", fragName, err))
+		// Apply template variables to cluster
+		if err := ResolveClusterTemplates(cl, entry.Variables); err != nil {
+			result.Errors = append(result.Errors, fmt.Sprintf("template %q: %v", clusterRef, err))
 			continue
 		}
 
-		// Resolve fragment -> kubeconfig
-		fragConfig, err := ResolveFragment(frag)
+		// Load and template user if specified
+		var user *User
+		if rc.User != "" {
+			user, err = LoadUser(repoDir, rc.User)
+			if err != nil {
+				result.Errors = append(result.Errors, fmt.Sprintf("loading user %q: %v", rc.User, err))
+				continue
+			}
+			if err := ResolveUserTemplates(user, entry.Variables); err != nil {
+				result.Errors = append(result.Errors, fmt.Sprintf("template user %q: %v", rc.User, err))
+				continue
+			}
+		}
+
+		// Resolve cluster with optional user override
+		clConfig, err := ResolveClusterWithUser(cl, user)
 		if err != nil {
-			result.Errors = append(result.Errors, fmt.Sprintf("resolving %q: %v", fragName, err))
+			result.Errors = append(result.Errors, fmt.Sprintf("resolving %q: %v", clusterRef, err))
 			continue
 		}
 
-		// Merge fragment kubeconfig into current config with prefix
-		mergeFragmentConfig(currentConfig, fragConfig, role.ContextPrefix, frag.Metadata.Name, managedSet, newContexts, result, dryRun)
+		// Use explicit name if provided, otherwise cluster ref
+		contextName := clusterRef
+		if rc.Name != "" {
+			contextName = rc.Name
+		}
+
+		// Merge cluster kubeconfig into current config with prefix
+		mergeClusterConfig(currentConfig, clConfig, role.ContextPrefix, contextName, managedSet, newContexts, result, dryRun)
 	}
 
 	// Remove stale managed contexts (in managedSet but not in newContexts)
@@ -83,24 +110,24 @@ func Sync(repoDir string, entry *RegistryEntry, currentConfig *clientcmdapi.Conf
 	return result, nil
 }
 
-// mergeFragmentConfig merges a single fragment's kubeconfig into the current config.
-func mergeFragmentConfig(
+// mergeClusterConfig merges a single cluster's kubeconfig into the current config.
+func mergeClusterConfig(
 	current *clientcmdapi.Config,
-	fragConfig *clientcmdapi.Config,
+	clConfig *clientcmdapi.Config,
 	contextPrefix string,
-	fragmentName string,
+	clusterName string,
 	managedSet map[string]bool,
 	newContexts map[string]bool,
 	result *SyncResult,
 	dryRun bool,
 ) {
-	for origCtxName, ctx := range fragConfig.Contexts {
+	for origCtxName, ctx := range clConfig.Contexts {
 		// Build prefixed context name
-		ctxName := buildContextName(contextPrefix, fragmentName, origCtxName)
+		ctxName := buildContextName(contextPrefix, clusterName, origCtxName)
 		newContexts[ctxName] = true
 
 		// Build prefixed cluster and user names
-		clusterName := ctxName
+		clName := ctxName
 		userName := ctxName
 
 		// Check for conflicts
@@ -121,18 +148,18 @@ func mergeFragmentConfig(
 		}
 
 		// Copy cluster data with new name
-		if origCluster, ok := fragConfig.Clusters[ctx.Cluster]; ok {
-			current.Clusters[clusterName] = origCluster
+		if origCluster, ok := clConfig.Clusters[ctx.Cluster]; ok {
+			current.Clusters[clName] = origCluster
 		}
 
 		// Copy user data with new name
-		if origUser, ok := fragConfig.AuthInfos[ctx.AuthInfo]; ok {
+		if origUser, ok := clConfig.AuthInfos[ctx.AuthInfo]; ok {
 			current.AuthInfos[userName] = origUser
 		}
 
 		// Create context with new names
 		current.Contexts[ctxName] = &clientcmdapi.Context{
-			Cluster:   clusterName,
+			Cluster:   clName,
 			AuthInfo:  userName,
 			Namespace: ctx.Namespace,
 		}
@@ -140,12 +167,12 @@ func mergeFragmentConfig(
 }
 
 // buildContextName creates the full context name with prefix.
-// Format: <prefix>-<fragmentName>, or just <fragmentName> if no prefix.
-func buildContextName(prefix, fragmentName, _ string) string {
+// Format: <prefix>-<name>, or just <name> if no prefix.
+func buildContextName(prefix, name, _ string) string {
 	if prefix == "" {
-		return fragmentName
+		return name
 	}
-	return prefix + "-" + fragmentName
+	return prefix + "-" + name
 }
 
 // removeContext removes a context and its cluster/user if not referenced elsewhere.
@@ -155,7 +182,7 @@ func removeContext(config *clientcmdapi.Config, ctxName string) {
 		return
 	}
 
-	clusterName := ctx.Cluster
+	clName := ctx.Cluster
 	userName := ctx.AuthInfo
 
 	delete(config.Contexts, ctxName)
@@ -164,7 +191,7 @@ func removeContext(config *clientcmdapi.Config, ctxName string) {
 	clusterUsed := false
 	userUsed := false
 	for _, c := range config.Contexts {
-		if c.Cluster == clusterName {
+		if c.Cluster == clName {
 			clusterUsed = true
 		}
 		if c.AuthInfo == userName {
@@ -172,11 +199,33 @@ func removeContext(config *clientcmdapi.Config, ctxName string) {
 		}
 	}
 	if !clusterUsed {
-		delete(config.Clusters, clusterName)
+		delete(config.Clusters, clName)
 	}
 	if !userUsed {
 		delete(config.AuthInfos, userName)
 	}
+}
+
+// ValidateRoleContexts checks that a role's contexts produce unique names.
+// It returns an error if the same context name would appear twice.
+func ValidateRoleContexts(role *Role) error {
+	contexts := role.NormalizedContexts()
+	if len(contexts) == 0 {
+		return fmt.Errorf("role %q has no clusters or contexts defined", role.Metadata.Name)
+	}
+	seen := make(map[string]bool)
+	for _, rc := range contexts {
+		name := rc.ClusterRef()
+		if rc.Name != "" {
+			name = rc.Name
+		}
+		fullName := buildContextName(role.ContextPrefix, name, "")
+		if seen[fullName] {
+			return fmt.Errorf("role %q: duplicate context name %q (use the name: field to disambiguate)", role.Metadata.Name, fullName)
+		}
+		seen[fullName] = true
+	}
+	return nil
 }
 
 // FormatSyncResult returns a human-readable summary.

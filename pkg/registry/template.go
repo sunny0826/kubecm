@@ -13,7 +13,7 @@ func ResolveTemplate(text string, vars map[string]string) (string, error) {
 		return text, nil
 	}
 
-	tmpl, err := template.New("fragment").Option("missingkey=error").Parse(text)
+	tmpl, err := template.New("cluster").Option("missingkey=error").Parse(text)
 	if err != nil {
 		return "", fmt.Errorf("parsing template: %w", err)
 	}
@@ -25,46 +25,74 @@ func ResolveTemplate(text string, vars map[string]string) (string, error) {
 	return buf.String(), nil
 }
 
-// ResolveFragmentTemplates applies template variables to all string fields in a Fragment.
-func ResolveFragmentTemplates(frag *Fragment, vars map[string]string) error {
+// ResolveClusterTemplates applies template variables to all string fields in a Cluster.
+func ResolveClusterTemplates(cl *Cluster, vars map[string]string) error {
 	if len(vars) == 0 {
 		return nil
 	}
 
 	var err error
 
-	if frag.AWS != nil {
-		if frag.AWS.Region, err = ResolveTemplate(frag.AWS.Region, vars); err != nil {
+	if cl.AWS != nil {
+		if cl.AWS.Region, err = ResolveTemplate(cl.AWS.Region, vars); err != nil {
 			return fmt.Errorf("aws.region: %w", err)
 		}
-		if frag.AWS.Cluster, err = ResolveTemplate(frag.AWS.Cluster, vars); err != nil {
+		if cl.AWS.Cluster, err = ResolveTemplate(cl.AWS.Cluster, vars); err != nil {
 			return fmt.Errorf("aws.cluster: %w", err)
 		}
-		if frag.AWS.Profile, err = ResolveTemplate(frag.AWS.Profile, vars); err != nil {
+		if cl.AWS.Profile, err = ResolveTemplate(cl.AWS.Profile, vars); err != nil {
 			return fmt.Errorf("aws.profile: %w", err)
 		}
 	}
 
-	if frag.Azure != nil {
-		if frag.Azure.SubscriptionID, err = ResolveTemplate(frag.Azure.SubscriptionID, vars); err != nil {
+	if cl.Azure != nil {
+		if cl.Azure.SubscriptionID, err = ResolveTemplate(cl.Azure.SubscriptionID, vars); err != nil {
 			return fmt.Errorf("azure.subscriptionId: %w", err)
 		}
-		if frag.Azure.ResourceGroup, err = ResolveTemplate(frag.Azure.ResourceGroup, vars); err != nil {
+		if cl.Azure.ResourceGroup, err = ResolveTemplate(cl.Azure.ResourceGroup, vars); err != nil {
 			return fmt.Errorf("azure.resourceGroup: %w", err)
 		}
-		if frag.Azure.Cluster, err = ResolveTemplate(frag.Azure.Cluster, vars); err != nil {
+		if cl.Azure.Cluster, err = ResolveTemplate(cl.Azure.Cluster, vars); err != nil {
 			return fmt.Errorf("azure.cluster: %w", err)
 		}
-		if frag.Azure.TenantID, err = ResolveTemplate(frag.Azure.TenantID, vars); err != nil {
+		if cl.Azure.TenantID, err = ResolveTemplate(cl.Azure.TenantID, vars); err != nil {
 			return fmt.Errorf("azure.tenantId: %w", err)
 		}
 	}
 
-	if frag.Kubeconfig != "" {
-		if frag.Kubeconfig, err = ResolveTemplate(frag.Kubeconfig, vars); err != nil {
+	if cl.Kubeconfig != "" {
+		if cl.Kubeconfig, err = ResolveTemplate(cl.Kubeconfig, vars); err != nil {
 			return fmt.Errorf("kubeconfig: %w", err)
 		}
 	}
 
 	return nil
+}
+
+// ResolveUserTemplates applies template variables to all string fields in a User.
+func ResolveUserTemplates(u *User, vars map[string]string) error {
+	if len(vars) == 0 {
+		return nil
+	}
+
+	var err error
+
+	if u.AWS != nil {
+		if u.AWS.Profile, err = ResolveTemplate(u.AWS.Profile, vars); err != nil {
+			return fmt.Errorf("aws.profile: %w", err)
+		}
+	}
+
+	if u.Azure != nil {
+		if u.Azure.TenantID, err = ResolveTemplate(u.Azure.TenantID, vars); err != nil {
+			return fmt.Errorf("azure.tenantId: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// ResolveFragmentTemplates is a deprecated alias for ResolveClusterTemplates.
+func ResolveFragmentTemplates(cl *Cluster, vars map[string]string) error {
+	return ResolveClusterTemplates(cl, vars)
 }

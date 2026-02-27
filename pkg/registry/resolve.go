@@ -8,70 +8,119 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-// ResolveFragment fetches the kubeconfig for a fragment by calling
-// the appropriate cloud provider API or parsing static kubeconfig.
-func ResolveFragment(frag *Fragment) (*clientcmdapi.Config, error) {
-	switch frag.Provider {
+// ResolveClusterWithUser resolves a cluster, optionally overriding
+// credentials with a User definition. If user is nil, behaves like ResolveCluster.
+func ResolveClusterWithUser(cl *Cluster, user *User) (*clientcmdapi.Config, error) {
+	if user == nil {
+		return ResolveCluster(cl)
+	}
+	if user.Provider != cl.Provider {
+		return nil, fmt.Errorf("provider mismatch: cluster %q is %q but user %q is %q",
+			cl.Metadata.Name, cl.Provider, user.Metadata.Name, user.Provider)
+	}
+	merged := cloneCluster(cl)
+	switch user.Provider {
 	case "aws":
-		return resolveAWS(frag)
+		if user.AWS != nil {
+			if merged.AWS == nil {
+				merged.AWS = &AWSClusterConfig{}
+			}
+			merged.AWS.Profile = user.AWS.Profile
+		}
 	case "azure":
-		return resolveAzure(frag)
+		if user.Azure != nil {
+			if merged.Azure == nil {
+				merged.Azure = &AzureClusterConfig{}
+			}
+			merged.Azure.TenantID = user.Azure.TenantID
+		}
+	}
+	return ResolveCluster(merged)
+}
+
+// cloneCluster returns a shallow copy of the cluster with deep-copied
+// provider sections so mutations don't affect the original.
+func cloneCluster(cl *Cluster) *Cluster {
+	c := *cl
+	if cl.AWS != nil {
+		cp := *cl.AWS
+		c.AWS = &cp
+	}
+	if cl.Azure != nil {
+		cp := *cl.Azure
+		c.Azure = &cp
+	}
+	return &c
+}
+
+// ResolveCluster fetches the kubeconfig for a cluster by calling
+// the appropriate cloud provider API or parsing static kubeconfig.
+func ResolveCluster(cl *Cluster) (*clientcmdapi.Config, error) {
+	switch cl.Provider {
+	case "aws":
+		return resolveAWS(cl)
+	case "azure":
+		return resolveAzure(cl)
 	case "static":
-		return resolveStatic(frag)
+		return resolveStatic(cl)
 	default:
-		return nil, fmt.Errorf("unsupported provider %q in fragment %q", frag.Provider, frag.Metadata.Name)
+		return nil, fmt.Errorf("unsupported provider %q in cluster %q", cl.Provider, cl.Metadata.Name)
 	}
 }
 
-func resolveAWS(frag *Fragment) (*clientcmdapi.Config, error) {
-	if frag.AWS == nil {
-		return nil, fmt.Errorf("fragment %q: provider is aws but aws section is missing", frag.Metadata.Name)
+func resolveAWS(cl *Cluster) (*clientcmdapi.Config, error) {
+	if cl.AWS == nil {
+		return nil, fmt.Errorf("cluster %q: provider is aws but aws section is missing", cl.Metadata.Name)
 	}
 
 	a := cloud.AWS{
 		AuthMode: cloud.AWSAuthDefault,
-		Profile:  frag.AWS.Profile,
-		RegionID: frag.AWS.Region,
+		Profile:  cl.AWS.Profile,
+		RegionID: cl.AWS.Region,
 	}
 
-	cfg, err := a.GetKubeConfigObj(frag.AWS.Cluster)
+	cfg, err := a.GetKubeConfigObj(cl.AWS.Cluster)
 	if err != nil {
-		return nil, fmt.Errorf("fragment %q: aws: %w", frag.Metadata.Name, err)
+		return nil, fmt.Errorf("cluster %q: aws: %w", cl.Metadata.Name, err)
 	}
 	return cfg, nil
 }
 
-func resolveAzure(frag *Fragment) (*clientcmdapi.Config, error) {
-	if frag.Azure == nil {
-		return nil, fmt.Errorf("fragment %q: provider is azure but azure section is missing", frag.Metadata.Name)
+func resolveAzure(cl *Cluster) (*clientcmdapi.Config, error) {
+	if cl.Azure == nil {
+		return nil, fmt.Errorf("cluster %q: provider is azure but azure section is missing", cl.Metadata.Name)
 	}
 
 	a := cloud.Azure{
 		AuthMode:       cloud.AuthModeDefault,
-		SubscriptionID: frag.Azure.SubscriptionID,
-		TenantID:       frag.Azure.TenantID,
+		SubscriptionID: cl.Azure.SubscriptionID,
+		TenantID:       cl.Azure.TenantID,
 	}
 
-	data, err := a.GetKubeConfig(frag.Azure.Cluster, frag.Azure.ResourceGroup)
+	data, err := a.GetKubeConfig(cl.Azure.Cluster, cl.Azure.ResourceGroup)
 	if err != nil {
-		return nil, fmt.Errorf("fragment %q: azure: %w", frag.Metadata.Name, err)
+		return nil, fmt.Errorf("cluster %q: azure: %w", cl.Metadata.Name, err)
 	}
 
 	cfg, err := clientcmd.Load(data)
 	if err != nil {
-		return nil, fmt.Errorf("fragment %q: parsing azure kubeconfig: %w", frag.Metadata.Name, err)
+		return nil, fmt.Errorf("cluster %q: parsing azure kubeconfig: %w", cl.Metadata.Name, err)
 	}
 	return cfg, nil
 }
 
-func resolveStatic(frag *Fragment) (*clientcmdapi.Config, error) {
-	if frag.Kubeconfig == "" {
-		return nil, fmt.Errorf("fragment %q: provider is static but kubeconfig is empty", frag.Metadata.Name)
+func resolveStatic(cl *Cluster) (*clientcmdapi.Config, error) {
+	if cl.Kubeconfig == "" {
+		return nil, fmt.Errorf("cluster %q: provider is static but kubeconfig is empty", cl.Metadata.Name)
 	}
 
-	cfg, err := clientcmd.Load([]byte(frag.Kubeconfig))
+	cfg, err := clientcmd.Load([]byte(cl.Kubeconfig))
 	if err != nil {
-		return nil, fmt.Errorf("fragment %q: parsing static kubeconfig: %w", frag.Metadata.Name, err)
+		return nil, fmt.Errorf("cluster %q: parsing static kubeconfig: %w", cl.Metadata.Name, err)
 	}
 	return cfg, nil
 }
+
+// Deprecated aliases for backward compatibility.
+var ResolveFragment = ResolveCluster
+var ResolveFragmentWithUser = ResolveClusterWithUser

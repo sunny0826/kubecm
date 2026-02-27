@@ -3,14 +3,14 @@
 
 `kubecm registry` is a Git-backed kubeconfig distribution system for team-based cluster management.
 
-In multi-team environments, each team needs a different subset of Kubernetes clusters with different access levels. Instead of manually running `kubecm cloud add` for every cluster, a central Git repository declares clusters as lightweight **fragments** organized by **role**. At sync time, kubecm calls the cloud provider API to fetch the full kubeconfig — **no secrets are stored in Git**.
+In multi-team environments, each team needs a different subset of Kubernetes clusters with different access levels. Instead of manually running `kubecm cloud add` for every cluster, a central Git repository declares clusters organized by **role**, with optional **user** definitions for shared credentials. At sync time, kubecm calls the cloud provider API to fetch the full kubeconfig — **no secrets are stored in Git**.
 
 ## How it works
 
-1. A Git repository contains a `registry.yaml`, roles, and fragments
+1. A Git repository contains a `registry.yaml`, roles, clusters, and optional users
 2. Each team member runs `kubecm registry add` to clone and sync
 3. `kubecm registry sync` pulls the latest changes and updates the kubeconfig
-4. Stale contexts are automatically removed when fragments are removed from a role
+4. Stale contexts are automatically removed when clusters are removed from a role
 
 ## Repository structure
 
@@ -18,21 +18,24 @@ In multi-team environments, each team needs a different subset of Kubernetes clu
 my-kubeconfig-registry/
   registry.yaml             # metadata + template variables
   roles/
-    devops.yaml             # role = list of fragments
+    devops.yaml             # role = list of clusters + optional user bindings
     backend.yaml
     readonly.yaml
-  fragments/
-    eks-prod-eu.yaml        # AWS EKS fragment
+  clusters/
+    eks-prod-eu.yaml        # AWS EKS cluster
     eks-staging-eu.yaml
-    aks-prod.yaml           # Azure AKS fragment
-    onprem-dc1.yaml         # static (on-prem) fragment
+    aks-prod.yaml           # Azure AKS cluster
+    onprem-dc1.yaml         # static (on-prem) cluster
+  users/                    # optional: reusable credential definitions
+    admin.yaml
+    readonly.yaml
 ```
 
 ## File templates
 
 ### registry.yaml
 
-The root configuration file. Defines the registry name and template variables that can be used in fragments via Go templates (`{{ .VariableName }}`).
+The root configuration file. Defines the registry name and template variables that can be used in clusters via Go templates (`{{ .VariableName }}`).
 
 ```yaml
 apiVersion: kubecm.io/v1alpha1
@@ -52,7 +55,11 @@ variables:
 
 ### Role file (roles/devops.yaml)
 
-A role defines which fragments (clusters) are available to a team. The optional `contextPrefix` is prepended to context names in the kubeconfig.
+A role defines which clusters are available to a team. The optional `contextPrefix` is prepended to context names in the kubeconfig.
+
+#### Simple format
+
+The simplest role lists clusters directly:
 
 ```yaml
 apiVersion: kubecm.io/v1alpha1
@@ -60,37 +67,98 @@ kind: Role
 metadata:
   name: devops
   description: "Full access to all clusters"
-contextPrefix: "mycompany"    # optional: contexts become mycompany-<fragment>
-fragments:
-  - eks-prod-eu
-  - eks-staging-eu
-  - aks-prod
-  - onprem-dc1
+contextPrefix: "mycompany"    # optional: contexts become mycompany-<cluster>
+contexts:
+  - cluster: eks-prod-eu
+  - cluster: eks-staging-eu
+  - cluster: aks-prod
+  - cluster: onprem-dc1
 ```
 
-> **Tip**: If your fragment names are already descriptive enough, omit `contextPrefix` to use fragment names directly as context names.
+> **Tip**: If your cluster names are already descriptive enough, omit `contextPrefix` to use cluster names directly as context names.
 
-### Fragment: AWS EKS (fragments/eks-prod-eu.yaml)
+#### With user overrides
 
-For AWS EKS clusters. At sync, kubecm calls `aws eks describe-cluster` using the specified profile and region.
+When the same cluster needs multiple identities (e.g. admin + readonly), bind a **user** to each entry and set a unique `name`:
 
 ```yaml
 apiVersion: kubecm.io/v1alpha1
-kind: Fragment
+kind: Role
+metadata:
+  name: devops
+contexts:
+  # Cluster with user override
+  - cluster: eks-prod-eu
+    user: admin
+    name: eks-prod-admin       # required when same cluster appears twice
+  - cluster: eks-prod-eu
+    user: readonly
+    name: eks-prod-ro
+  # Cluster without user (credentials from cluster definition)
+  - cluster: onprem-dc1
+```
+
+> **Note**: When the same cluster appears more than once, you **must** provide a `name` field to disambiguate context names.
+
+### User file (users/admin.yaml)
+
+A user defines reusable credentials that can be bound to any cluster. The user's provider must match the cluster's provider.
+
+```yaml
+apiVersion: kubecm.io/v1alpha1
+kind: User
+metadata:
+  name: admin
+provider: aws
+aws:
+  profile: "my-account/AWSAdministratorAccess"
+```
+
+```yaml
+apiVersion: kubecm.io/v1alpha1
+kind: User
+metadata:
+  name: azure-admin
+provider: azure
+azure:
+  tenantId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+```
+
+When a user is bound to a cluster, the user's credentials override the cluster's. This allows separating cluster topology (region, cluster name) from authentication (profile, tenant).
+
+Template variables are supported in user fields:
+
+```yaml
+apiVersion: kubecm.io/v1alpha1
+kind: User
+metadata:
+  name: team-admin
+provider: aws
+aws:
+  profile: "{{ .AWSProfile }}"
+```
+
+### Cluster: AWS EKS (clusters/eks-prod-eu.yaml)
+
+For AWS EKS clusters. At sync, kubecm calls `aws eks describe-cluster` using the specified profile and region. When a user is bound, the user's profile takes precedence.
+
+```yaml
+apiVersion: kubecm.io/v1alpha1
+kind: Cluster
 metadata:
   name: eks-prod-eu
 provider: aws
 aws:
   region: eu-central-1
   cluster: my-eks-cluster
-  profile: "my-account/AWSAdministratorAccess"
+  profile: "my-account/AWSAdministratorAccess"   # can be omitted if using a user
 ```
 
 Template variables are supported in all fields:
 
 ```yaml
 apiVersion: kubecm.io/v1alpha1
-kind: Fragment
+kind: Cluster
 metadata:
   name: eks-dev
 provider: aws
@@ -100,13 +168,13 @@ aws:
   profile: "{{ .AWSProfile }}"
 ```
 
-### Fragment: Azure AKS (fragments/aks-prod.yaml)
+### Cluster: Azure AKS (clusters/aks-prod.yaml)
 
 For Azure AKS clusters. At sync, kubecm fetches credentials via the Azure SDK.
 
 ```yaml
 apiVersion: kubecm.io/v1alpha1
-kind: Fragment
+kind: Cluster
 metadata:
   name: aks-prod
 provider: azure
@@ -114,16 +182,16 @@ azure:
   subscriptionId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
   resourceGroup: "rg-prod"
   cluster: "aks-prod"
-  tenantId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"    # optional
+  tenantId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"    # can be omitted if using a user
 ```
 
-### Fragment: Static / On-prem (fragments/onprem-dc1.yaml)
+### Cluster: Static / On-prem (clusters/onprem-dc1.yaml)
 
 For clusters without a supported cloud provider. The full kubeconfig is embedded. Go template variables are supported.
 
 ```yaml
 apiVersion: kubecm.io/v1alpha1
-kind: Fragment
+kind: Cluster
 metadata:
   name: onprem-dc1
 provider: static
@@ -220,7 +288,8 @@ kubecm stores registry state in `~/.kubecm/`:
 
 | Scenario | Action |
 |----------|--------|
-| New fragment in role | Context **added** to kubeconfig |
+| New cluster in role | Context **added** to kubeconfig |
 | Existing managed context | Context **updated** (registry takes authority) |
-| Fragment removed from role | Context **removed** from kubeconfig |
+| Cluster removed from role | Context **removed** from kubeconfig |
 | Context exists but not managed | **Skipped** with warning (never overwrites) |
+
