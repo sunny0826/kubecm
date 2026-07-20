@@ -65,9 +65,11 @@ jobs:
           -o bin/kubecm .
 
       - name: Setup Kind
-        uses: engineerd/setup-kind@v0.6.2
-        with:
-          version: "v0.20.0"
+        run: |
+          curl -Lo ./kind "https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64"
+          chmod +x ./kind
+          sudo mv ./kind /usr/local/bin/kind
+          kind create cluster --name kind --wait 300s
 
       - name: Setup 2nd Kind
         run: |
