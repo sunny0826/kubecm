@@ -18,7 +18,7 @@ require (
 	github.com/rancher/rancher/pkg/client v0.0.0-20211110212758-cc2b8beb1473
 	github.com/savioxavier/termlink v1.3.0
 	github.com/spf13/cobra v1.9.1
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1133
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.51
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tke v1.0.1133
 	k8s.io/api v0.31.2
 	k8s.io/apimachinery v0.31.2
@@ -40,6 +40,7 @@ require (
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -124,7 +125,6 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240228011516-70dd3763d340 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
