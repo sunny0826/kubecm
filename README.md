@@ -67,7 +67,7 @@ Be sure to follow our [Community Guidelines](https://kubecm.cloud/en-us/contribu
 
 ## 📈 Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=sunny0826/kubecm&type=Date)](https://star-history.com/#sunny0826/kubecm)
+[![Star History Chart](https://star-history.dera.page/svg?repos=sunny0826/kubecm&type=Date)](https://star-history.dera.page/#sunny0826/kubecm)
 
 ## ✨ Contributors
 
