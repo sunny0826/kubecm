@@ -45,7 +45,7 @@ By contributing, you agree that your contributions will be licensed under its [L
 
 ## Star History 📈
 
-[![Star History Chart](https://api.star-history.com/svg?repos=sunny0826/kubecm&type=Date)](https://star-history.com/#sunny0826/kubecm)
+[![Star History Chart](https://star-history.dera.page/svg?repos=sunny0826/kubecm&type=Date)](https://star-history.dera.page/#sunny0826/kubecm)
 
 ## Contributors ✨
 
