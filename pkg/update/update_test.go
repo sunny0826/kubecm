@@ -1,12 +1,45 @@
 package update
 
 import (
+	"fmt"
+	"io"
+	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
 
+type releaseTransport func(*http.Request) (*http.Response, error)
+
+func (f releaseTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
+}
+
+func stubReleaseAPI(t *testing.T) {
+	t.Helper()
+	originalClient := http.DefaultClient
+	t.Cleanup(func() { http.DefaultClient = originalClient })
+	http.DefaultClient = &http.Client{Transport: releaseTransport(func(req *http.Request) (*http.Response, error) {
+		if req.Method != http.MethodGet || req.URL.Scheme != "https" || req.URL.Host != "api.github.com" {
+			return nil, fmt.Errorf("unexpected release request: %s %s", req.Method, req.URL)
+		}
+		status := http.StatusOK
+		body := `{"tag_name":"v0.2.2","html_url":"https://github.com/sunny0826/kubectl-pod-lens/releases/tag/v0.2.2","published_at":"2021-08-29T10:19:42Z"}`
+		switch req.URL.Path {
+		case "/repos/sunny0826/kubectl-pod-lens/releases/latest":
+		case "/repos/bar/foo/releases/latest":
+			status = http.StatusNotFound
+			body = `{"message":"Not Found"}`
+		default:
+			return nil, fmt.Errorf("unexpected release path: %s", req.URL.Path)
+		}
+		return &http.Response{StatusCode: status, Body: io.NopCloser(strings.NewReader(body)), Header: make(http.Header)}, nil
+	})}
+}
+
 func Test_getLatestReleaseInfo(t *testing.T) {
+	stubReleaseAPI(t)
 	type args struct {
 		repo string
 	}
@@ -52,6 +85,7 @@ func Test_getLatestReleaseInfo(t *testing.T) {
 }
 
 func TestCheckForUpdate(t *testing.T) {
+	stubReleaseAPI(t)
 	type args struct {
 		repo           string
 		currentVersion string
