@@ -2,6 +2,7 @@
 go = "1.25.14"
 golangci-lint = "2.15.0"
 actionlint = "1.7.12"
+shellcheck = "0.11.0"
 
 [env]
 GOTOOLCHAIN = "local"

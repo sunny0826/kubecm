@@ -36,7 +36,7 @@ jobs:
 
       - uses: jdx/mise-action@v5.2.6
         with:
-          install_args: go golangci-lint actionlint
+          install_args: go golangci-lint actionlint shellcheck
 
       - name: Run test
         run: |
