@@ -24,6 +24,7 @@ type AddCommand struct {
 type KubeConfigOption struct {
 	config                *clientcmdapi.Config
 	fileName              string
+	contextName           string
 	insecureSkipTLSVerify bool
 }
 
@@ -65,7 +66,7 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 
 	if contextName != "" {
 		contextTemplate = []string{}
-		contextPrefix = contextName
+		contextPrefix = ""
 	}
 	err := validateContextTemplate(contextTemplate)
 	if err != nil {
@@ -94,15 +95,26 @@ func (ac *AddCommand) runAdd(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	err = AddToLocal(newConfig, file, contextPrefix, cover, selectContext, contextTemplate, context, insecureSkipTLSVerify)
-	if err != nil {
-		return err
+	kco := &KubeConfigOption{
+		config:                newConfig,
+		fileName:              getFileName(file),
+		contextName:           contextName,
+		insecureSkipTLSVerify: insecureSkipTLSVerify,
 	}
-	return nil
+	return kco.addToLocal(file, contextPrefix, cover, selectContext, contextTemplate, context)
 }
 
 // AddToLocal add kubeConfig to local
 func AddToLocal(newConfig *clientcmdapi.Config, path, contextPrefix string, cover bool, selectContext bool, contextTemplate []string, context []string, insecureSkipTLSVerify bool) error {
+	kco := &KubeConfigOption{
+		config:                newConfig,
+		fileName:              getFileName(path),
+		insecureSkipTLSVerify: insecureSkipTLSVerify,
+	}
+	return kco.addToLocal(path, contextPrefix, cover, selectContext, contextTemplate, context)
+}
+
+func (kc *KubeConfigOption) addToLocal(path, contextPrefix string, cover bool, selectContext bool, contextTemplate []string, context []string) error {
 	kubeconfig, err := SelectKubeconfigFile("Select The kubeconfig file to add to")
 	if err != nil {
 		return err
@@ -111,13 +123,8 @@ func AddToLocal(newConfig *clientcmdapi.Config, path, contextPrefix string, cove
 	if err != nil {
 		return err
 	}
-	kco := &KubeConfigOption{
-		config:                newConfig,
-		fileName:              getFileName(path),
-		insecureSkipTLSVerify: insecureSkipTLSVerify,
-	}
 	// merge context loop
-	outConfig, err := kco.handleContexts(oldConfig, contextPrefix, selectContext, contextTemplate, context)
+	outConfig, err := kc.handleContexts(oldConfig, contextPrefix, selectContext, contextTemplate, context)
 	if err != nil {
 		return err
 	}
@@ -151,9 +158,12 @@ func (kc *KubeConfigOption) handleContexts(oldConfig *clientcmdapi.Config, conte
 	generatedName := make(map[string]int)
 
 	for name, ctx := range kc.config.Contexts {
-		newName = kc.generateContextName(name, ctx, contextTemplate)
-		if contextPrefix != "" {
-			newName = strings.TrimSuffix(fmt.Sprintf("%s-%s", contextPrefix, newName), "-")
+		newName = kc.contextName
+		if newName == "" {
+			newName = kc.generateContextName(name, ctx, contextTemplate)
+			if contextPrefix != "" {
+				newName = strings.TrimSuffix(fmt.Sprintf("%s-%s", contextPrefix, newName), "-")
+			}
 		}
 
 		// prevent generate duplicate context name

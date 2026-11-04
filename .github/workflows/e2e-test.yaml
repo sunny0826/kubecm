@@ -81,11 +81,13 @@ jobs:
           kind create cluster --image kindest/node:v1.21.14 --name 3rd-kind --kubeconfig 3rd-kind
           kind get clusters
 
-      - name: Setup test clusters for delete range
+      - name: Setup test contexts for delete range
         run: |
-          kind create cluster --image kindest/node:v1.21.14 --name dev-foo --kubeconfig dev-foo
-          kind create cluster --image kindest/node:v1.21.14 --name foo-prod --kubeconfig foo-prod
-          kind create cluster --image kindest/node:v1.21.14 --name foo-staging-bar --kubeconfig foo-staging-bar
+          # Range deletion only needs distinct context names, not extra control planes.
+          for name in dev-foo foo-prod foo-staging-bar; do
+            cp 3rd-kind "$name"
+            bin/kubecm rename kind-3rd-kind "kind-$name" --config "$name" --silence-table
+          done
 
       - name: E2E Test
         run: |
@@ -144,7 +146,7 @@ jobs:
           echo "********************************************************************************"
           bin/kubecm d kind-kind
           echo "********************************************************************************"
-          echo "Adding kind test clusters to kubecm for delete range tests..."
+          echo "Adding test contexts to kubecm for delete range tests..."
           echo "********************************************************************************"
           bin/kubecm add -cf dev-foo
           bin/kubecm add -cf foo-prod
