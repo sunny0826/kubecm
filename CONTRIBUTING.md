@@ -22,7 +22,7 @@ mise install
 mise exec -- go version
 ```
 
-The project pins Go and validation tools in [mise.toml](mise.toml).
+The project pins Go and validation tools in [the project configuration](./mise.toml).
 Use `mise exec --` for development commands, or activate mise in your shell
 and configure your editor to use its Go installation. `go.mod` declares the
 minimum Go version; mise pins the patch version used locally and in CI.
