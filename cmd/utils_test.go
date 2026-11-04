@@ -156,7 +156,7 @@ func checkResult(want, got *clientcmdapi.Config, wantname string, t *testing.T) 
 	testClearLocationOfOrigin(got)
 
 	if !apiequality.Semantic.DeepEqual(want, got) {
-		t.Errorf("diff: %v", diff.ObjectDiff(want, got))
+		t.Errorf("diff: %v", diff.Diff(want, got))
 		t.Errorf("expected: %#v\n actual:   %#v", want, got)
 	}
 }
@@ -178,7 +178,7 @@ func testClearLocationOfOrigin(config *clientcmdapi.Config) {
 
 func testSetNilMapsToEmpties(curr reflect.Value) {
 	actualCurrValue := curr
-	if curr.Kind() == reflect.Ptr {
+	if curr.Kind() == reflect.Pointer {
 		actualCurrValue = curr.Elem()
 	}
 
@@ -411,7 +411,7 @@ func TestCheckValidContext(t *testing.T) {
 
 func checkConfig(want, got *clientcmdapi.Config, t *testing.T) {
 	if !apiequality.Semantic.DeepEqual(want, got) {
-		t.Errorf("diff: %v", diff.ObjectDiff(want, got))
+		t.Errorf("diff: %v", diff.Diff(want, got))
 		t.Errorf("expected: %#v\n actual:   %#v", want, got)
 	}
 }
@@ -444,7 +444,7 @@ func Test_getFileName(t *testing.T) {
 
 func TestMoreInfo(t *testing.T) {
 	// Create a fake client with mock objects
-	var clientSet kubernetes.Interface = fake.NewSimpleClientset(
+	var clientSet kubernetes.Interface = fake.NewClientset(
 		&corev1.Node{},
 		&corev1.Pod{ObjectMeta: metav1.ObjectMeta{Name: "test-pod", Namespace: "default"}},
 		&corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "test-namespace"}},

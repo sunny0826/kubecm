@@ -20,9 +20,9 @@ jobs:
       - name: Fetch all tags
         run: git fetch --force --tags
       - name: Set up Go
-        uses: actions/setup-go@v7
+        uses: jdx/mise-action@v5.2.6
         with:
-          go-version-file: go.mod
+          install_args: go
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v7
         with:

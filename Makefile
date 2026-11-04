@@ -66,8 +66,8 @@ fmt:
 vet:
 	go vet ./...
 
-lint: golangci
-	$(GOLANGCILINT) run ./...
+lint:
+	mise exec -- golangci-lint run ./...
 
 test: fmt vet
 		go test -race -coverprofile=coverage.txt -covermode=atomic ./cmd/...
@@ -96,25 +96,8 @@ endif
 doc-run:
 	docsify serve docs
 
-GOLANGCILINT_VERSION ?= v1.52.2
-HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
-HOSTARCH := $(shell uname -m)
-ifeq ($(HOSTARCH),x86_64)
-HOSTARCH := amd64
-endif
-
 golangci:
-ifeq (, $(shell which golangci-lint))
-	@{ \
-	set -e ;\
-	echo 'installing golangci-lint-$(GOLANGCILINT_VERSION)' ;\
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOBIN) $(GOLANGCILINT_VERSION) ;\
-	echo 'Install succeed' ;\
-	}
-GOLANGCILINT=$(GOBIN)/golangci-lint
-else
-GOLANGCILINT=$(shell which golangci-lint)
-endif
+	mise install golangci-lint
 
 goreleaser-snapshot:
 	goreleaser build --single-target --snapshot --rm-dist

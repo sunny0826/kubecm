@@ -1,0 +1,7 @@
+[tools]
+go = "1.25.14"
+golangci-lint = "2.15.0"
+actionlint = "1.7.12"
+
+[env]
+GOTOOLCHAIN = "local"

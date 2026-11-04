@@ -11,7 +11,7 @@ import (
 
 func TestCreateRoleBinding(t *testing.T) {
 	// Create a fake clientset
-	clientset := fake.NewSimpleClientset()
+	clientset := fake.NewClientset()
 
 	// Create a CreateOptions instance
 	co := &CreateOptions{

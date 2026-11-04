@@ -175,7 +175,7 @@ func TestGetNamespaceList(t *testing.T) {
 
 // mockKubernetesClientSet creates a mock clientset that contains the provided namespaces.
 func mockKubernetesClientSet(namespaces []string) kubernetes.Interface {
-	clientset := fake.NewSimpleClientset()
+	clientset := fake.NewClientset()
 
 	for _, ns := range namespaces {
 		namespace := &corev1.Namespace{
@@ -194,7 +194,7 @@ func mockKubernetesClientSet(namespaces []string) kubernetes.Interface {
 
 func TestGetClientSet(t *testing.T) {
 	// Create a fake clientset
-	clientset := fake.NewSimpleClientset()
+	clientset := fake.NewClientset()
 
 	// Create a namespace object
 	namespace := &corev1.Namespace{
