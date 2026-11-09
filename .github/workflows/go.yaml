@@ -34,7 +34,7 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v7
 
-      - uses: jdx/mise-action@v5.2.6
+      - uses: jdx/mise-action@v5.2.7
         with:
           install_args: go golangci-lint actionlint shellcheck
 

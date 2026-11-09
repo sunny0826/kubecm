@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Setup Go
-        uses: jdx/mise-action@v5.2.6
+        uses: jdx/mise-action@v5.2.7
         with:
           install_args: go
 
@@ -55,7 +55,7 @@ jobs:
         run: echo "date=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
 
       - name: Setup Go
-        uses: jdx/mise-action@v5.2.6
+        uses: jdx/mise-action@v5.2.7
         with:
           install_args: go
 
